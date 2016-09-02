@@ -1,6 +1,6 @@
 #ifndef _MACHINE_TCB_H_
 #define _MACHINE_TCB_H_
-#include <stdint.h>
+#include <ktypes.h>
 /**
  * Thread control blocks definitions,
  * including registers and 

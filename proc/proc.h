@@ -2,6 +2,7 @@
 #define _PROC_H_
 
 #include "tcb.h"
+#include <ktypes.h>
 /*
  * Kernel runnable context (thread).
  * This is what is put to sleep and reactivated.
@@ -10,7 +11,7 @@
 struct thread
 {
 	struct list_head	t_list;	//List of all threads
-	struct mtx		t_mtx;	//Thread struct lock
+	struct mutex		t_mutex;	//Thread struct lock
 	tid_t			t_tid;	//Thread ID
 	
 	struct tcb		*t_tcb;	//Thread control blocks(machine-dependent)
@@ -31,7 +32,7 @@ struct proc
 {
 	struct list_head	p_plist;	//List of all processes
 	struct thread		*p_threads;	//Thread list entry
-	struct mtx		p_mtx;		//Process struct lock
+	struct mutex		p_mutex;		//Process struct lock
 	pid_t			p_pid;		//Process ID
 	uid_t			p_uid;		//User ID
 	struct proc		*p_parent;	//Parent Process
