@@ -1,6 +1,7 @@
 #ifndef _PROC_H_
 #define _PROC_H_
 
+#include "tcb.h"
 /*
  * Kernel runnable context (thread).
  * This is what is put to sleep and reactivated.
@@ -12,6 +13,7 @@ struct thread
 	struct mtx		t_mtx;	//Thread struct lock
 	tid_t			t_tid;	//Thread ID
 	
+	struct tcb		*t_tcb;	//Thread control blocks(machine-dependent)
 };
 /*
  * pargs, used to hold a copy of the command line, if it had a sane length.
