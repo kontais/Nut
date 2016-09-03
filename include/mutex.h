@@ -1,27 +1,20 @@
 #ifndef _MUTEX_H_
 #define _MUTEX_H_
 #include <types.h>
+#include <proc.h>
+#include <list.h>
 struct mutex
 {
 	/*-1:unlocked,0:locked,positive:locked,waiters*/
 	atomic_t 		status;
-	spinlock_t 		wait_lock;
-	struct list_head	 wait_list;
+	struct list_head	wait_list;
+	struct thread		*owner;
 };
 
 struct wait_list
 {
 	struct list_head	list;
-	struct thread		*task;
-}
-void might_sleep(void)
-{
-	if (atomic_read(&lock->status) != -1)
-	{
-		
-		sched();
-	}
-	
+	struct thread		*thread;
 }
 /**
  * Init mutex
@@ -29,8 +22,37 @@ void might_sleep(void)
 static inline void mutex_init(struct mutex *lock)
 {
 	atomic_set(&lock->status, -1);
-	spinlock_init(&lock->wait_lock);
-	list_init(&lock->wait_list);
+	list_init(lock->wait_list);
+}
+/**
+ * Sleep until the mutex is available.
+ */
+static inline void wait_for_lock(struct mutex *lock)
+{
+	struct thread *current = current_thread();
+	if (atomic_read(&lock->status) != -1)
+	{
+		add_current_wait_list();
+	}
+	while(lock->wait_list.thread != current)
+	{
+		sched();
+	}
+	delete_to_wait_list();
+}
+/**
+ * Set current thread to be the owner.
+ */
+static inline void mutex_set_owner(struct mutex *lock)
+{
+	lock->owner = current_thread();
+}
+/**
+ * Clear current owner.
+ */
+static inline void mutex_clear_owner(struct mutex *lock)
+{
+	lock->owner = NULL;
 }
 /**
  * Lock mutex.If it's locked already,then blocks
@@ -38,8 +60,9 @@ static inline void mutex_init(struct mutex *lock)
  */
 static inline void mutex_lock(struct mutex *lock)
 {
-	might_sleep();
-	atomic_set(&lock->status, 0);
+	wait_for_lock(lock);
+	__mutex_lock(lock);
+	mutex_set_owner(lock);
 }
 /**
  * Test whether mutex is locked.
@@ -53,6 +76,7 @@ static inline int mutex_trylock(struct mutex *lock)
  */
 static inline void mutex_unlock(struct mutex *lock)
 {
-	atomic_set(&lock->status, atomic_read(&lock->status)-1);
+	__mutex_unlock(lock);
+	mutex_clear_owner(lock);
 }
 #endif
