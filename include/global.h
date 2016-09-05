@@ -12,5 +12,16 @@ extern size_t gSessionTableSize;
 extern struct namespace *gNamespaceTable;
 extern size_t gNamespaceTableSize;
 
+/**
+ * These data are thread specific,which means
+ * they varies when accessed from different threads.
+ */
+
+/**
+ * current_thread:return pointer to current thread structure
+ * type:struct thread *
+ */
+#define current_thread __asm__("mo":"")
+
 
 #endif

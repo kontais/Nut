@@ -71,4 +71,9 @@ struct namespace
 	id_t			n_nid;		//Namespace ID
 	id_t			n_uid;		//User ID
 };
+
+static inline struct proc *current_thread(void)
+{
+	__asm__("
+}
 #endif

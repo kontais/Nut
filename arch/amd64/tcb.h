@@ -7,7 +7,21 @@
  */
 struct tcb
 {
-//General-perpose registers
+/**
+ * General-perpose registers
+ * Special uses:
+ * RAX:Accumulator for operands and results data
+ * RBX:Pointer to data in the DS segment
+ * RCX:Counter for string and loop operations
+ * RDX:I/O pointer
+ * RBP:Pointer to data on the stack(in the SS segment)
+ * RSI:Pointer to data in the segment pointed to by the DS register;
+ *     source pointer for string operations
+ * RDI:Pointer to data(or destination)in the segment pointed by the ES register;
+ *     destination pointer for string operations
+ * RSP:Stack pointer(in the SS segment)
+ * 
+ */
 	uint64_t RAX;
 	uint64_t RBX;
 	uint64_t RCX;
@@ -17,20 +31,20 @@ struct tcb
 	uint64_t RDI;
 	uint64_t RSP;
 //New general-perpose registers(GPRs)
-	uint64_t R8D;
-	uint64_t R9D;
-	uint64_t R10D;
-	uint64_t R11D;
-	uint64_t R12D;
-	uint64_t R13D;
-	uint64_t R14D;
-	uint64_t R15D;
+	uint64_t R8;
+	uint64_t R9;
+	uint64_t R10;
+	uint64_t R11;
+	uint64_t R12;
+	uint64_t R13;
+	uint64_t R14;
+	uint64_t R15;
 //Segment registers
 	uint64_t CS;//CS,DS,ES,SS are treated as if each
 	uint64_t DS;//segment base is 0 in 64-bit mode.
 	uint64_t ES;//FS,GS may be used as additional base
 	uint64_t SS;//registers in linear address calculations.
-	uint64_t FS;//SS is the stack pointer(SP)
+	uint64_t FS;
 	uint64_t GS;
 //Flags and Status register
 	uint64_t RFLAGS;

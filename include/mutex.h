@@ -29,12 +29,11 @@ static inline void mutex_init(struct mutex *lock)
  */
 static inline void wait_for_lock(struct mutex *lock)
 {
-	struct thread *current = current_thread();
 	if (atomic_read(&lock->status) != -1)
 	{
 		add_current_wait_list();
 	}
-	while(lock->wait_list.thread != current)
+	while(lock->wait_list.thread != current_thread)
 	{
 		sched();
 	}
