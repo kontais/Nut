@@ -6,12 +6,10 @@ void dup_thread(struct thread *thread)
 	mutex_lock(thread->t_mutex);
 	//First duplicate the thread context
 	struct thread *new_thread = kmalloc(sizeof(struct thread));
-	if (new_thread == NULL)
-		kpanic("Out of memory.");
 	kmemcpy(new_thread, thread, sizeof(struct thread));
 	
 	//Modify necessary information
-	thread->tid = alloc(TID);
+	thread->tid = kidalloc(new_thread, KRSALLOC_TID);
 	//Then mark the address space Copy-on-wirte
 	
 	
