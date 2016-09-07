@@ -10,16 +10,17 @@
  */
 struct thread
 {
-	struct list_head	t_list;	//List of all threads
-	struct mutex		t_mutex;//Thread struct lock
-	id_t			t_tid;	//Thread ID
-	
-	struct tcb		*t_tcb;	//Thread control blocks(machine-dependent)
+	id_t			id;	//Thread ID
+	long			status;	//Thread status:-1 stopped 0 pending 1 runnable
+	struct list_head	list;	//List of all threads
+	struct mutex		mutex;	//Thread struct lock
+
+	struct tcb		tcb;	//Thread control blocks(machine-dependent)
 };
 /*
  * pargs, used to hold a copy of the command line, if it had a sane length.
  */
-struct pargs 
+struct args 
 {
 	uint	ar_ref;		/* Reference count. */
 	uint	ar_length;	/* Length. */
@@ -30,17 +31,17 @@ struct pargs
  */
 struct proc
 {
-	struct list_head	p_plist;	//List of all processes
-	struct list_head	p_threads;	//Thread list entry
-	struct mutex		p_mutex;	//Process struct lock
-	id_t			p_pid;		//Process ID
-	id_t			p_uid;		//User ID
-	struct list_head	p_parent;	//Parent Process
-	struct list_head	p_child;	//Child Process list entry
-	
-	nice_t	 		p_nice;		//Nice of the process
-	struct pargs		p_args;		//Arguments from command line
-	char			*p_wd;		//Current working directory
+	id_t			id;	//Process ID
+	struct list_head	list;	//List of all processes
+	struct list_head	threads;//Thread list entry
+	struct mutex		mutex;	//Process struct lock
+
+	struct proc		*parent;//Parent Process
+	struct list_head	*child;	//Child Process list entry
+
+	nice_t	 		nice;	//Nice of the process
+	struct pargs		args;	//Arguments from command line
+	char			*pwd;	//Current working directory
 };
 /*
  * Process groups may have a or more processes.
@@ -48,10 +49,10 @@ struct proc
  */
 struct pgrp
 {
-	struct list_head	g_glist;	//List of all process groups
-	struct list_head	g_procs;	//Process struct entry
-	id_t			g_gid;		//Group ID
-	id_t			g_uid;		//User ID
+	id_t			id;	//Group ID
+	struct list_head	list;	//List of all process groups
+	struct list_head	procs;	//Process struct entry
+
 };
 /*
  * Session consists of a set of process groups,
@@ -59,17 +60,17 @@ struct pgrp
  */
 struct session
 {
-	struct list_head	s_slist;	//List of all sessions
-	struct list_head	s_pgrps;	//Group struct entry
-	id_t			s_sid;		//Session ID
-	id_t			s_uid;		//User ID
+	id_t			id;	//Session ID
+	struct list_head	list;	//List of all sessions
+	struct list_head	grps;	//Group struct entry
+
 };
 
 struct namespace
 {
-	struct list_head	n_nlist;	//List of all namespaces
-	id_t			n_nid;		//Namespace ID
-	id_t			n_uid;		//User ID
+	id_t			id;	//Namespace ID
+	struct list_head	list;	//List of all namespaces
+
 };
 
 static inline struct proc *current_thread(void)
