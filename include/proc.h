@@ -35,6 +35,8 @@ struct proc
 	nice_t	 		nice;	//Nice of the process
 	struct pargs		args;	//Arguments from command line
 	char			*pwd;	//Current working directory
+
+	struct mm_zone		*mm;	//Pointer to memory zone
 };
 /*
  * Process groups may have a or more processes.
