@@ -9,20 +9,24 @@
  * @return allocated id or -1 on error
  */
 
-struct thread* kthreadalloc(void *entry, struct args *arg, void *stack, long status)
+struct thread* kthreadalloc(void)
 {
 	struct thread *thread = kmalloc(sizeof(struct thread));
 	kmemset(thread, 0, sizeof(struct thread));
 	
 	//Register the thread
-	id_t tid = kidalloc(thread, KRSALLOC_TID);
+	thread->id = kidalloc(thread, KRS_TID);
 	
 	//Init
+	thread->status = status;
 	list_init(&thread->list);
 	mutex_init(&thread->mutex);
-	
-	
 	
 	return thread;
 }
 
+void kthreadfree(struct thread* thread)
+{
+	kidfree(thread->id, KRS_TID);
+	kfree(thread);
+}
