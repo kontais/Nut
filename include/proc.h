@@ -16,16 +16,9 @@ struct thread
 	struct mutex		mutex;	//Thread struct lock
 
 	struct tcb		tcb;	//Thread control blocks(machine-dependent)
+	size_t 			stack_size;//Size of the stack
 };
-/*
- * pargs, used to hold a copy of the command line, if it had a sane length.
- */
-struct args 
-{
-	uint	ar_ref;		/* Reference count. */
-	uint	ar_length;	/* Length. */
-	uchar	*ar_args;	/* Arguments. */
-};
+
 /*
  * Process structure.
  */
@@ -73,8 +66,5 @@ struct namespace
 
 };
 
-static inline struct proc *current_thread(void)
-{
-	__asm__("
-}
+
 #endif

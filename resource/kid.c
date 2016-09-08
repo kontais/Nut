@@ -1,10 +1,10 @@
 #include <global.h>
 //The offset in the GVT
-#define KRSALLOC_TID 0x00
-#define KRSALLOC_PID 0x01
-#define KRSALLOC_GID 0x02
-#define KRSALLOC_SID 0x03
-#define KRSALLOC_NID 0x04
+#define KRS_TID 0x00
+#define KRS_PID 0x01
+#define KRS_GID 0x02
+#define KRS_SID 0x03
+#define KRS_NID 0x04
 
 /**
  * Allocate and register an ID for a specific struct.
@@ -24,7 +24,6 @@ id_t kidalloc(void *ptr, uint8_t mask)
 		{
 			*(start + i) = ptr;
 			alloc_id = i;
-			*(id_t *)ptr = i;
 			break;
 		}
 	}
@@ -41,7 +40,6 @@ void kidfree(id_t id, uint8_t mask)
 	void *start = *((void *)&gVT->gThreadTable + mask);
 	size_t size = *((size_t *)&(gVT->gThreadTableSize) + mask);
 	mutex_lock((struct mutex *)((void *)gVT->gthreadtablemutex + mask));
-	*(id_t *)ptr = -1;
 	if ( id < size )
 	{
 		*(start + id) = NULL;
