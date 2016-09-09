@@ -1,7 +1,7 @@
 #ifndef _PROC_H_
 #define _PROC_H_
 
-#include "tcb.h"
+#include <tcb.h>
 #include <ktypes.h>
 /*
  * Kernel runnable context (thread).
