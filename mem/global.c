@@ -16,25 +16,28 @@
 	#define default_gzonetablesize  1024
 #endif
 //Global variable table,order critical.
-struct gvt
+struct gVT
 {
-	size_t gthreadsablesize;
-	size_t gprocpablesize;
-	size_t gpgrptablesize;
-	size_t gsessiontablesize;
-	size_t gzonetablesize;
+	size_t gThreadsTableSize;
+	size_t gProcTableSize;
+	size_t gPgrpTableSize;
+	size_t gSessionTableSize;
+	size_t gZoneTableSize;
 	
-	struct thread *gthreadtable;
-	struct proc *gproctable;
-	struct pgrp *gpgrptable;
-	struct session *gsessiontable;
-	struct zone *gzonetable;
+	struct thread *gThreadTable;
+	struct proc *gProcTable;
+	struct pgrp *gPgrpTable;
+	struct session *gSessionTable;
+	struct zone *gZoneTable;
 	
 	struct mutex *gthreadtablemutex;
 	struct mutex *gproctablemutex;
 	struct mutex *gpgrptablemutex;
 	struct mutex *gsessiontablemutex;
 	struct mutex *gzonetablemutex;
+
+	struct CPU *gCPUTables;
+	size_t CPU gCPUTableSize;
 }*gvt;
 
 void global_init(void)
@@ -57,4 +60,23 @@ void global_init(void)
 	kmemset(gVT->gPgrpTable, NULL, gVT->gpgrptablesize);
 	kmemset(gVT->gSessionTable, NULL, gVT->gsessiontablesize);
 	kmemset(gVT->gZoneTable, NULL, gVT->gzonetablesize);z
+}
+struct CPU *get_urrent_CPU(void)
+{
+	UINT ID = get_CPU_ID(void);
+	UINT index;
+	for (index = 0; index < gVT->gCPUTableSize; index ++)
+	{
+		if ((gVT->gCPUtables + index)->ID == ID)
+			break;
+	}
+	if (index == gVT->gCPUTableSize)
+		return NULL;
+	else
+		return *(gVT->gCPUtables + index);
+}
+
+struct proc *get_current_thread(void)
+{
+	return get_current_CPU()->thread->running;
 }

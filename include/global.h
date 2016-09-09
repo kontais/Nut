@@ -16,12 +16,15 @@ extern size_t gZoneTableSize;
  * These data are thread specific,which means
  * they varies when accessed from different threads.
  */
-
+/**
+ * get_current_CPU:return pointer to current CPU structure
+ */
+struct CPU *get_current_CPU(void);
 /**
  * current_thread:return pointer to current thread structure
  * type:struct thread *
  */
-#define current_thread __asm__("mo":"")
+struct proc *get_current_thread(void);
 
 
 #endif
