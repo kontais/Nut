@@ -1,5 +1,5 @@
 #
-#
+#Save all registers in the stack.
 #
 save_context:
     pop      %rsp    #First set tcb to be stack
@@ -7,10 +7,6 @@ save_context:
     push     %rcx
     push     %rdx
     push     %rbx
-    
-    mov      %ts, %rax
-    push     20(%rax)
-    
     push     %rsi
     push     %sdi
     push     %r8
@@ -21,16 +17,8 @@ save_context:
     push     %r13
     push     %r14
     push     %r15
-
     push     %fs
     push     %gs
-
-    push     %flags
-    push     %rip
     
-    
-
-    ret
-
 load_context:
-	
+    pop      
