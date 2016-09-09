@@ -12,8 +12,8 @@
 #ifndef default_gsessiontablesize
 	#define default_gsessiontablesize  1024
 #endif
-#ifndef default_gnamespacetablesize
-	#define default_gnamespacetablesize  1024
+#ifndef default_gzonetablesize
+	#define default_gzonetablesize  1024
 #endif
 //Global variable table,order critical.
 struct gvt
@@ -22,19 +22,19 @@ struct gvt
 	size_t gprocpablesize;
 	size_t gpgrptablesize;
 	size_t gsessiontablesize;
-	size_t gnamespacetablesize;
+	size_t gzonetablesize;
 	
 	struct thread *gthreadtable;
 	struct proc *gproctable;
 	struct pgrp *gpgrptable;
 	struct session *gsessiontable;
-	struct namespace *gnamespacetable;
+	struct zone *gzonetable;
 	
 	struct mutex *gthreadtablemutex;
 	struct mutex *gproctablemutex;
 	struct mutex *gpgrptablemutex;
 	struct mutex *gsessiontablemutex;
-	struct mutex *gnamespacetablemutex;
+	struct mutex *gzonetablemutex;
 }*gvt;
 
 void global_init(void)
@@ -50,11 +50,11 @@ void global_init(void)
 	gVT->gProcTable = kmalloc(sizeof(struct proc*) * gproctablesize);
 	gVT->gPgrpTable = kmalloc(sizeof(struct pgrp*) * gpgrptablesize);
 	gVT->gSessionTable = kmalloc(sizeof(struct session*) * gsessiontablesize);
-	gVT->gNamespaceTable = kmalloc(sizeof(struct namespace*) * gnamespacetablesize);
+	gVT->gZoneTable = kmalloc(sizeof(struct namespace*) * gzonetablesize);
 	
 	kmemset(gVT->gThreadTable, NULL, gVT->gthreadtablesize);
 	kmemset(gVT->gProcTable, NULL, gVT->gproctablesize);
 	kmemset(gVT->gPgrpTable, NULL, gVT->gpgrptablesize);
 	kmemset(gVT->gSessionTable, NULL, gVT->gsessiontablesize);
-	kmemset(gVT->gNamespaceTable, NULL, gVT->gnamespacetablesize);
+	kmemset(gVT->gZoneTable, NULL, gVT->gzonetablesize);z
 }

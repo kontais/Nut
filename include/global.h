@@ -9,8 +9,8 @@ extern struct pgrp *gPgrpTable;
 extern size_t gPgrpTableSize;
 extern struct session *gSessionTable;
 extern size_t gSessionTableSize;
-extern struct namespace *gNamespaceTable;
-extern size_t gNamespaceTableSize;
+extern struct zone *gZoneTable;
+extern size_t gZoneTableSize;
 
 /**
  * These data are thread specific,which means

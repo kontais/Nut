@@ -61,9 +61,9 @@ struct session
 
 };
 
-struct namespace
+struct zone
 {
-	id_t			id;	//Namespace ID
+	id_t			id;	//Zone
 	struct list_head	list;	//List of all namespaces
 
 };
