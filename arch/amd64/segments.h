@@ -1,8 +1,8 @@
-#ifndef _MM_H_
-#define _MM_M_
+#ifndef _SEGMENTS_H_
+#define _SEGMENTS_H_
 
 /**
- * Memory Management register difinitions
+ * Protected-Mode Memory Management register difinitions
  * The three tables consist of linear arrays of arbitrary combines of descriptors.
  * Segment selector is used as a pointer with implicit base address in the table register
  * to the descriptor in the corresponding table.
