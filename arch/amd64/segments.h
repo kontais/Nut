@@ -13,87 +13,87 @@
  */
 struct gdt
 {
-	UINT16 limit;	//Limits all should be must be 8N-1
-	UINT64 base;
+	uint16_t limit;	//Limits all should be must be 8N-1
+	uint64_t base;
 };
 /**
  * Local Descriptor Table Register
  */
 struct ldt
 {
-	UINT16 limit;
-	UINT64 base;
+	uint16_t limit;
+	uint64_t base;
 };
 /**
  * Interrupt Description Table Register
  */
 struct idt
 {
-	UINT16 limit;
-	UINT64 base;
+	uint16_t limit;
+	uint64_t base;
 };
 /**
  * Segment selector
  */
 struct seg_sel
 {
-	UINT16 rpl:2,
-	       ti:1,
-	       index:13;
+	uint16_t rpl:2,
+	         ti:1,
+	         index:13;
 };
 /**
  * Segment descriptor
  */
 struct seg_dsc
 {
-	UINT16 seg_limit_0_15;
-	UINT16 base_0_15;
-	UINT8  base_16_23:
-	UINT8  type:4,
-	       s:1,
-	       dpl:2,
-	       p:1;
-	UINT8  seg_limit_16_19:4,
-	       avl:1,
-	       l:1,
-	       d_b:1,
-	       g:1;
-	UINT8  base_24_31;
+	uint16_t seg_limit_0_15;
+	uint16_t base_0_15;
+	uint8_t  base_16_23:
+	uint8_t  type:4,
+	         s:1,
+	         dpl:2,
+	         p:1;
+	uint8_t  seg_limit_16_19:4,
+	         avl:1,
+	         l:1,
+	         d_b:1,
+	         g:1;
+	uint8_t  base_24_31;
 };
 /**
  * Call gate descriptor
  */
 struct call_gate_dsc
 {
-	UINT16 offset_0_15;
-	struct seg_sel seg_sel;
-	UINT8  _reserved_1:8;
-	UINT8  type_1:4,
-	       _reserved_2:1,
-	       dpl:2,
-	       p:1;
-	UINT16 offset_16_31;
-	UINT32 offset_32_63;
-	UINT32 _reserved_3:8,
-	       type_1:5,
-	       _reserved_4:19;
+	uint16_t offset_0_15;
+	struct   seg_sel seg_sel;
+	uint8_t  _reserved_1:8;
+	uint8_t  type_1:4,
+	         _reserved_2:1,
+	         dpl:2,
+	         p:1;
+	uint16_t offset_16_31;
+	uint32_t offset_32_63;
+	uint32_t _reserved_3:8,
+	         type_1:5,
+	         _reserved_4:19;
 };
 /**
  * Interrupt/trap segment descriptor
  */
 struct int_trap_seg_dsc
 {
-	UINT16 offset_0_15;
-	struct seg_sel seg_sel;
-	UINT16 ist:4,
-	       _reserved_1:5,
-	       type:4,
-	       _reserved_2:1,
-	       dpl:2,
-	       p:1;
-	UINT16 offset_15_31;
-	UINT32 offset_32_63;
-	UINT32 _reserved_3;
+	uint16_t offset_0_15;
+	struct   seg_sel seg_sel;
+	uint16_t ist:4,
+	         _reserved_1:5,
+	         type:4,
+	         _reserved_2:1,
+	         dpl:2,
+	         p:1;
+	uint16_t offset_15_31;
+	uint32_t offset_32_63;
+	uint32_t _reserved_3;
 };
 /**
  * Task switch is not supported in 64-bit mode
@@ -108,54 +108,54 @@ struct int_trap_seg_dsc
  */
 struct tss_dsc
 {
-	UINT16 seg_limit_0_15;
-	UINT16 base_0_15;
-	UINT8  base_16_23;
-	UINT8  type:4,
-	       _reserved_2:1,
-	       dpl:2,
-	       p:1;
-	UINT8  seg_limit_16_19:4,
-	       avl:1,
-	       _reserved_3:2,
-	       g:1;
-	UINT8  base_24_31:
-	UINT32 base_32_63;
-	UINT32 _reserved_4:8,
-	       _reserved_5:5,
-	       _reserved_6:19;
+	uint16_t seg_limit_0_15;
+	uint16_t base_0_15;
+	uint8_t  base_16_23;
+	uint8_t  type:4,
+	         _reserved_2:1,
+	         dpl:2,
+	         p:1;
+	uint8_t  seg_limit_16_19:4,
+	         avl:1,
+	         _reserved_3:2,
+	         g:1;
+	uint8_t  base_24_31:
+	uint32_t base_32_63;
+	uint32_t _reserved_4:8,
+	         _reserved_5:5,
+	         _reserved_6:19;
 };
 /**
  * Task-state format
  */
 struct tss
 {
-	UINT32 _reserved_1;
-	UINT32 RPS0_lower;
-	UINT32 RSP0_upper;
-	UINT32 RSP1_lower;
-	UINT32 RSP1_upper;
-	UINT32 RSP2_lower;
-	UINT32 RSP2_upper;
-	UINT32 _reserved_2;
-	UINT32 _reserved_3;
-	UINT32 IST1_lower;
-	UINT32 IST1_upper;
-	UINT32 IST2_lower;
-	UINT32 IST2_upper;
-	UINT32 IST3_lower;
-	UINT32 IST3_upper;
-	UINT32 IST4_lower;
-	UINT32 IST4_upper;
-	UINT32 IST5_lower;
-	UINT32 IST5_upper;
-	UINT32 IST6_lower;
-	UINT32 IST6_upper;
-	UINT32 IST7_lower;
-	UINT32 IST7_upper;
-	UINT32 _reserved_4;
-	UINT32 _reserved_5;
-	UINT16 _reserved_6;
-	UINT16 IO_base;
+	uint32_t _reserved_1;
+	uint32_t RPS0_lower;
+	uint32_t RSP0_upper;
+	uint32_t RSP1_lower;
+	uint32_t RSP1_upper;
+	uint32_t RSP2_lower;
+	uint32_t RSP2_upper;
+	uint32_t _reserved_2;
+	uint32_t _reserved_3;
+	uint32_t IST1_lower;
+	uint32_t IST1_upper;
+	uint32_t IST2_lower;
+	uint32_t IST2_upper;
+	uint32_t IST3_lower;
+	uint32_t IST3_upper;
+	uint32_t IST4_lower;
+	uint32_t IST4_upper;
+	uint32_t IST5_lower;
+	uint32_t IST5_upper;
+	uint32_t IST6_lower;
+	uint32_t IST6_upper;
+	uint32_t IST7_lower;
+	uint32_t IST7_upper;
+	uint32_t _reserved_4;
+	uint32_t _reserved_5;
+	uint16_t _reserved_6;
+	uint16_t IO_base;
 }
 #endif
