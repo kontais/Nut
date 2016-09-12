@@ -7,16 +7,18 @@
  * 
  * Parameters:(with * is necessary)
  * 
- * 1.Kernel Memory Base* : "kmb=ADDRESS"
- * 2.Kernel Memory Limit*: "kml=SIZE"
- * 3.
- * 
+ * 1.Kernel Memory Base*	: "base=ADDRESS"
+ * 2.Kernel Size*		: "size=SIZE"
+ * 3.Memory Map Table Base*	: "map=ADDRESS"
+ * 4.Memory Map Size*		: "mapsize=SIE"
  */
 void main(int argv, char **args)
 {
 	mm_init();
 	
-	
-	
-	
+	exec("init");
+	while(1)
+	{
+		sched();
+	}
 }
