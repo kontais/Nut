@@ -16,7 +16,7 @@ struct cr3
 };
 
 
-struct plm4
+struct plm4_entry
 {
 	uint64_t p:1,
 	         r_w:1,
@@ -30,9 +30,9 @@ struct plm4
 	         phy_addr:40,
 	         _ignored_3:11,
 	         xd:1;
-}
+};
 
-struct pdpte
+struct pdpte_entry
 {
 	uint64_t p:1,
 	         r_w:1,
@@ -46,8 +46,8 @@ struct pdpte
 		 phy_addr:40,
 		 _ignored_3:11,
 		 xd:1;
-}
-struct pde
+};
+struct pde_entry
 {
 	uint64_t p:1,
 	         r_w:1,
@@ -61,8 +61,8 @@ struct pde
 		 phy_addr:40,
 		 _ignored_3:11,
 		 xd:1;
-}
-struct pte
+};
+struct pte_entry
 {
 	uint64_t p:1,
 	         r_w:1,
@@ -78,7 +78,22 @@ struct pte
 		 _ignored_2:7,
 		 pk:4,
 		 xd:1;
-}
-
-
+};
+struct pml4e_table
+{
+	struct plm4_entry[512];
+};
+struct pdpte_table
+{
+	struct pdpte_entry[512];
+};
+struct pde_table
+{
+	struct pde_entry[512];
+};
+struct pte_table
+{
+	struct pte_entry[512];
+};
 #endif
+

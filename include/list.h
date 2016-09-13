@@ -103,7 +103,7 @@ static inline void list_move_tail(struct list_head *head,
  * @head: the head of the list
  */
 static inline int list_is_last(const struct list_head *head,
-				const struct list_head *list)
+			       const struct list_head *list)
 {
 	return list->next == head;
 }

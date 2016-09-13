@@ -1,33 +1,7 @@
 #include <mm.h>
 
-/**
- * The fisrt 1GB of address space is preserved for kernel and 
- * the rest is for user space.
- * This function initialize the page table.
- */
-struct memory_map
-{
-	struct region
-	{
-		uint64_t virt_addr;
-		uint64_t phy_addr;
-		uint64_t page_nums;
-	}*region;
-	uint64_t nums;
-}
-struct page
-{
-	struct   list_head list;
-	uint64_t phy_addr;
-	uint32_t flag;
-	uint32_t ref;
-};
-struct page_table
-{
-	struct list_head used;
-	struct list_head free;
-	struct list_head swaped;
-}global_page_table;
+
+struct phy_page_table global_page_table;
 
 /**
  * Take all memory pages except those used by kernel
@@ -36,8 +10,8 @@ struct page_table
 void page_table_init(void)
 {
 	kmemset(global_page_table, 0, sizeof(global_page_table));
-	list_head_init(page_table->used);
-	list_head_init(page_table->free);
+	global_page_table->used = NULL;
+	global_page_table->free = NULL;
 	
 	struct region *ptr = mm_map->region;
 	for (uint64_t index; index < ptr->nums; index++)
@@ -47,11 +21,11 @@ void page_table_init(void)
 			uint64_t nums = *(ptr + index)->page_nums;
 			for (uint64_t temp = 0; temp < nums; temp ++)
 			{
-				struct page_table = kmalloc(sizeof(struct page_table));
-				page_table->phy_addr= *(ptr + index)->phy_addr;
-				page_table->ref = 0;
-				page_table->flag = 0;
-				list_insert_after(global_page_table.free, page_table->list);
+				struct phy_page = kmalloc(sizeof(struct phy_page));
+				phy_page->phy_addr= *(ptr + index)->phy_addr;
+				phy_page->ref = 0;
+				phy_page->flag = page_flag_dirty;
+				list_insert_after(global_page_table->free, phy_page->list);
 			}
 		}
 	}
@@ -62,9 +36,40 @@ void page_table_init(void)
  */
 void alloc_page(uint64_t virt_addr,struct proc *proc)
 {
-	list_head_add_after(proc->mm, global_page_table);
+	if (global_page_table->free == NULL)
+		panic("Out of memory.");
+	
+	struct list_head *temp = global_page_table->free;
+	if (temp->next != temp)
+	{
+		temp = temp->next;
+		list_del(temp);
+	}
+	else
+	{
+		global_page_table->free = NULL;
+		kprint("No more free page.");
+	}
+	list_add_after(global_page_table->used, temp);
+	//Get ptr to the page
+	struct phy_page *entry = list_entry(temp, struct phy_page, list);
+	entry->ref++;
+	entry->flag &= ~page_flag_dirty;//Clean dirty bit
+	
+	struct virt_page *new = kmalloc(sizeof(struct virt_page));
+	list_init(new->list);
+	
+	if (proc->mm == NULL)
+		proc->mm = new->list;
+	else
+		list_insert_after(proc->mm, new->list);
+	
+	new->phy_page = entry;
+	new->virt_addr = virt_addr;
+	new->flag = page_flag_read | page_flag_write | page_flag_exec;
 	
 	
+	do_map(virt_page);
 }
 void free_page(uint64_t virt_addr,struct proc *proc)
 {

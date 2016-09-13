@@ -36,7 +36,7 @@ struct proc
 	struct pargs		args;	//Arguments from command line
 	char			*pwd;	//Current working directory
 
-	struct list_head	mm;	//Pointer to pages
+	struct list_head	mm;	//Memory space
 };
 /*
  * Process groups may have a or more processes.
