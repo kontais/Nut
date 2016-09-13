@@ -23,4 +23,5 @@ static inline uint64_t get_cpu_linear_address_width(void)
 	);
 	return result >> 8;
 }
+
 #endif

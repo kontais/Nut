@@ -2,9 +2,9 @@
 #Save all registers in the stack.
 #Push all registers except RSP,RIP,CS,DS,ES,SS,which are automatically pushed by call
 #
-systick_handler:
+timer_int:
 
-save_context:
+context_save:
 	push     %gs
 	push     %fs
 	
@@ -66,7 +66,7 @@ save_context:
 	
 	call     _sched				
 #Load address of tcb before jump here.	
-load_context:					
+context_load:					
         push     160(%rax)			#SS
         push     152(%rax)			#RSP
         push     144(%rax)			#RFLAGS
