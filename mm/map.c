@@ -40,4 +40,9 @@ void do_unmap(struct virt_page)
 {
 	struct pte_entry *pte_entry_ptr = find_page_table_entry(virt_page->virt_addr);
 	pte_entry_ptr->p = 0;
+	pte_entry_ptr->r_w = 0;
+	pte_entry_ptr->u_s = 0;
+	pte_entry_ptr->a = 0;
+	pte_entry_ptr->d = 0;
+	pte_entry_ptr->phy_addr = 0;
 }

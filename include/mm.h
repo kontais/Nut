@@ -24,7 +24,7 @@ struct phy_page
 {
 	struct   list_head list;
 	uint64_t phy_addr;
-	uint32_t ref;
+	uint64_t ref;
 };
 #define page_flag_read	0x01
 #define page_flag_write	0x02
@@ -34,11 +34,18 @@ struct virt_page
 	struct   list_head list;
 	struct   phy_page  *phy_page;
 	uint64_t virt_addr;
-	uint32_t flag;
+	uint64_t flag;
 };
 struct phy_page_table
 {
-	struct list_head *used;
-	struct list_head *free;
+	struct list_head used;
+	struct list_head free;
 };
+struct mm_buffer
+{
+	uint64_t size;		//Continuous size of this buffer in bytes.
+	uint64_t flag;		//Indicating whether this buffer is available,0 means avalable.
+	struct list_head list;	//List to the following buffer.
+};
+
 #endif
