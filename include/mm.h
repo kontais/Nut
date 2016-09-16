@@ -12,6 +12,7 @@ struct memory_map
 		uint64_t virt_addr;
 		uint64_t phy_addr;
 		uint64_t page_nums;
+		uint64_t available;
 	}*region;
 	uint64_t nums;
 }

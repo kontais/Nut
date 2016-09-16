@@ -16,7 +16,7 @@ void page_table_init(void)
 	struct region *ptr = mm_map->region;
 	for (uint64_t index; index < ptr->nums; index++)
 	{
-		if (*(ptr + index)->virt_addr < KERNEL_ADDRESS)
+		if (*(ptr + index)->virt_addr < kernel_base_address && *(ptr + index)->available)
 		{
 			uint64_t nums = *(ptr + index)->page_nums;
 			for (uint64_t temp = 0; temp < nums; temp ++)
@@ -169,4 +169,13 @@ void kfree(void *ptr)
 		}
 	}
 	
+}
+/**
+ * Initialize kernel memory
+ */
+void mm_init(void)
+{
+	page_table_init();
+	kmm_init_page(kernel_base_address + kernel_size , );
+		
 }
