@@ -1,6 +1,6 @@
-#include <mm.h>
+#include <segments.h>
 
-struct gdt gdt;
-struct ldt ldt;
-struct idt idt;
+struct gdt *gdt;
+struct ldt *ldt;
+struct idt *idt;
 

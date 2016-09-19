@@ -30,3 +30,10 @@ void kthreadfree(struct thread* thread)
 	kidfree(thread->id, KRS_TID);
 	kfree(thread);
 }
+void create_thread(void *entry,void *stack)
+{
+	struct thread *new_thread = threadalloc();
+	new_thread->tcb.rsp = (uint64_t)stack;
+	new_thread->tcb.rip = (uint64_t)entry;
+	
+}

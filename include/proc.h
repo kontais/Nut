@@ -3,6 +3,7 @@
 
 #include <tcb.h>
 #include <ktypes.h>
+#include <mutex.h>
 /*
  * Kernel runnable context (thread).
  * This is what is put to sleep and reactivated.

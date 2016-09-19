@@ -3,6 +3,7 @@
 #include <types.h>
 #include <proc.h>
 #include <list.h>
+#include <atom.h>
 struct mutex
 {
 	/*-1:unlocked,0:locked,positive:locked,waiters*/
@@ -15,14 +16,14 @@ struct wait_list
 {
 	struct list_head	list;
 	struct thread		*thread;
-}
+};
 /**
  * Init mutex
  */
 static inline void mutex_init(struct mutex *lock)
 {
 	atomic_set(&lock->status, -1);
-	list_init(lock->wait_list);
+	list_init(&lock->wait_list);
 }
 /**
  * Sleep until the mutex is available.

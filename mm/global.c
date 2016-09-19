@@ -1,5 +1,7 @@
 #include "global.h"
-
+#include <mm.h>
+#include <types.h>
+#include <klibc.h>
 #ifndef default_gthreadtablesize
 	#define default_gthreadtablesize  1024
 #endif
@@ -16,19 +18,19 @@
 	#define default_gzonetablesize  1024
 #endif
 //Global variable table,order critical.
-struct gVT
+struct gvt
 {
-	size_t gThreadsTableSize;
-	size_t gProcTableSize;
-	size_t gPgrpTableSize;
-	size_t gSessionTableSize;
-	size_t gZoneTableSize;
+	size_t gthreadtablesize;
+	size_t gproctablesize;
+	size_t gpgrptablesize;
+	size_t gsessiontablesize;
+	size_t gzonetablesize;
 	
-	struct thread *gThreadTable;
-	struct proc *gProcTable;
-	struct pgrp *gPgrpTable;
-	struct session *gSessionTable;
-	struct zone *gZoneTable;
+	struct thread *gthreadtable;
+	struct proc *gproctable;
+	struct pgrp *gpgrptable;
+	struct session *gsessiontable;
+	struct zone *gzonetable;
 	
 	struct mutex *gthreadtablemutex;
 	struct mutex *gproctablemutex;
@@ -37,46 +39,46 @@ struct gVT
 	struct mutex *gzonetablemutex;
 
 	struct CPU *gCPUTables;
-	size_t CPU gCPUTableSize;
+	size_t gCPUTableSize;
 }*gvt;
 
 void global_init(void)
 {
-	gVT = kmalloc(sizeof(struct gVT));
-	gVT->gthreadtablesize = default_gthreadtablesize;
-	gVT->gproctablesize = default_gproctablesize;
-	gVT->gpgrptablesize = default_gpgrptablesize;
-	gVT->gsessiontablesize = default_gsessiontablesize;
-	gVT->gnamespacetablesize = default_gnamespacetablesize;
+	gvt = kmalloc(sizeof(struct gvt));
+	gvt->gthreadtablesize = default_gthreadtablesize;
+	gvt->gproctablesize = default_gproctablesize;
+	gvt->gpgrptablesize = default_gpgrptablesize;
+	gvt->gsessiontablesize = default_gsessiontablesize;
+	gvt->gzonetablesize = default_gzonetablesize;
 	
-	gVT->gThreadTable = kmalloc(sizeof(struct thread*) * gthreadtablesize);
-	gVT->gProcTable = kmalloc(sizeof(struct proc*) * gproctablesize);
-	gVT->gPgrpTable = kmalloc(sizeof(struct pgrp*) * gpgrptablesize);
-	gVT->gSessionTable = kmalloc(sizeof(struct session*) * gsessiontablesize);
-	gVT->gZoneTable = kmalloc(sizeof(struct namespace*) * gzonetablesize);
+	gvt->gthreadtable = kmalloc(sizeof(struct thread*) * gvt->gthreadtablesize);
+	gvt->gproctable = kmalloc(sizeof(struct proc*) * gvt->gproctablesize);
+	gvt->gpgrptable = kmalloc(sizeof(struct pgrp*) * gvt->gpgrptablesize);
+	gvt->gsessiontable = kmalloc(sizeof(struct session*) * gvt->gsessiontablesize);
+	gvt->gzonetable = kmalloc(sizeof(struct namespace*) * gvt->gzonetablesize);
 	
-	kmemset(gVT->gThreadTable, NULL, gVT->gthreadtablesize);
-	kmemset(gVT->gProcTable, NULL, gVT->gproctablesize);
-	kmemset(gVT->gPgrpTable, NULL, gVT->gpgrptablesize);
-	kmemset(gVT->gSessionTable, NULL, gVT->gsessiontablesize);
-	kmemset(gVT->gZoneTable, NULL, gVT->gzonetablesize);z
+	kmemset(gvt->gthreadtable, NULL, gvt->gthreadtablesize);
+	kmemset(gvt->gproctable, NULL, gvt->gproctablesize);
+	kmemset(gvt->gpgrptable, NULL, gvt->gpgrptablesize);
+	kmemset(gvt->gsessiontable, NULL, gvt->gsessiontablesize);
+	kmemset(gvt->gzonetable, NULL, gvt->gzonetablesize);
 }
-struct CPU *get_urrent_CPU(void)
-{
-	UINT ID = get_CPU_ID(void);
-	UINT index;
-	for (index = 0; index < gVT->gCPUTableSize; index ++)
-	{
-		if ((gVT->gCPUtables + index)->ID == ID)
-			break;
-	}
-	if (index == gVT->gCPUTableSize)
-		return NULL;
-	else
-		return *(gVT->gCPUtables + index);
-}
-
-struct proc *get_current_thread(void)
-{
-	return get_current_CPU()->thread->running;
-}
+// struct CPU *get_urrent_CPU(void)
+// {
+// 	uint64_t ID = get_CPU_ID();
+// 	uint64_t index;
+// 	for (index = 0; index < gvt->gCPUTableSize; index ++)
+// 	{
+// 		if ((gvt->gCPUtables + index)->ID == ID)
+// 			break;
+// 	}
+// 	if (index == gvt->gCPUTableSize)
+// 		return NULL;
+// 	else
+// 		return *(gvt->gCPUtables + index);
+// }
+// 
+// struct proc *get_current_thread(void)
+// {
+// 	return get_current_CPU()->thread->running;
+// }

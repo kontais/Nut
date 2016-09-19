@@ -3,7 +3,7 @@
 
 #ifdef AMD64
 #include <arch/amd64/types.h>
-#else ifdef ARM
+#elif defined ARM
 #include <arch/arm/types.h>
 #endif
 

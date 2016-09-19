@@ -4,9 +4,9 @@
 #execution from here.
 #
 boot:
-	jmp        init        #Init global structures
+	cli			#Disable interrupt
 	
-	call        _mm_init   #Init the memory
+	call        _mm_init    #Init the memory
 	
-	jmp        _main       #Run the kernel
+	call        _main       #Run the kernel
 	

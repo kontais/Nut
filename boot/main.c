@@ -12,13 +12,29 @@
  * 3.Memory Map Table Base*	: "map=ADDRESS"
  * 4.Memory Map Size*		: "mapsize=SIE"
  */
+
+#include <SerialPortLib.h>
 void main(int argv, char **args)
 {
+	int_init();
 	mm_init();
+	SerialPortInitialize();
+	enable_interrupt();
+// 	exec("init");
 	
-	exec("init");
+	
 	while(1)
 	{
 		sched();
 	}
+}
+
+void thread1(void)
+{
+	kprint("This is thread1.\n");
+	
+}
+void thread2(void)
+{
+	kprint("This is thread2.\n");
 }

@@ -82,7 +82,7 @@ static inline void list_replace(struct list_head *old, struct list_head *new)
  */
 static inline void list_move(struct list_head *head, struct list_head *list)
 {
-	__list_del_entry(list);
+	list_del(list);
 	list_add_after(head, list);
 }
 /**
@@ -93,8 +93,8 @@ static inline void list_move(struct list_head *head, struct list_head *list)
 static inline void list_move_tail(struct list_head *head,
 				  struct list_head *list)
 {
-	__list_del_entry(list);
-	list_add_tail(head, list);
+	list_del(list);
+	list_add_before(head, list);
 }
 
 /**

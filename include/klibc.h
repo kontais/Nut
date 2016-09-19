@@ -1,14 +1,24 @@
 #ifndef _KLIBC_H_
 #define _KLIBC_H_
-
+#include <SerialPortLib.h>
 /**
  * This is the routine of standard C library for use in the kernel.
  */
 
-//Input/Output
 
 //String
-
+/**
+ * Similar function as standard string functions.
+ * @str the string to evaluate length of
+ * @return the length of the string,
+ */
+static inline int kstrlen(char *str)
+{
+	int len = 0;
+	while (*str++ != '\0')
+		len ++;
+	return len;
+}
 //Memory
 /**
  * Use @ch to initialize @buf of size @count bytes.
@@ -17,7 +27,13 @@
  * @count size of the buffer
  * @return pointer to the buffer
  */
-void *kmemset(char *buf, char ch, size_t count);
+static inline void *kmemset(void *dest, int ch, size_t n)
+{
+	char *dest_ptr = dest;
+	while(n-- > 0)
+		*(dest_ptr++) = ch;
+	return dest;
+}
 /**
  * Copy @count bytes data from @src to @dest.
  * @dest pointer to destination buffer
@@ -25,17 +41,30 @@ void *kmemset(char *buf, char ch, size_t count);
  * @n size of data to be copied
  * @return pointer to dest
  */
-int kmemcpy(char *dest, const char *src, size_t n);
+static inline void *kmemcpy(void *dest, const void *src, size_t n)
+{
+	char *dest_ptr = dest;
+	const char *src_ptr = src;
+	while (n-- > 0)
+		*(dest_ptr++) = *(src_ptr++);
+	return dest;
+}
 /**
  * Allocate continuous @size bytes of a array.
  * @size number of bytes to be allocted
  * @return pointer to the allocated memory,NULL on error
  */
-void *kmalloc(size_t size);
+extern void *kmalloc(size_t size);
 /**
  * Free memory allocated by kmalloc.
  * @ptr pointer to allocated memory
  */
-void kfree(void *ptr);
+extern void kfree(void *ptr);
+
+//Input/Output
+static inline void kprint(char *str)
+{
+	SerialPortWrite(str, kstrlen(str));
+}
 
 #endif

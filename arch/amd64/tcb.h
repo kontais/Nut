@@ -62,5 +62,5 @@ struct tcb
 
 //FPU registers
 //TODO: add all the registers!
-}
+};
 #endif

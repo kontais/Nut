@@ -1,5 +1,10 @@
 #ifndef _MM_H_
 #define _MM_H_
+
+#include <ktypes.h>
+#include <list.h>
+#include <proc.h>
+
 /**
  * The fisrt 1GB of address space is preserved for kernel and 
  * the rest is for user space.
@@ -15,7 +20,7 @@ struct memory_map
 		uint64_t available;
 	}*region;
 	uint64_t nums;
-}
+};
 /**
  * Physical address page definition.
  * Flag definition:
@@ -49,4 +54,12 @@ struct mm_buffer
 	struct list_head list;	//List to the following buffer.
 };
 
+void page_table_init(void);
+void alloc_page(uint64_t virt_addr,struct proc *proc);
+void free_page(uint64_t virt_addr,struct proc *proc);
+void kmm_init_page(uint64_t virt_addr_start, uint64_t num_of_pages);
+void kmm_extended_page(uint64_t virt_addr_start, uint64_t num_of_pages);
+void *kmalloc(size_t size);
+void kfree(void *ptr);
+void mm_init(void);
 #endif

@@ -1,6 +1,6 @@
 #ifndef _SEGMENTS_H_
 #define _SEGMENTS_H_
-
+#include <types.h>
 /**
  * Protected-Mode Memory Management register difinitions
  * The three tables consist of linear arrays of arbitrary combines of descriptors.
@@ -48,7 +48,7 @@ struct seg_dsc
 {
 	uint16_t seg_limit_0_15;
 	uint16_t base_0_15;
-	uint8_t  base_16_23:
+	uint8_t  base_16_23;
 	uint8_t  type:4,
 	         s:1,
 	         dpl:2,
@@ -75,7 +75,7 @@ struct call_gate_dsc
 	uint16_t offset_16_31;
 	uint32_t offset_32_63;
 	uint32_t _reserved_3:8,
-	         type_1:5,
+	         type_2:5,
 	         _reserved_4:19;
 };
 /**
@@ -119,7 +119,7 @@ struct tss_dsc
 	         avl:1,
 	         _reserved_3:2,
 	         g:1;
-	uint8_t  base_24_31:
+	uint8_t  base_24_31;
 	uint32_t base_32_63;
 	uint32_t _reserved_4:8,
 	         _reserved_5:5,
@@ -157,5 +157,5 @@ struct tss
 	uint32_t _reserved_5;
 	uint16_t _reserved_6;
 	uint16_t IO_base;
-}
+};
 #endif
