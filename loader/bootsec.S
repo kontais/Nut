@@ -1,5 +1,6 @@
-#	This file is the bootloader of Nut
-#	which copies the 1-64 sectors to 0x10000-0x17bff in physical memory
+#	Nut bootloader
+#	This file is embedded into MBR
+#	which copies the 1-64 sectors to 0x10000-0x17bff in physical memory and directly jump to 0x10000
 #
 #		Written by Li Fei(C) 2016.11.8
 #
@@ -48,15 +49,15 @@ _start:
 	call	hexdump*/
 	
 /*	mov	$0x0000,%di
-	mov	%di,%ds*/
-	
+	mov	%di,%ds
+	*/
 /* 	lea	validate_faild,%si 
 	jne	error
-	
-	lea	str,%si*/
-/*	mov	$0000,%si
-	mov	$128,%cx
+	*/
+/*	lea	msg,%si
+	mov	$10,%cx
 	call	print*/
+	
  	ljmp	$0x1000,$0x0000
 	hlt
 dead:
@@ -184,6 +185,5 @@ load_image:
 error:
 	call	print
 	hlt
-str:.asciz "Hello,world.\0"
-disk_error:.asciz "Load disk faild.\0"
-validate_faild:.asciz "Loaded data not correct.\0"
+disk_error:.ascii "Read disk error."
+msg:.ascii "Helloworld."

@@ -16,7 +16,7 @@ struct cr3
 };
 
 
-struct plm4_entry
+struct plm4_entryd
 {
 	uint64_t p:1,
 	         r_w:1,
