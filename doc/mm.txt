@@ -1,0 +1,6 @@
+Nut memory map
+0xffffffffffffffff - 0xffffffffffff0000	Syscall Table
+0xffffffffffff0000 - 0xffffffff00000000 Kernel Image
+0xffffffff00000000 - 0xfffff00000000000 Virtual
+0xfffff00000000000 - 0xfffff7ffffffffff Reserved Hole
+0x00007fffffffffff - 0x0000000000000000	User Space

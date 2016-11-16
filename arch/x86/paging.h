@@ -1,7 +1,7 @@
 #ifndef _PAGING_H_
 #define _PAGING_H_
 
-
+//Bit order:big endian
 struct cr3
 {
 	uint64_t _ignored_1:3,

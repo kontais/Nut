@@ -15,6 +15,8 @@ typedef struct reg16
 	uint16_t es;
 	
 	uint16_t bp;
+	
+	uint16_t flags;
 }reg16;
 typedef struct reg32
 {
@@ -27,12 +29,18 @@ typedef struct reg32
 	uint32_t edi;
 
 	uint16_t es;
+	uint32_t eflags;
 }reg32;
-#define bios16_int(_reg16, _num) 		\
+#define FLAG_CARRY 0x01
+#define EFLAG_CARRY 0x01
+
+#define bios_int16(_reg16, _num) 		\
 {						\
 	asm 					\
 	(					\
+		"push	%%bp\n"			\
  		"lea	%0,%%bp\n"		\
+ 		"push	%%bp\n"			\
 		"push	%%ds\n"			\
 						\
 		"mov	(%%bp), %%ax\n"		\
@@ -46,9 +54,9 @@ typedef struct reg32
 						\
 		"int	%1\n"			\
  		"pop	%%ds\n"			\
-						\
 		"push	%%bp\n"			\
-		"lea	%0, %%bp\n"		\
+		"mov	%%sp, %%bp\n"		\
+		"mov	2(%%bp), %%bp\n"	\
 						\
 		"mov	%%ax, (%%bp)\n"		\
 		"mov	%%bx, 2(%%bp)\n"	\
@@ -60,12 +68,15 @@ typedef struct reg32
 						\
 		"pop	%%ax\n"			\
 		"mov	%%ax, 14(%%bp)\n"	\
+		"pop	%%bp\n"			\
+		"pop	%%bp\n"			\
+						\
 		:				\
-		: "m"(_reg16), "i"(_num)	\
+		: "m"(*_reg16), "i"(_num)	\
 	);					\
 }	
 
-#define bios32_int(_reg32, _num) 		\
+#define bios_int32(_reg32, _num) 		\
 {						\
 	asm 					\
 	(					\
@@ -97,8 +108,11 @@ typedef struct reg32
 						\
 		"pop	%%eax\n"		\
 		"mov	%%eax, 26(%%ebp)\n"	\
+						\
+		"pushfd\n"			\
+		"pop	30(%%ebp)\n"		\
 		:				\
-		: "m"(_reg32), "i"(_num)	\
+		: "m"(*_reg32), "i"(_num)	\
 	);					\
 }
 #endif

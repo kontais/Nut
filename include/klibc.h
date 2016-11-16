@@ -66,5 +66,23 @@ static inline void kprint(char *str)
 {
 	SerialPortWrite(str, kstrlen(str));
 }
+//Debug
+/**
+ * To help programmers find bugs.
+ * If the exp is false,the kernel will panic.
+ * TODO:Add the support to print line number and expression.
+ * @exp expression to check
+ */
+#ifdef NDEBUG
+#define assert(expr) (void)(0)
+#elif
+
+extern void __assert_fail (char *exp, char *file, char *name, char *func);
+
+#define assert(expr)							\
+	((expr)								\
+	? (void)(0)							\
+	: __assert_fail (#expr, __FILE__, __LINE__, __PRETTY_FUNCTION__))
+#endif
 
 #endif
