@@ -16,10 +16,13 @@
 #include <SerialPortLib.h>
 void main(int argv, char **args)
 {
-	int_init();
+	earlyprint_init();
 	mm_init();
-	SerialPortInitialize();
-	enable_interrupt();
+	proc_init();
+	ipc_init();
+	dev_init();
+// 	SerialPortInitialize();
+// 	enable_interrupt();
 // 	exec("init");
 	
 	
