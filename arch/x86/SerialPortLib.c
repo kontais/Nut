@@ -44,7 +44,7 @@
 // UART Settings
 //---------------------------------------------
 UINT16  gUartBase = 0x3F8;
-UINT64  gBps      = 115200;
+UINT32  gBps      = 115200;
 UINT8   gData     = 8;
 UINT8   gStop     = 1;
 UINT8   gParity   = 0;

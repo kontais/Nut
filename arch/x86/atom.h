@@ -1,7 +1,7 @@
 #ifndef _ATOM_H_
 #define _ATOM_H_
 
-#include <tyoes.h>
+#include <types.h>
 static inline void atomic_set(atomic_t *val, atomic_t new_val)
 {
 	asm volatile (

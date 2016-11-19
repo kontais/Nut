@@ -2,21 +2,17 @@ AS=as
 CC=gcc
 Ld=ld
 
-CFLAGS= -Iarch/amd64/ -Iinclude/ -DAMD64 -I./ -Ilib/
-LDFLAGS=
+CFLAGS= -Iarch/x86/ -Iinclude/ -DX86 -I./ -Ilib/ -fno-asynchronous-unwind-tables
+LDFLAGS= --script=./ldscript -nostdlib  --oformat=binary 
 
 INCLUDE= 
 
-OBJECT= arch/amd64/asm/boot.o arch/amd64/asm/context_switch.o arch/amd64/mm_tables.o \
-boot/main.o mm/global.o mm/map.o mm/mm.o proc/sched.o proc/thread.o resource/kid.o \
-resource/kprocess.o resource/kthread.o arch/amd64/SerialPortLib.o arch/amd64/interrupt.o
+OBJS= arch/x86/asm/start.o boot/main.o arch/x86/SerialPortLib.o
 
 .PHONY:kernel
-kernel:$(OBJECT)
-
-
-
-
+kernel:$(OBJS)
+# 	$(CC) -c $(CFLAGS) $(OBJS)
+	$(LD) -o kernel.img $(OBJS) $(LDFLAGS)
 .PHONY:clean
 clean:
-	rm -f $(OBJECT)
+	rm -f $(OBJS) kernel.img

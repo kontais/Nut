@@ -49,10 +49,10 @@ SerialPortInitialize (
                            If this value is less than NumberOfBytes, then the read operation failed.
 
 **/
-UINT64
+UINT32
 SerialPortWrite (
   IN UINT8     *Buffer,
-  IN UINT64     NumberOfBytes
+  IN UINT32     NumberOfBytes
   );
 
 
@@ -72,10 +72,10 @@ SerialPortWrite (
   @retval >0               Actual number of bytes read from serial device.
 
 **/
-UINT64
+UINT32
 SerialPortRead (
   OUT UINT8   *Buffer,
-  IN  UINT64   NumberOfBytes
+  IN  UINT32   NumberOfBytes
   );
 
 /**
