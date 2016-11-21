@@ -16,7 +16,7 @@ struct cr3
 };
 
 
-struct plm4_entryd
+struct plm4_entry
 {
 	uint64_t xd:1,
 		 _ignored_3:11,
@@ -95,5 +95,13 @@ struct pte_table
 {
 	struct pte_entry[512];
 };
+
+// uint64_t get_phy_addr(struct plm4_entry *plm4, uint64_t virt_addr);
+// uint64_t* get_virt_addr(struct plm4_entry *plm4, uint64_t phy_addr);
+
+int modify_mapping(struct plm4_entry *plm4, uint64_t virt_addr, uint64_t phy_addr, int flag);
+int query_mapping(struct plm4_entry *plm4, uint64_t virt_addr, uint64_t *phy_addr, int *flag);
+
+
 #endif
 

@@ -1,7 +1,9 @@
 #ifndef _IO_H_
 #define _IO_H_
 
-static inline void IoWrite8(uint16_t addr, uint8_t data)
+#include <types.h>
+
+static inline void __io_write_8(uint16_t addr, uint8_t data)
 {
 	asm (
 		"mov %0, %%al\n\t"
@@ -11,7 +13,7 @@ static inline void IoWrite8(uint16_t addr, uint8_t data)
 		:"m"(data), "m"(addr)
 	);
 }
-static inline void IoWrite16(uint16_t addr, uint16_t data)
+static inline void __io_write_16(uint16_t addr, uint16_t data)
 {
 	asm (
 		"mov %0, %%ax\n\t"
@@ -21,7 +23,7 @@ static inline void IoWrite16(uint16_t addr, uint16_t data)
 		:"m"(data), "m"(addr)
 	);
 }
-static inline void IoWrite32(uint16_t addr, uint32_t data)
+static inline void __io_write_32(uint16_t addr, uint32_t data)
 {
 	asm (
 		"mov %0, %%eax\n\t"
@@ -31,7 +33,7 @@ static inline void IoWrite32(uint16_t addr, uint32_t data)
 		:"m"(data), "m"(addr)
 	);
 }
-static inline uint8_t IoRead8(uint16_t addr)
+static inline uint8_t __io_read_8(uint16_t addr)
 {
 	uint8_t data;
 	asm (
@@ -43,7 +45,7 @@ static inline uint8_t IoRead8(uint16_t addr)
 	);
 	return data;
 }
-static inline uint16_t IoRead16(uint16_t addr)
+static inline uint16_t __io_read_16(uint16_t addr)
 {
 	uint16_t data;
 	asm (
@@ -55,7 +57,7 @@ static inline uint16_t IoRead16(uint16_t addr)
 	);
 	return data;
 }
-static inline uint32_t IoRead32(uint16_t addr)
+static inline uint32_t __io_read_32(uint16_t addr)
 {
 	uint32_t data;
 	asm (

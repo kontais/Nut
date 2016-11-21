@@ -84,19 +84,19 @@ SerialPortInitialize (
   // Set communications format
   //
   OutputData = (UINT8) ((DLAB << 7) | (gBreakSet << 6) | (gParity << 3) | (gStop << 2) | Data);
-  IoWrite8 ((UINT64) (gUartBase + LCR_OFFSET), OutputData);
+  __io_write_8 ((UINT64) (gUartBase + LCR_OFFSET), OutputData);
 
   //
   // Configure baud rate
   //
-  IoWrite8 ((UINT64) (gUartBase + BAUD_HIGH_OFFSET), (UINT8) (Divisor >> 8));
-  IoWrite8 ((UINT64) (gUartBase + BAUD_LOW_OFFSET), (UINT8) (Divisor & 0xff));
+  __io_write_8 ((UINT64) (gUartBase + BAUD_HIGH_OFFSET), (UINT8) (Divisor >> 8));
+  __io_write_8 ((UINT64) (gUartBase + BAUD_LOW_OFFSET), (UINT8) (Divisor & 0xff));
 
   //
   // Switch back to bank 0
   //
   OutputData = (UINT8) ((~DLAB << 7) | (gBreakSet << 6) | (gParity << 3) | (gStop << 2) | Data);
-  IoWrite8 ((UINT64) (gUartBase + LCR_OFFSET), OutputData);
+  __io_write_8 ((UINT64) (gUartBase + LCR_OFFSET), OutputData);
 
   return 0;
 }
@@ -140,9 +140,9 @@ SerialPortWrite (
     // Wait for the serail port to be ready.
     //
     do {
-      Data = IoRead8 ((UINT16) gUartBase + LSR_OFFSET);
+      Data = __io_read_8 ((UINT16) gUartBase + LSR_OFFSET);
     } while ((Data & LSR_TXRDY) == 0);
-    IoWrite8 ((UINT16) gUartBase, *Buffer++);
+    __io_write_8 ((UINT16) gUartBase, *Buffer++);
   }
 
   return Result;
@@ -180,10 +180,10 @@ SerialPortRead (
     // Wait for the serail port to be ready.
     //
     do {
-      Data = IoRead8 ((UINT16) gUartBase + LSR_OFFSET);
+      Data = __io_read_8 ((UINT16) gUartBase + LSR_OFFSET);
     } while ((Data & LSR_RXDA) == 0);
 
-    *Buffer++ = IoRead8 ((UINT16) gUartBase);
+    *Buffer++ = __io_read_8 ((UINT16) gUartBase);
   }
 
   return Result;
@@ -210,7 +210,7 @@ SerialPortPoll (
   //
   // Read the serial port status.
   //
-  Data = IoRead8 ((UINT16) gUartBase + LSR_OFFSET);
+  Data = __io_read_8 ((UINT16) gUartBase + LSR_OFFSET);
 
   return (UINT8) ((Data & LSR_RXDA) != 0);
 }

@@ -15,6 +15,7 @@
 
 #include <SerialPortLib.h>
 #include <io.h>
+#include <vga.h>
 // void main(int argv, char **args) asm("_main");
 void main(int argv, char **args)
 {
@@ -26,13 +27,15 @@ void main(int argv, char **args)
 // 	SerialPortInitialize();
 // 	enable_interrupt();
 // 	exec("init");
-	
+	vga_init();
 	
 	while(1)
 	{
-// 		IoWrite8(0X3F8, 'A');
+		for (char *ptr = (char *)0xA0000; (uint64_t)ptr <= 0xBFFFF; ptr ++)
+			*ptr = 0;
+		__io_write_8(0X3F8, 'A');
 // 		sched();
-		SerialPortWrite(str, 12);
+// 		SerialPortWrite(str, 12);
 // 		for (int i = 0; i < 0xfffffff; i ++);
 	}
 }
