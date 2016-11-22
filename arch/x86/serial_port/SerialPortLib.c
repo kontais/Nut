@@ -14,7 +14,7 @@
 
 #include <types.h>
 #include <io.h>
-#include <SerialPortLib.h>
+#include "SerialPortLib.h"
 
 //---------------------------------------------
 // UART Register Offsets

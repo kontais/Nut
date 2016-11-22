@@ -45,8 +45,8 @@ struct tcb
  * FS,GS may be used as additional base
  * registers in linear address calculations.
  */
-//	uint64_t DS;
-//	uint64_t ES;
+	uint64_t DS;
+	uint64_t ES;
 	uint64_t FS;
 	uint64_t GS;
 	
