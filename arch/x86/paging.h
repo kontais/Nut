@@ -108,10 +108,18 @@ struct pte_table
 #define PAGING_MASK_ADDR	0x0000fffffffff000
 #define PAGING_MASK_XD		0x8000000000000000
 
-#define PAGING_MASK_ENTRY_OFFSET	0x1ff
+#define PAGING_MASK_ENTRY_OFFSET	     0x1ff
+
+
+#define SYSCALL_BASE		0xffffffffff000000
+#define KERNEL_IMAGE_BASE	0xffffffff80000000
+#define KERNEL_HEAP_BASE	0xfffff80000000000
+#define VIRTUAL_MAP_BASE	0xfffff40000000000
+#define KERNEL_STACK_BASE	0xfffff00000000000
+#define PHY_MAP_BASE		0xffff800000000000
 // uint64_t get_phy_addr(struct plm4_entry *plm4, uint64_t virt_addr);
 // uint64_t* get_virt_addr(struct plm4_entry *plm4, uint64_t phy_addr);
-#define 
+
 int modify_mapping(struct pml4e_table *plm4e, uint64_t virt_addr, uint64_t phy_addr, uint64_t flag);
 int query_mapping(struct pml4e_table *plm4e, uint64_t virt_addr, uint64_t *phy_addr, uint64_t *flag);
 

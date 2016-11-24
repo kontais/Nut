@@ -27,10 +27,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
   @retval RETURN_DEVICE_ERROR   The serial device could not be initialized.
 
 **/
-UINT8
-SerialPortInitialize (
-  VOID
-  );
+int serial_port_init(void);
 
 /**
   Write data from buffer to serial device. 
