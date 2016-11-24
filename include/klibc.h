@@ -8,17 +8,18 @@
 
 //String
 /**
- * 
- * 
+ * ASCII to integer convention
+ * @str interger string
+ * @retval integer the string represents
  * 
  */
-
+extern int atoi(const char *str);
 /**
  * Similar function as standard string functions.
  * @str the string to evaluate length of
  * @return the length of the string,
  */
-static inline int strlen(char *str)
+static inline int strlen(const char *str)
 {
 	int len = 0;
 	while (*str++ != '\0')
