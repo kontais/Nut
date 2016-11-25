@@ -4,6 +4,15 @@
 struct phy_page_table global_page_table;
 void *heap_start = NULL;
 /**
+ * 
+ * 
+ */
+void vm_page_table_init(void)
+{
+	
+	
+}
+/**
  * Take all memory pages except those used by kernel
  * into the free list of global_page_table
  */

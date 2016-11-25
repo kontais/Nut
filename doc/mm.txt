@@ -14,3 +14,11 @@ Virtual memory map with 4 level page tables:
 0xffff8fffffffffff - 0xffff800000000000 (=16 TB)   Direct mapping of all physical memory
 0x00007fffffffffff - 0x0000000000000000 (=47 bits) User Space
 
+Physical memory map:
+x86:
+0x0000000000100000 - 0x0000000000000000 (=1 MB)    Reserved
+0x0000000008000000 - 0x0000000000100000 (=127 MB)  Kernel Image
+                                                   Memory map tables
+                                                   Kernel Heap
+                                                   Kernel Stack
+... the rest available memory ...                  For user programs

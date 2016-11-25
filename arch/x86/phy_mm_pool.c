@@ -39,6 +39,7 @@ uint64_t phy_mm_pool_alloc(void)
 	mm_pool_info_block->ptr = ++mm_pool_info_block->ptr % mm_pool_info_block->block_size;
 	return mm_pool_desc & 0x0000fffffffff000;
 }
+
 void phy_mm_pool_free(uint64_t addr)
 {
 	for (uint64_t i = 0; i < mm_pool_info_block->block_size; i ++)

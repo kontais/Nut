@@ -32,7 +32,6 @@ void do_map(struct virt_page)
 	pte_entry_ptr->phy_addr = virt_page->phy_page->phy_addr >> 12;
 // 	pte_entry_ptr->pk 
 	pte_entry_ptr->xd = 0;
-	
 }
 /**
  * Unmap a virtual address.

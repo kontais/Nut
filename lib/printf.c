@@ -55,53 +55,49 @@ int __print_format(char *buf, char *fmt, va_list ap)
 	char *s;
 	while(*fmt)
 	{
-		switch (*fmt) {
-			case 's':
-				(*__stdout)("S\n");
-				s = va_arg(ap, char *);
-// 				__print_hex(buf,s,16);
-// 				(*__stdout)(buf);
-				ptr = __print_str(ptr, s);
-				break;
-			case 'c':
-				(*__stdout)("C\n");
-				c = (char)va_arg(ap, int);
-				ptr = __print_ch(ptr, c);
-				break;
-			case 'd':
-				(*__stdout)("D\n");
-				d = va_arg(ap, int);
-				ptr = __print_deci(ptr, d);
-				break;
-			case 'x':
-				(*__stdout)("X\n");
-				x = va_arg(ap, unsigned int);
-				ptr = __print_hex(ptr, x, sizeof(unsigned int) * 2);
-				break;
-			case 'l':
-				switch (*++fmt) {
-					case 'd':
-						(*__stdout)("LD\n");
-						ld = va_arg(ap, long);
-						ptr = __print_deci(ptr, ld);
-						break;
-					case 'x':
-						(*__stdout)("LX\n");
-						lx = va_arg(ap, unsigned long);
-						ptr = __print_hex(ptr, x, sizeof(unsigned long) * 2);
-						break;
-// 					case 'l':
-// 						break;
-					default:
-						break;
-				}
-			default:
-				(*__stdout)("E\n");
-				if (*fmt == '%')
+		if (*fmt == '%')
+		{
+			switch (*++fmt) {
+				case 's':
+					s = va_arg(ap, char *);
+					ptr = __print_str(ptr, s);
 					break;
-				else 
-					*ptr++ = *fmt;
-		};
+				case 'c':
+					c = (char)va_arg(ap, int);
+					ptr = __print_ch(ptr, c);
+					break;
+				case 'd':
+					d = va_arg(ap, int);
+					ptr = __print_deci(ptr, d);
+					break;
+				case 'x':
+					x = va_arg(ap, unsigned int);
+					ptr = __print_hex(ptr, x, sizeof(unsigned int) * 2);
+					break;
+				case 'l':
+					switch (*++fmt) {
+						case 'd':
+							ld = va_arg(ap, long);
+							ptr = __print_deci(ptr, ld);
+							break;
+						case 'x':
+							lx = va_arg(ap, unsigned long);
+							ptr = __print_hex(ptr, lx, sizeof(unsigned long) * 2);
+							break;
+	// 					case 'l':
+	// 						break;
+						default:
+							break;
+					}
+					break;
+				default:
+					break;
+			};
+		}
+		else
+		{
+			*ptr++ = *fmt;
+		}
 		fmt++;
 	}
  	*ptr++ = '\0';

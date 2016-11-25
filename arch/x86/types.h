@@ -58,10 +58,10 @@ __extension__
 typedef unsigned long long int	UINT64;
 #endif
 
-typedef void			VOID;
-
-#define IN
-#define OUT
+// typedef void			VOID;
+// 
+// #define IN
+// #define OUT
 
 typedef uint64_t 		size_t;
 typedef uint64_t		id_t;

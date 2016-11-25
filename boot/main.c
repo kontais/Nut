@@ -1,30 +1,41 @@
 /**
  * This is the routine of the kernel
  * called by bootloader.
- * This main function allows passing
- * boot parameters through the kernel
- * command line.
  * 
- * Parameters:(with * is necessary)
- * 
- * 1.Kernel Memory Base*	: "base=ADDRESS"
- * 2.Kernel Size*		: "size=SIZE"
- * 3.Memory Map Table Base*	: "map=ADDRESS"
- * 4.Memory Map Size*		: "mapsize=SIE"
  */
 
 #include <serial_port/serial_port.h>
-#include <io.h>
-#include <vga.h>
 #include <klibc.h>
-// void main(int argv, char **args) asm("_main");
-void main(int argv, char **args)
+#include <phy_mm_pool.h>
+extern efi_memory_descriptor_t mm_map;
+extern char text_start[];
+extern char text_end[];
+extern char data_start[];
+extern char data_end[];
+extern char bss_start[];
+extern char bss_end[];
+void main(void)
 {
 	char *str = "Hello,world\n";
-	char buf[1024] = {0};
-	
+// 	char buf[1024] = {0};
+// 	uint64_t cr3;
+// 	asm (
+// 		"mov %%cr0, %%rax\r\n"
+// 		"mov %%rax, %0\r\n"
+// 		: "=m" (cr3)
+// 		:
+// 	);
 	early_print_init();
-//  	mm_init();
+	__serial_port_print("Debug:\n");
+	printf("text_start=%lx\n", text_start);
+	printf("text_end=%lx\n", text_end);
+	printf("data_start=%lx\n", data_start);
+	printf("data_end=%lx\n", data_end);
+	printf("bss_start=%lx\n", bss_start);
+	printf("bss_end=%lx\n", bss_end);
+// 	printf("data_load=%lx\n", data_load_start);
+	
+   	mm_init();
 // 	proc_init();
 // 	ipc_init();
 // 	dev_init();
@@ -33,12 +44,15 @@ void main(int argv, char **args)
 // 	exec("init");
 // 	vga_init();
 // 	__print_str(buf, str);
-	__serial_port_print("Debug:\n");
+	
 // 	__print_deci(buf, 1234567890);
 // 	__print_hex(buf,str,16);
 // 	__serial_port_print(buf);
-	assert(1==2);
-	printf("ABCD%sABCD%d%c %x", str,1234567890,'B', 0xff);
+	printf("%lx", mm_map);
+	printf("%s", str);
+// 	printf("%lx", cr3);
+// 	assert(1==2);
+// 	printf("ABCD%sABCD%d%c %x", str,1234567890,'B', 0xff);
 	while(1)
 	{
 // 		__serial_port_print(buf);

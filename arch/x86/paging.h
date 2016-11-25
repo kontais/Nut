@@ -1,6 +1,6 @@
 #ifndef _PAGING_H_
 #define _PAGING_H_
-
+#include <types.h>
 //Bit order:big endian
 struct cr3
 {
@@ -16,7 +16,7 @@ struct cr3
 };
 
 
-struct plm4_entry
+struct plm4e_entry
 {
 	uint64_t xd:1,
 		 _ignored_3:11,
@@ -79,23 +79,38 @@ struct pte_entry
 		 r_w:1,
 		 p:1;
 };
-struct pml4e_table
+// struct plm4e_table
+// {
+// 	struct plm4e_entry entry[512];
+// };
+// struct pdpte_table
+// {
+// 	struct pdpte_entry entry[512];
+// };
+// struct pde_table
+// {
+// 	struct pde_entry entry[512];
+// };
+// struct pte_table
+// {
+// 	struct pte_entry entry[512];
+// };
+struct plm4e_table
 {
-	struct plm4_entry entry[512];
+	uint64_t entry[512];
 };
 struct pdpte_table
 {
-	struct pdpte_entry entry[512];
+	uint64_t entry[512];
 };
 struct pde_table
 {
-	struct pde_entry entry[512];
+	uint64_t entry[512];
 };
 struct pte_table
 {
-	struct pte_entry entry[512];
+	uint64_t entry[512];
 };
-
 #define PAGING_MASK_P		0x0000000000000001
 #define PAGING_MASK_R_W		0x0000000000000002
 #define PAGING_MASK_U_S		0x0000000000000004
@@ -111,17 +126,14 @@ struct pte_table
 #define PAGING_MASK_ENTRY_OFFSET	     0x1ff
 
 
-#define SYSCALL_BASE		0xffffffffff000000
-#define KERNEL_IMAGE_BASE	0xffffffff80000000
-#define KERNEL_HEAP_BASE	0xfffff80000000000
-#define VIRTUAL_MAP_BASE	0xfffff40000000000
-#define KERNEL_STACK_BASE	0xfffff00000000000
-#define PHY_MAP_BASE		0xffff800000000000
 // uint64_t get_phy_addr(struct plm4_entry *plm4, uint64_t virt_addr);
 // uint64_t* get_virt_addr(struct plm4_entry *plm4, uint64_t phy_addr);
 
-int modify_mapping(struct pml4e_table *plm4e, uint64_t virt_addr, uint64_t phy_addr, uint64_t flag);
-int query_mapping(struct pml4e_table *plm4e, uint64_t virt_addr, uint64_t *phy_addr, uint64_t *flag);
+
+uint64_t create_default_identified_mapped_tables(uint64_t base, uint64_t range);
+
+int modify_mapping(struct plm4e_table *plm4e, uint64_t virt_addr, uint64_t phy_addr, uint64_t flag);
+int query_mapping(struct plm4e_table *plm4e, uint64_t virt_addr, uint64_t *phy_addr, uint64_t *flag);
 
 #endif
 

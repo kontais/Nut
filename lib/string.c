@@ -1,3 +1,4 @@
+#include <klibc.h>
 int atoi(const char *str)
 {
 	int num=0;
