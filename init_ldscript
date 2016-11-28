@@ -1,0 +1,21 @@
+OUTPUT_FORMAT(binary)
+ENTRY(_init)
+SECTIONS
+{
+	. = 0x0000000000000000;
+	__INIT_START = .;
+	.text : 
+	{ 
+		init.o(.text)
+		*(.text)
+	}
+	.rodata : { *(.rodata) }
+	.data : { *(.data) }
+
+	.bss : { *(.bss) }
+	__BSS_END = .;
+	.zero : {
+		. += 0x2000 - __BSS_END;
+	}
+	__INIT_END = .;
+}

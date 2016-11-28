@@ -11,7 +11,7 @@
  * 	  -1 : error
  */
 uint64_t syscall_base_addr = 0;
-uint64_t kernel_image_base_addr = 0;
+uint64_t kernel_image_base_addr = 0xffffffff80000000;
 uint64_t kernel_heap_base_addr = 0;
 uint64_t virtual_map_base_addr = 0;
 uint64_t kernel_stack_base_addr = 0;
@@ -71,7 +71,7 @@ static void __set_entry(void *table, uint16_t n, uint64_t addr, uint64_t flag)
 	*((uint64_t *)table + n) = addr & PAGING_MASK_ADDR | flag;
 }
 
-uint64_t page_table_head = 0;
+uint64_t page_table_head;
 static void *__continous_alloc(void)
 {
 	page_table_head += 0x1000;
@@ -160,45 +160,51 @@ uint64_t create_default_identified_mapped_tables(uint64_t page_table_base, uint6
 		: "m" (pe)
 	);
 	printf("%lx\n", out);
-	asm(
-		"mov %0, %%rax\r\n"
-		"add $jump, %%rax\r\n"
-		"jmp *%%rax\r\n"
-		:
-		: "r"(KERNEL_IMAGE_BASE)
-	);
-	asm ("jump:");
-	printf("%s","Hello,wolrd.\n");
-	printf("%s","Nice to meet you.\n");
-	asm (
-		"call read\r\n"
-		"read:\r\n"
-		"pop %0\r\n"
-		: "=m" (out)
-		: 
-	);
-	printf("%lx\n", out);
+// 	asm(
+// 		"mov %0, %%rax\r\n"
+// 		"add $jump, %%rax\r\n"
+// 		"jmp *%%rax\r\n"
+// 		:
+// 		: "r"(KERNEL_IMAGE_BASE)
+// 	);
+// 	asm ("jump:");
+// 	printf("%s","Hello,wolrd.\n");
+// 	printf("%s","Nice to meet you.\n");
+// 	asm (
+// 		"call read\r\n"
+// 		"read:\r\n"
+// 		"pop %0\r\n"
+// 		: "=m" (out)
+// 		: 
+// 	);
+// 	printf("%lx\n", out);
 	printf("%lx\n", page_table_head);
-	extern char text_start[];
-	extern char text_end[];
-	extern char data_start[];
-	extern char data_end[];
-	extern char bss_start[];
-	extern char bss_end[];
-	printf("text_start=%lx\n", text_start);
-	printf("text_end=%lx\n", text_end);
-	printf("data_start=%lx\n", data_start);
-	printf("data_end=%lx\n", data_end);
-	printf("bss_start=%lx\n", bss_start);
-	printf("bss_end=%lx\n", bss_end);
+// 	extern char text_start[];
+// 	extern char text_end[];
+// 	extern char data_start[];
+// 	extern char data_end[];
+// 	extern char bss_start[];
+// 	extern char bss_end[];
+// 	printf("text_start=%lx\n", text_start);
+// 	printf("text_end=%lx\n", text_end);
+// 	printf("data_start=%lx\n", data_start);
+// 	printf("data_end=%lx\n", data_end);
+// 	printf("bss_start=%lx\n", bss_start);
+// 	printf("bss_end=%lx\n", bss_end);
 // 	printf("data_load=%lx\n", data_load_start);
-	asm ("hlt");
+// 	asm ("hlt");
 	phy_map_addr = PHY_MAP_BASE; 
 	return page_table_head - page_table_base;
 }
+void excute_to_virtal_memory_addr()
+{
+	
+}
 int mm_init(void)
 {
-	create_default_identified_mapped_tables(0x400000, 0x120000000 >> 12);
+	//Create default page tables and get the page table's size
+	uint64_t page_size = create_default_identified_mapped_tables(0x400000, 0x120000000 >> 12);
+	return 0;
 }
 // int modify_mapping(struct pml4e_table *plm4e, uint64_t virt_addr, uint64_t phy_addr, uint64_t flag, void *(*alloc)(void))
 // {
