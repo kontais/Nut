@@ -2,7 +2,7 @@ OUTPUT_FORMAT(binary)
 ENTRY(_start)
 SECTIONS
 {
-	. = 0xFFFFFFFF80002000;
+	. = 0xFFFFFFFF80004000;
 	.text : { 
 		arch/x86/asm/start.o
 		*(.text)

@@ -1,6 +1,14 @@
+/**
+  * Stack:
+  * [  EFLAGS  ]
+  * [    CS    ]
+  * [    EIP   ]
+  * [Error Code]
+  */
+
 .globl exception_handler
 exception_handler:
-	push	%rax
+/*	push	%rax
 	push	%rbx
 	push	%rcx
 	push	%rdx
@@ -15,7 +23,7 @@ exception_handler:
 	push	%r13
 	push	%r14
 	push	%r15
-	mov	%rsp, %rdi
+	mov	%rsp, %rdi*/
 	call	dump_reg
 /* 	call	print_traceback */
 	hlt

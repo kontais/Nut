@@ -2,7 +2,7 @@
 #include <klibc.h>
 #include <mm.h>
 
-
+extern uint64_t image_base;
 
 extern void exception_handler(void);
 
@@ -16,7 +16,6 @@ static void __gdt_init(void)
 	seg->s = 1;
 	seg->type = SEG_T_D_RW_A;
 	seg ++;
-// 	*((uint64_t *)seg) = 0x00AF9B000000FFFF;
 	seg->p = 1;
 	seg->l = 1;
 	seg->s = 1;
@@ -124,6 +123,7 @@ void load_dsc_tables_and_seg_sels(void)
 		:
 		: "m" (pseudo_dsc.limit)
 	);
+	printf("GDTR = %lx %lx\n", pseudo_dsc.base, pseudo_dsc.limit);
 	pseudo_dsc.limit = IDT_SIZE - 1;
 	pseudo_dsc.base = IDT_BASE + PHY_MAP_BASE;
 	//Load interrupt table
@@ -133,40 +133,54 @@ void load_dsc_tables_and_seg_sels(void)
 		:
 		: "m" (pseudo_dsc.limit)
 	);
+	printf("IDTR = %lx %lx\n", pseudo_dsc.base, pseudo_dsc.limit);
 	//Load code segment
+	//FIXME:Still cannot load CS:RIP with a 16-bit selector and 64-bit address.
+	//WORKAROUND: Load CS:EIP with a 16-bit selector and 32-bit address.
 	struct {
-		uint32_t _reserve_1;
-		uint16_t _reserve_2;
-		uint16_t seg_sel;
-		uint64_t addr;
-	} far_ptr __attribute__ ((aligned (8)));
+		uint32_t offset;
+		uint32_t seg_sel;
+	} far_ptr;
 	far_ptr.seg_sel = 0x10;
-	far_ptr.addr = 0;
+	far_ptr.offset = 0;
 	asm (
-		"lea	%0, %%rax\r\n"
+		"lea	%1, %%rax\r\n"
 		"mov	$jump, %%rbx\r\n"
-		"add	$0xffffffff80000000, %%rbx\r\n"
-		"mov	%%rbx, 2(%%rax)\r\n"
-// 		"int	$3\r\n"
-		"ljmp	*(%%rax)\r\n"
+		"add	%0, %%rbx\r\n"
+// 		"sub	$1, %%rbx\r\n"
+		"movl	%%ebx, (%%rax)\r\n"
+		"ljmpl	*(%%rax)\r\n"
 		"jump:\r\n"
 		:
-		: "m" (far_ptr.seg_sel)
+		: "m" (image_base), "m" (far_ptr)
 	);
-	printf("%lx %lx\n", far_ptr.seg_sel, far_ptr.addr);
-	printf("GDTR = %lx %lx\n", pseudo_dsc.base, pseudo_dsc.limit);
-	printf("GDT:\n");
-	for (uint64_t i = 0; i < 0x10; i ++)
-// 		printf("%lx\n", *(uint64_t *)(i * 8));
-		printf("%lx\n", *(uint64_t *)(0x00000000DF7A8018 + i * 8));
-	for (uint64_t i = 0; i < 0x10; i ++)
-// 		printf("%lx\n", *(uint64_t *)(i * 8));
-		printf("%lx\n", *(uint64_t *)(0x00000000DFF2DF98 + i * 8));	
+// 	uint64_t ptr[3] = { 0xffff001000000000, 0x0010000000000000,0x0010};
+// 	asm (
+// 		"lea	%0, %%rax\r\n"
+// 		"mov	$jump, %%rbx\r\n"
+// // 		"add	$0xffffffff80000000, %%rbx\r\n"
+// 		"add	$0x100000, %%rbx\r\n"
+// // 		"mov	%%rbx, (%%rax)\r\n"
+// 		"sub	$1, %%ebx\r\n"
+// 		"movl	%%ebx, (%%rax)\r\n"
+// 
+// // 		"int	$3\r\n"
+// 		"ljmpl *(%%rax)\r\n"
+// // 		"ljmp	$0x10,%%rax\r\n"
+// 		"jump:\r\n"
+// 		"int	$3\r\n"
+// 		:
+// 		: "m" (ptr)
+// 	);
+// 	printf("%lx %lx\n", ptr[0], ptr[1]);
+
+// 	printf("GDT:\n");
+// 	for (uint64_t i = 0; i < 0x10; i ++)
+// // 		printf("%lx\n", *(uint64_t *)(i * 8));
+// 		printf("%lx\n", *(uint64_t *)(0x00000000DF7A8018 + i * 8));
+// 	for (uint64_t i = 0; i < 0x10; i ++)
+// // 		printf("%lx\n", *(uint64_t *)(i * 8));
+// 		printf("%lx\n", *(uint64_t *)(0x00000000DFF2DF98 + i * 8));	
 	
-	
-}
-void dump_reg(uint64_t addr)
-{
-	printf("Exception:\n");
 	
 }

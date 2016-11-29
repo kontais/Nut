@@ -15,7 +15,7 @@ SECTIONS
 	.bss : { *(.bss) }
 	__BSS_END = .;
 	.zero : {
-		. += 0x2000 - __BSS_END;
+		. += 0x4000 - __BSS_END;
 	}
 	__INIT_END = .;
 }
