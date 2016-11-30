@@ -123,8 +123,8 @@ extern void (*__stdout)(char *str);
  * TODO:
  * 	Add support for more functions.
  */
-extern int printf(char *fmt, ...);
-extern int sprintf(char *buf, char *fmt, ...);
+extern int printf(const char *fmt, ...);
+extern int sprintf(char *buf, const char *fmt, ...);
 //Debug
 /**
  * To help programmers find bugs.
@@ -141,5 +141,8 @@ extern int sprintf(char *buf, char *fmt, ...);
 	: __assert_fail (#expr, __FILE__, __LINE__, __PRETTY_FUNCTION__))
 extern void __assert_fail(const char *__assertion, const char *__file, unsigned int __line, const char *__function);
 #endif
+
+#define bug(fmt,arg...)	__bug(__FILE__, __LINE__, __PRETTY_FUNCTION__, fmt, ##arg)
+extern void __bug(const char *__file, unsigned int __line, const char *__function,const char *fmt, ...);
 
 #endif

@@ -177,9 +177,9 @@ void init_mm_map(void)
 	//Calculate pages to hold UEFI memory descriptors and relocate.
 	it = (void *)mm_desc_addr;
 	mm_desc_addr = image_base + kernel_image_pages * 0x1000;
-	uint64_t mm_desc_pages = (mm_desc_size >> 12) + 1;
+	uint64_t mm_desc_pages = (mm_desc_total >> 12) + 1;
 	memset((void *)mm_desc_addr, 0, mm_desc_pages << 12);
-	memcpy((void *)mm_desc_addr, it, mm_desc_size);
+	memcpy((void *)mm_desc_addr, it, mm_desc_total);
 	
 	//Calculate stack page base
 	stack_page_base = mm_desc_addr + mm_desc_pages * 0x1000;

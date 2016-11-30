@@ -83,10 +83,8 @@ UefiMain (
 	UINT32 DescriptorVersion;
 	EFI_MEMORY_DESCRIPTOR MemoryMap[128] = {0};
 	MemoryMapBufferSize = sizeof(MemoryMap);
-	Status = gBS->GetMemoryMap(&MemoryMapBufferSize, MemoryMap, &MapKey, &DescriptorSize, &DescriptorVersion);
-	if (EFI_ERROR(Status))
-		Print(L"MemoryMap buffer was too small.\n");
-	Print(L"Memory map descriptor at address %016lx total size is %d bytes,%d bytes each,version %d.\n", MemoryMap, MemoryMapBufferSize, DescriptorSize, DescriptorVersion);
+	
+	
 	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *SimpleFileSystem;
 	EFI_FILE_PROTOCOL *Root;
 	Status = gBS->LocateProtocol(&gEfiSimpleFileSystemProtocolGuid, NULL, (VOID **)&SimpleFileSystem);
@@ -112,6 +110,12 @@ UefiMain (
 		Print(L"Read file size %d.\n", BufferSize);
 		Print(L"Read file addr %016lx.\n", addr);
 		memdump((UINT64)addr);
+		
+		Status = gBS->GetMemoryMap(&MemoryMapBufferSize, MemoryMap, &MapKey, &DescriptorSize, &DescriptorVersion);
+		if (EFI_ERROR(Status))
+		Print(L"MemoryMap buffer was too small.\n");
+		Print(L"Memory map descriptor at address %016lx total size is %d bytes,%d bytes each,version %d.\n", MemoryMap, MemoryMapBufferSize, DescriptorSize, DescriptorVersion);
+		
 		gBS->ExitBootServices(ImageHandle, MapKey);
 		asm (
 			"push %4\r\n"
@@ -190,10 +194,5 @@ UefiMain (
 // 	for (char *ptr = (char *)0x000A0000; (UINT64)ptr <= 0x000BFFFF; ptr ++)
 // 			*ptr = 0;
 // 	
-	for (UINT64 addr = 0xe0000003; addr < 0xe0300000; addr += 4)
-	{
-		*(UINT8 *)addr = 0x00;
-	}
-
   return EFI_SUCCESS;
 }

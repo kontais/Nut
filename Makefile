@@ -7,11 +7,14 @@ LDFLAGS= --script=./ldscript -nostdlib
 
 INCLUDE= 
 
-INIT_SOURCE= arch/x86/init/init.S arch/x86/init/init_mm_map.c  arch/x86/early_print.c lib/assert.c lib/printf.c  arch/x86/serial_port/serial_port.c arch/x86/init/init_dsc_tables.c arch/x86/init/exception_handler.S arch/x86/debug/dump_reg.c
+INIT_CFLAGS = $(CFLAGS) -c -fPIE 
+INIT_LDFLAGS=  --script=./init_ldscript -nostdlib
+
+INIT_SOURCE= arch/x86/init/init.S arch/x86/init/init_mm_map.c  arch/x86/init/early_print.c lib/assert.c lib/printf.c  arch/x86/serial_port/serial_port.c arch/x86/init/init_dsc_tables.c arch/x86/init/exception_handler.S arch/x86/debug/dump_reg.c
 INIT_OBJS= init.o init_mm_map.o early_print.o assert.o printf.o serial_port.o init_dsc_tables.o exception_handler.o dump_reg.o
 
 
-OBJS=  boot/main.o arch/x86/serial_port/serial_port.o arch/x86/video/vga.o arch/x86/early_print.o lib/assert.o lib/printf.o  lib/string.o arch/x86/paging.o arch/x86/asm/start.o
+OBJS=  boot/main.o  arch/x86/video/vga.o lib/assert.o lib/printf.o  lib/string.o  arch/x86/asm/start.o arch/x86/paging.o lib/bug.o
 
 .PHONY:all
 all:init kernel
@@ -19,12 +22,13 @@ all:init kernel
 
 .PHONY:init
 init:
-	$(CC) -c $(CFLAGS) $(INIT_SOURCE) -fPIE  
-	$(LD) --script=./init_ldscript -nostdlib -o init $(INIT_OBJS)
+	$(CC) $(INIT_CFLAGS) $(INIT_SOURCE)
+	$(LD) $(INIT_LDFLAGS) $(INIT_OBJS) -o init
 .PHONY:kernel
 kernel:$(OBJS)
 # 	$(CC) -c  $(CFLAGS) $(PIE_SOURCE)
 	$(LD) -o kernel $(OBJS) $(LDFLAGS)
+	$(LD) -o kernel.elf $(OBJS) $(LDFLAGS) --oformat=elf64-x86-64
 .PHONY:clean
 clean:
 	rm -f $(OBJS) init kernel kernel.img $(INIT_OBJS)

@@ -1,15 +1,16 @@
 #ifndef _PAGING_H_
 #define _PAGING_H_
 #include <types.h>
+#include <uefi.h>
 //Bit order:big endian
 struct cr3
 {
-	uint64_t _reserved_1:12,
-		 phy_addr:40,
-		 _ignored_2:7,
-		 pcd:1,
+	uint64_t  _ignored_1:3,
 		 pwt:1,
-		 _ignored_1:3;
+		 pcd:1,
+		 _ignored_2:7,
+		 phy_addr:40,
+		 _reserved_1:12;
 // 	uint64_t PCID:12,
 // 	        addr:40,
 // 	        _reserved:12;
@@ -18,66 +19,66 @@ struct cr3
 
 struct plm4e_entry
 {
-	uint64_t xd:1,
-		 _ignored_3:11,
-		 phy_addr:40,
-		 _ignored_2:4,
-		 _reserved_1:1,
-		 _ignored_1:1,
-		 a:1,
-		 pcd:1,
-		 pwt:1,
-		 u_s:1,
+	uint64_t p:1,
 		 r_w:1,
-		 p:1;
+		 u_s:1,
+		 pwt:1,
+		 pcd:1,
+		 a:1,
+		 _ignored_1:1,
+		 ps:1,
+		 _ignored_2:4,
+		 phy_addr:40,
+		  _ignored_3:11,
+		 xd:1;
 };
 
 struct pdpte_entry
 {
-	uint64_t xd:1,
-		 _ignored_3:11,
-		 phy_addr:40,
-		 _ignored_2:4,
-		 ps:1,
-		 _ignored_1:1,
-		 a:1,
-		 pcd:1,
-		 pwt:1,
-		 u_s:1,
+	uint64_t p:1,
 		 r_w:1,
-		 p:1;
+		 u_s:1,
+		 pwt:1,
+		 pcd:1,
+		 a:1,
+		 _ignored_1:1,
+		 ps:1,
+		 _ignored_2:4,
+		 phy_addr:40,
+		 _ignored_3:11,
+		 xd:1; 
 };
 struct pde_entry
 {
-	uint64_t xd:1,
-		 _ignored_3:11,
-		 phy_addr:40,
-		 _ignored_2:4,
-		 ps:1,
-		 _ignored_1:1,
-		 a:1,
-		 pcd:1,
-		 pwt:1,
-		 u_s:1,
+	uint64_t p:1,
 		 r_w:1,
-		 p:1;
+		 u_s:1,
+		 pwt:1,
+		 pcd:1,
+		 a:1,
+		 _ignored_1:1,
+		 ps:1,
+		 _ignored_2:4,
+		 phy_addr:40,
+		 _ignored_3:11,
+		 xd:1;
 };
 struct pte_entry
 {
-	uint64_t xd:1,
-		 pk:4,
-		 _ignored_2:7,
-		 phy_addr:40,
-		 _ignored_1:3,
-		 g:1,
-		 pat:1,
-		 d:1,
-		 a:1,
-		 pcd:1,
-		 pwt:1,
-		 u_s:1,
+	uint64_t p:1,
 		 r_w:1,
-		 p:1;
+		 u_s:1,
+		 pwt:1,
+		 pcd:1,
+		 a:1,
+		 d:1,
+		 pat:1,
+		 g:1,
+		 _ignored_1:3,
+		  phy_addr:40,
+		 _ignored_2:7,
+		 pk:4,
+		 xd:1;
 };
 // struct plm4e_table
 // {
@@ -130,7 +131,12 @@ struct pte_table
 // uint64_t* get_virt_addr(struct plm4_entry *plm4, uint64_t phy_addr);
 
 
-uint64_t create_default_identified_mapped_tables(uint64_t base, uint64_t range);
+/**
+ * Size in pages.
+ */
+uint64_t page_alloc(uint64_t size);
+void page_free(uint64_t addr, uint64_t size);
+
 
 int modify_mapping(struct plm4e_table *plm4e, uint64_t virt_addr, uint64_t phy_addr, uint64_t flag);
 int query_mapping(struct plm4e_table *plm4e, uint64_t virt_addr, uint64_t *phy_addr, uint64_t *flag);

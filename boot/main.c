@@ -8,16 +8,21 @@
 #include <klibc.h>
 #include <phy_mm_pool.h>
 #include <mm.h>
-void main(void)
+void main(uint64_t *param_list)
 {
-	early_print_init();
-	printf("text_start=%lx\n", __text_start);
-	printf("text_end=%lx\n", __text_end);
-	printf("data_start=%lx\n", __data_start);
-	printf("data_end=%lx\n", __data_end);
-	printf("bss_start=%lx\n", __bss_start);
-	printf("bss_end=%lx\n", __bss_end);
+	printf("\nStarting kernel...\n");
+	for (int i = 0; i < 10; i ++)
+		printf("%lx\n", *(param_list + i));
+
+	printf("text_start\t=\t%lx\n", __text_start);
+	printf("text_end\t=\t%lx\n", __text_end);
+	printf("data_start\t=\t%lx\n", __data_start);
+	printf("data_end\t=\t%lx\n", __data_end);
+	printf("bss_start\t=\t%lx\n", __bss_start);
+	printf("bss_end\t\t=\t%lx\n", __bss_end);
 	
+// 	page_alloc_init();
+	mm_init(param_list[2], param_list[3], param_list[4], param_list[5] + param_list[6] - PHY_MAP_BASE);
 // 	printf("%lx\n", out);
 // 	proc_init();
 // 	ipc_init();

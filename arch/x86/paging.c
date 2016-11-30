@@ -1,36 +1,21 @@
 #include <paging.h>
 #include <klibc.h>
 #include <types.h>
-/**
- * Modify the page tables.
- * @plm4 top entry of the page table
- * @virt_addr virtual address to be mapped
- * @phy_addr physical address to be mapped to
- * @flag extra function flags to set
- * @retval 0 : succeed
- * 	  -1 : error
- */
-uint64_t syscall_base_addr = 0;
-uint64_t kernel_image_base_addr = 0xffffffff80000000;
-uint64_t kernel_heap_base_addr = 0;
-uint64_t virtual_map_base_addr = 0;
-uint64_t kernel_stack_base_addr = 0;
-uint64_t phy_map_addr = 0;
+#include <uefi.h>
+#include <list.h>
+#include <mm.h>
 
-#define SYSCALL_BASE		0xffffffffff000000
-#define KERNEL_IMAGE_BASE	0xffffffff80000000
-#define KERNEL_HEAP_BASE	0xfffff80000000000
-#define VIRTUAL_MAP_BASE	0xfffff40000000000
-#define KERNEL_STACK_BASE	0xfffff00000000000
-#define PHY_MAP_BASE		0xffff800000000000
+void __page_consistency_check(void);
 
 static inline uint64_t __convert_virt_to_phy(uint64_t addr)
 {
-	return addr - phy_map_addr;
+	assert(addr > PHY_MAP_BASE);
+	return addr - PHY_MAP_BASE;
 }
 static inline uint64_t __convert_phy_to_virt(uint64_t addr)
 {
-	return addr + phy_map_addr;
+	assert(addr < PHY_MAP_BASE);
+	return addr + PHY_MAP_BASE;
 }
 static inline uint64_t __get_virt_addr(uint64_t *entry)
 {
@@ -44,219 +29,102 @@ static inline uint64_t __get_flag(uint64_t *entry)
 {
 	return *entry & (PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_U_S | PAGING_MASK_PWT | PAGING_MASK_PCD | PAGING_MASK_A | PAGING_MASK_D | PAGING_MASK_PAT | PAGING_MASK_G | PAGING_MASK_XD);
 }
-// static uint64_t make_a_new_entry_table(uint64_t init_entry)
-// {
-// 	uint64_t addr = phy_mm_pool_alloc();
-// 	for (int i = 0; i < 512; i ++)
-// 	{
-// 		*(uint64_t *)(addr + i) = init_entry;
-// 	}
-// 	return addr;
-// }
+#define DEFAULT_PTE_FLAG (PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD)
+#define DEAAULT_EMPTY_FLAG (PAGING_MASK_PWT | PAGING_MASK_PCD)
+#define DEFAULT_PT_FLAG (PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD)
 
-static uint64_t __mk_entry(uint64_t addr, uint64_t flag)
+static inline uint64_t __mk_entry(uint64_t addr, uint64_t flag)
 {
 	return addr & PAGING_MASK_ADDR | flag ;
 }
-static void __init_table(void *table, uint64_t init_entry)
+static inline void __init_table(void *table, uint64_t init_entry)
 {
 	for (int i = 0; i < 512; i ++)
 	{
 		*((uint64_t *)table + i) = init_entry;
 	}
 }
-static void __set_entry(void *table, uint16_t n, uint64_t addr, uint64_t flag)
+static inline void __set_entry(void *table, uint16_t n, uint64_t addr, uint64_t flag)
 {
 	assert(n < 512 && n >= 0);
 	*((uint64_t *)table + n) = addr & PAGING_MASK_ADDR | flag;
 }
-
-uint64_t page_table_head;
-static void *__continous_alloc(void)
+static int __do_mapping(uint64_t *plm4e, uint64_t virt_addr, uint64_t phy_addr, uint64_t flag)
 {
-	page_table_head += 0x1000;
-	return (void *)(page_table_head - 0x1000);
-}
-int __do_mapping(struct plm4e_table *plm4e, uint64_t virt_addr, uint64_t phy_addr, uint64_t flag, void *(*alloc)(void))
-{
-	struct pdpte_table *pdpte;
-	struct pde_table *pde;
-	struct pte_table *pte;
-	uint64_t *plm4e_entry = plm4e->entry + (virt_addr >> 39 & PAGING_MASK_ENTRY_OFFSET);
+	uint64_t *pdpte;
+	uint64_t *pde;
+	uint64_t *pte;
+	uint64_t *plm4e_entry = plm4e + (virt_addr >> 39 & PAGING_MASK_ENTRY_OFFSET);
 	if (!(*plm4e_entry & PAGING_MASK_P))
 	{
-		pdpte = (*alloc)();
-		__init_table(pdpte, PAGING_MASK_PWT | PAGING_MASK_PCD);
-		*plm4e_entry = __mk_entry(__convert_virt_to_phy((uint64_t )pdpte), PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD);
+		pdpte = (uint64_t *)page_alloc(1);
+		__init_table(pdpte, DEAAULT_EMPTY_FLAG);
+		*plm4e_entry = __mk_entry(__convert_virt_to_phy((uint64_t)pdpte), DEFAULT_PT_FLAG);
+
 	}
 	else
-		pdpte = (struct pdpte_table *)__get_virt_addr(plm4e_entry);
+		pdpte = (uint64_t *)__get_virt_addr(plm4e_entry);
 	
-	uint64_t *pdpte_entry = pdpte->entry + (virt_addr >> 30 & PAGING_MASK_ENTRY_OFFSET);
+	uint64_t *pdpte_entry = pdpte + (virt_addr >> 30 & PAGING_MASK_ENTRY_OFFSET);
 	if (!(*pdpte_entry & PAGING_MASK_P))
 	{
-		pde = (*alloc)();
-		__init_table(pde, PAGING_MASK_PWT | PAGING_MASK_PCD);
-		*pdpte_entry = __mk_entry(__convert_virt_to_phy((uint64_t )pde), PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD);
+		pde = (uint64_t *)page_alloc(1);
+		__init_table(pde, DEAAULT_EMPTY_FLAG);
+		*pdpte_entry = __mk_entry(__convert_virt_to_phy((uint64_t)pde), DEFAULT_PT_FLAG);
 	}
 	else
-		pde = (struct pde_table *)__get_virt_addr(pdpte_entry);
+		pde = (uint64_t *)__get_virt_addr(pdpte_entry);
 	
-	uint64_t *pde_entry = pde->entry + (virt_addr >> 21 & PAGING_MASK_ENTRY_OFFSET);
+	uint64_t *pde_entry = pde + (virt_addr >> 21 & PAGING_MASK_ENTRY_OFFSET);
 	if (!(*pde_entry & PAGING_MASK_P))
 	{
-		pte = (*alloc)();
-		__init_table(pte, PAGING_MASK_PWT | PAGING_MASK_PCD);
-		*pde_entry = __mk_entry(__convert_virt_to_phy((uint64_t )pte), PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD);
-// 		printf("%lx\n", (uint64_t)*pde_entry);
+		pte = (uint64_t *)page_alloc(1);
+		__init_table(pte, DEAAULT_EMPTY_FLAG);
+		*pde_entry = __mk_entry(__convert_virt_to_phy((uint64_t )pte), DEFAULT_PT_FLAG);
 	}
 	else
-		pte = (struct pte_table *)__get_virt_addr(pde_entry);
+		pte = (uint64_t *)__get_virt_addr(pde_entry);
 	
-	uint64_t *pte_entry = pte->entry + (virt_addr >> 12 & PAGING_MASK_ENTRY_OFFSET);
+	uint64_t *pte_entry = pte + (virt_addr >> 12 & PAGING_MASK_ENTRY_OFFSET);
 	*pte_entry = __mk_entry(phy_addr, flag);
 }
-int __map_by_pages(struct plm4e_table *plm4e, uint64_t virt_start_addr, uint64_t phy_start_addr, uint64_t number_of_pages, uint64_t flag, void *(*phy_page_alloc)(void))
+static int __map_by_pages(uint64_t *plm4e, uint64_t virt_start_addr, uint64_t phy_start_addr, uint64_t number_of_pages, uint64_t flag)
 {
 	for (; number_of_pages -- > 0; phy_start_addr += 0x1000, virt_start_addr += 0x1000)
 	{
-		__do_mapping(plm4e, virt_start_addr, phy_start_addr, flag, phy_page_alloc);
+		__do_mapping(plm4e, virt_start_addr, phy_start_addr, flag);
 	}
 }
-
-/**
- * Create a default identified-mapped memory map with a given base address.
- * All table will be placed in a continuous space.
- * @base base address of top table
- * @range max range of physical address
- * @retval bytes of the total tables
- * NOTE:The function should be called only during the boot sequence.
- */
-uint64_t create_default_identified_mapped_tables(uint64_t page_table_base, uint64_t number_of_pages)
+static int __query_mapping(uint64_t *plm4e, uint64_t virt_addr, uint64_t *phy_addr, uint64_t *flag)
 {
-	struct plm4e_table *plm4e;
-	page_table_head = page_table_base;
-	plm4e = __continous_alloc();
-	__init_table(plm4e, PAGING_MASK_PWT | PAGING_MASK_PCD);
-	__map_by_pages(plm4e, 0, 0, number_of_pages, PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD, &__continous_alloc);
-// 	printf("%s","Hello,wolrd.\n");
-// 	printf("%s","Nice to meet you.\n");
-// 	asm ("hlt");
-// 	printf("%lx\n", (uint64_t)plm4e);
-	__map_by_pages(plm4e, PHY_MAP_BASE, 0, number_of_pages, PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD, &__continous_alloc);
-	__map_by_pages(plm4e, KERNEL_IMAGE_BASE, 0x100000, 0x100, PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD, &__continous_alloc);
-	__map_by_pages(plm4e, KERNEL_HEAP_BASE, 0x200000, 0x100, PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD, &__continous_alloc);
-	__map_by_pages(plm4e, KERNEL_STACK_BASE, 0x300000, 0x100, PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD, &__continous_alloc);
-// 	__map_by_pages(plm4e, 0, 0, number_of_pages, PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD, &__continous_alloc);
-	
-	uint64_t out = 0;
-	uint64_t pe = 0x400000 | 0x18;
-	asm (
-		"mov %1, %%rax\r\n"
-		"mov %%rax, %%cr3\r\n"
- 		"mov %%cr3, %%rbx\r\n"
-		"mov %%rbx, %0\r\n"
-		: "=m" (out)
-		: "m" (pe)
-	);
-	printf("%lx\n", out);
-// 	asm(
-// 		"mov %0, %%rax\r\n"
-// 		"add $jump, %%rax\r\n"
-// 		"jmp *%%rax\r\n"
-// 		:
-// 		: "r"(KERNEL_IMAGE_BASE)
-// 	);
-// 	asm ("jump:");
-// 	printf("%s","Hello,wolrd.\n");
-// 	printf("%s","Nice to meet you.\n");
-// 	asm (
-// 		"call read\r\n"
-// 		"read:\r\n"
-// 		"pop %0\r\n"
-// 		: "=m" (out)
-// 		: 
-// 	);
-// 	printf("%lx\n", out);
-	printf("%lx\n", page_table_head);
-// 	extern char text_start[];
-// 	extern char text_end[];
-// 	extern char data_start[];
-// 	extern char data_end[];
-// 	extern char bss_start[];
-// 	extern char bss_end[];
-// 	printf("text_start=%lx\n", text_start);
-// 	printf("text_end=%lx\n", text_end);
-// 	printf("data_start=%lx\n", data_start);
-// 	printf("data_end=%lx\n", data_end);
-// 	printf("bss_start=%lx\n", bss_start);
-// 	printf("bss_end=%lx\n", bss_end);
-// 	printf("data_load=%lx\n", data_load_start);
-// 	asm ("hlt");
-	phy_map_addr = PHY_MAP_BASE; 
-	return page_table_head - page_table_base;
-}
-void excute_to_virtal_memory_addr()
-{
-	
-}
-int mm_init(void)
-{
-	//Create default page tables and get the page table's size
-	uint64_t page_size = create_default_identified_mapped_tables(0x400000, 0x120000000 >> 12);
-	return 0;
-}
-// int modify_mapping(struct pml4e_table *plm4e, uint64_t virt_addr, uint64_t phy_addr, uint64_t flag, void *(*alloc)(void))
-// {
-// 	uint64_t plm4e_entry = plm4e->entry[virt_addr >> 39 & PAGING_MASK_ENTRY_OFFSET];
-// 	if (!(plm4e_entry & PAGING_MASK_P))
-// 	{
-// 		plm4e_entry = make_a_new_entry_table(0);
-// 	}
-// 	uint64_t pdpte_entry = ((struct pdpte_table *)get_virt_addr_of_page_entry(plm4e_entry))->entry[virt_addr >> 30 & PAGING_MASK_ENTRY_OFFSET];
-// 	if (!(pdpte_entry & PAGING_MASK_P))
-// 	{
-// 		pdpte_entry = make_a_new_entry_table(0);
-// 	}
-// 	uint64_t pde_entry = ((struct pde_table *)get_virt_addr_of_page_entry(pdpte_entry))->entry[virt_addr >> 21 & PAGING_MASK_ENTRY_OFFSET];
-// 	if (!(pde_entry & PAGING_MASK_P))
-// 	{
-// 		pde_entry = make_a_new_entry_table(0);
-// 	}
-// 	uint64_t pte_entry = ((struct pte_table *)get_virt_addr_of_page_entry(pde_entry))->entry[virt_addr >> 12 & PAGING_MASK_ENTRY_OFFSET];
-// 	pte_entry = (phy_addr & PAGING_MASK_ADDR) | flag;
-// 	return 0;
-// }
-int query_mapping(struct plm4e_table *plm4e, uint64_t virt_addr, uint64_t *phy_addr, uint64_t *flag)
-{
-	struct pdpte_table *pdpte;
-	struct pde_table *pde;
-	struct pte_table *pte;
-	uint64_t *plm4e_entry = plm4e->entry + (virt_addr >> 39 & PAGING_MASK_ENTRY_OFFSET);
+	uint64_t *pdpte;
+	uint64_t *pde;
+	uint64_t *pte;
+	uint64_t *plm4e_entry = plm4e + (virt_addr >> 39 & PAGING_MASK_ENTRY_OFFSET);
 	if (!(*plm4e_entry & PAGING_MASK_P))
 	{
 		return -1;
 	}
 	else
-		pdpte = (struct pdpte_table *)__get_virt_addr(plm4e_entry);
+		pdpte = (uint64_t *)__get_virt_addr(plm4e_entry);
 	
-	uint64_t *pdpte_entry = pdpte->entry + (virt_addr >> 30 & PAGING_MASK_ENTRY_OFFSET);
+	uint64_t *pdpte_entry = pdpte + (virt_addr >> 30 & PAGING_MASK_ENTRY_OFFSET);
 	if (!(*pdpte_entry & PAGING_MASK_P))
 	{
 		return -1;
 	}
 	else
-		pde = (struct pde_table *)__get_virt_addr(pdpte_entry);
+		pde = (uint64_t *)__get_virt_addr(pdpte_entry);
 	
-	uint64_t *pde_entry = pde->entry + (virt_addr >> 21 & PAGING_MASK_ENTRY_OFFSET);
+	uint64_t *pde_entry = pde + (virt_addr >> 21 & PAGING_MASK_ENTRY_OFFSET);
 	if (!(*pde_entry & PAGING_MASK_P))
 	{
 		return -1;
 	}
 	else
-		pte = (struct pte_table *)__get_virt_addr(pde_entry);
+		pte = (uint64_t *)__get_virt_addr(pde_entry);
 	
-	uint64_t *pte_entry = pte->entry + (virt_addr >> 12 & PAGING_MASK_ENTRY_OFFSET);
+	uint64_t *pte_entry = pte + (virt_addr >> 12 & PAGING_MASK_ENTRY_OFFSET);
 	if (!(*pte_entry & PAGING_MASK_P))
 	{
 		return -1;
@@ -268,67 +136,214 @@ int query_mapping(struct plm4e_table *plm4e, uint64_t virt_addr, uint64_t *phy_a
 		return 0;
 	}
 }
+static void __validate_mapping(uint64_t *plm4e, uint64_t virt_start_addr, uint64_t phy_start_addr, uint64_t number_of_pages, uint64_t flag)
+{
+	uint64_t temp_phy_addr, temp_flag;
+	for (; number_of_pages -- > 0; phy_start_addr += 0x1000, virt_start_addr += 0x1000)
+	{
+		if (__query_mapping(plm4e, virt_start_addr, &temp_phy_addr, &temp_flag) != 0 || 
+			temp_phy_addr != phy_start_addr || 
+			temp_flag != flag)
+		{
+			printf("Mapping consistency checking failed.\n");
+			printf("System halted.\n");
+			asm("hlt");
+		}
+	}
+}
 
-// int query_mapping(struct plm4_entry *plm4, uint64_t virt_addr, uint64_t *phy_addr, int *flag)
-// {
-// //change the method ,for example:high 16 000
-// 	int i,k;
-// 	uint64_t py,vir;
-// 	vir_addr=vir_addr&0x0000ffffffffffff;   //remove high 16 bits
-// //get the begain phy_addr of pdpte_entry
-// //plm4.p is the flag which judges weather the paging is present
-// 	if(plm4.p==0){
-// 		printf("false to query!\n");
-// 		return 0;
-// 	}
-// 	else{
-// 		vir=vir_addr>>39;
-// 		py=vir&0x1ff;
-// 		plm4=plm4+py;
-// 	}
-// //get the begain phy_addr of pde_entry
-// 	if(plm4.p==0){
-// 		printf("false to query!\n");
-// 		return 0;
-// 	}
-// 	else{
-// 		vir=vir_addr>>30;
-// 		py=vir&0x1ff;
-// 		plm4=plm4+py;
-// 	}
-// //get the begain phy_addr of pte_entry
-// 	if(plm4.p==0){
-// 		printf("false to query!\n");
-// 		return 0;
-// 	}
-// 	else{
-// 		vir=vir_addr>>21;
-// 		py=vir&0x1ff;
-// 		plm4=plm4+py;
-// 	}
-// //get the begain phy_addr of pte4k_entry
-// 	if(plm4.p==0){
-// 		printf("false to query!\n");
-// 		return 0;
-// 	}
-// 	else{
-// 		vir=vir_addr>>12;
-// 		py=vir&0x1ff;
-// 		plm4=plm4+py;
-// 	}
-// //get phy_addr 
-// 	if((plm4.p)==0){
-// 		printf("false to query!\n");
-// 		return 0;
-// 	}
-// 	else{
-// 		py=vir_addr&0xfff;
-// 		plm4=plm4+py;
-// 	}
-// //get the final flag and phy_addr
-// 	*phy_addr=*plm4;
-// 	return 0;
-// }
+
+struct mm_block
+{
+	struct list_head mm_block_list;
+	uint64_t length;//Length in pages
+};
+
+struct 
+{
+	struct list_head mm_list;
+	uint64_t available;
+	uint64_t total;
+} mm_pool;
+
+struct mm_block *__init_block(uint64_t base, uint64_t number_of_pages)
+{
+// 	memset((void *)base, 0, number_of_pages << 12);
+	for (uint64_t ptr = base; ptr < base + (number_of_pages << 12); ptr += 8)
+		*(uint64_t *)ptr = 0;
+	struct mm_block *block_ptr = (void *)base;
+	list_init(&block_ptr->mm_block_list);
+	block_ptr->length = number_of_pages;
+	return block_ptr;
+}
+/**
+ *  Initializing physical memory according to UEFI memory descriptor array.
+ */
+void page_alloc_init(efi_memory_descriptor_t *desc, uint64_t size, uint64_t total_length, uint64_t lowerbound)
+{
+	printf("Page_alloc initializing:\n%lx %lx %lx %lx\n", desc, size, total_length, lowerbound);
+	printf("Memory Map:\n");
+	printf("Type\t\tPhysicalStart\t\tVirtualStart\t\tNumberOfPages\t\tAttribute\n");
+	efi_memory_descriptor_t *it;
+	for (it = (void *)desc; (uint64_t)it < (uint64_t)desc + total_length; it = (void *)it + size)
+	{
+		printf("%x\t%lx\t%lx\t%lx\t%lx\n", it->type, it->physical_start, it->virtual_start, it->number_of_pages, it->attribute);
+	}
+	
+	list_init(&mm_pool.mm_list);
+	mm_pool.available = 0;
+	
+	efi_memory_descriptor_t *ptr = NULL;
+	uint64_t count = total_length / size;
+	assert(count * size == total_length);
+	for (uint64_t i = 0; i < count; i ++)
+	{
+		ptr = ((void *)desc + i * size);
+		if (ptr->type == EfiConventionalMemory ||
+			 ptr->type == EfiBootServicesCode ||
+			 ptr->type == EfiBootServicesData ||
+			 ptr->type == EfiLoaderCode || 
+			 ptr->type == EfiLoaderData)
+		{ 
+			uint64_t physical_start = ptr->physical_start > lowerbound ? ptr->physical_start : lowerbound;
+			uint64_t physical_end = ptr->physical_start + ((ptr->number_of_pages) << 12);
+			uint64_t number_of_pages = (physical_end - physical_start) >> 12;
+			struct mm_block *block_ptr = __init_block(__convert_phy_to_virt(physical_start), number_of_pages);
+			list_add_before(&mm_pool.mm_list, &block_ptr->mm_block_list);
+			mm_pool.available += number_of_pages;
+		}
+	}
+	mm_pool.total = mm_pool.available;
+	printf("Page_alloc initializing complete.\n");
+	printf("Total %ld pages available.\n", mm_pool.available);
+}
+uint64_t __page_alloc(uint64_t size)
+{
+	if (list_empty(&mm_pool.mm_list))
+	{
+		printf("Alloc faild due to out of memory.\n", size, mm_pool.available);
+		return INVALID_ADDR;
+	}
+	struct list_head *it;
+	list_for_each(it, &mm_pool.mm_list)
+	{
+		struct mm_block *entry = list_entry(it, struct mm_block, mm_block_list);
+		if (entry->length == size)
+		{
+			list_del(it);
+			mm_pool.available -= size;
+			printf("Allocate %d pages, %d pages left.\n", size, mm_pool.available);
+			return (uint64_t)it;
+		}
+		else if (entry->length > size)
+		{
+			entry->length -= size;
+			mm_pool.available -= size;
+			printf("Allocate %d pages, %d pages left.\n", size, mm_pool.available);
+			return (uint64_t)it + (entry->length << 12);
+		}
+	}
+	return INVALID_ADDR;
+}
+uint64_t page_alloc(uint64_t size)
+{
+	uint64_t ret = __page_alloc(size);
+	__page_consistency_check();
+	return ret;
+}
+void __page_free(uint64_t addr, uint64_t size)
+{
+	struct mm_block *block_ptr = __init_block(addr, size);
+	struct list_head *it;
+	list_for_each(it, &mm_pool.mm_list)
+	{
+		struct mm_block *entry = list_entry(it, struct mm_block, mm_block_list);
+		if ((uint64_t)entry > addr)
+			break;
+	}
+	list_add_before(it, &block_ptr->mm_block_list);
+	mm_pool.available += size;
+	printf("Free %d pages, %d pages left.\n", size, mm_pool.available);
+}
+void __page_merge(void)
+{
+	struct list_head *it;
+	list_for_each(it, &mm_pool.mm_list)
+	{
+		if (it->next != &mm_pool.mm_list)
+		{
+			struct mm_block *entry = list_entry(it, struct mm_block, mm_block_list);
+			struct mm_block *next_entry = list_entry(it->next, struct mm_block, mm_block_list);
+			while ((uint64_t)entry + (entry->length << 12) == (uint64_t)next_entry)
+			{
+				entry->length += next_entry->length;
+				list_del(&next_entry->mm_block_list);
+				memset(next_entry, 0, sizeof(struct mm_block));
+				if (it->next != &mm_pool.mm_list)
+					next_entry = list_entry(it->next, struct mm_block, mm_block_list);
+				else
+					break;
+			}
+		}
+	}
+
+}
+void page_free(uint64_t addr, uint64_t size)
+{
+	__page_free(addr, size);
+
+	__page_consistency_check();
+}
+void __page_consistency_check(void)
+{
+	assert(mm_pool.available <= mm_pool.total);
+	uint64_t pages_sum = 0;
+	struct list_head *it;
+	list_for_each(it, &mm_pool.mm_list)
+	{
+		struct mm_block *entry = list_entry(it, struct mm_block, mm_block_list);
+		if (it->next != &mm_pool.mm_list)
+		{
+			struct mm_block *next_entry = list_entry(it->next, struct mm_block, mm_block_list);
+			if((uint64_t)entry + (entry->length << 12) > (uint64_t)next_entry + (next_entry->length << 12))
+				bug("Free page block linking list corrupted");
+		}
+		pages_sum += entry->length;
+	}
+	if (pages_sum != mm_pool.available)
+	{
+		bug("Memory leakage detected, available %d, found %d.\n", mm_pool.available, pages_sum);
+	}
+}
+void __dump_page_list(void)
+{
+	struct list_head *it;
+	list_for_each(it, &mm_pool.mm_list)
+	{
+		struct mm_block *entry = list_entry(it, struct mm_block, mm_block_list);
+		printf("Start address:%lx\tPages:%lx\n", entry, entry->length);
+	}
+	
+}
+int mm_init(efi_memory_descriptor_t *desc, uint64_t size, uint64_t total_length, uint64_t lowerbound)
+{
+	page_alloc_init(desc, size, total_length, lowerbound);
+	uint64_t s[10] = { 1,2,4,8,16.32,64,128,256,512,1024};
+	uint64_t a[10] = {0};
+	for (int i = 0; i < 10; i ++)
+		a[i] = page_alloc(s[i]);
+	for (int i = 0; i < 10; i ++)
+		page_free(a[i], s[i]);
+	__dump_page_list();
+	printf("\n");
+	__page_merge();
+	__dump_page_list();
+// 	uint64_t addr = page_alloc(10000);
+// 	printf("Total %ld pages available.\n", mm_pool.available);
+// 	page_free(addr, 10000);
+// 	printf("Total %ld pages available.\n", mm_pool.available);
+	return 0;
+}
 
 
 

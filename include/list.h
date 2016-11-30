@@ -117,7 +117,7 @@ static inline int list_empty(const struct list_head *head)
 }
 
 #define list_entry(ptr, type, MEMBER) \
-	((type *)((char *)ptr - ((size_t)&((type *)0->MEMBER))))
+	((type *)((char *)ptr - ((size_t)&(((type *)0)->MEMBER))))
 
 /**
  * list_for_each	-	iterate over a list

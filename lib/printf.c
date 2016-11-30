@@ -1,7 +1,6 @@
 #include <klibc.h>
 #include <stdarg.h>
 
-void (*__stdout)(char *str);
 
 static const char hex_table[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
@@ -43,7 +42,7 @@ char *__print_ch(char *buf, char ch)
 	*buf = ch;
 	return buf + 1;
 }
-int __print_format(char *buf, char *fmt, va_list ap)
+int __print_format(char *buf, const char *fmt, va_list ap)
 {
 	char *ptr = buf;
 //  	long long ll;
@@ -103,7 +102,7 @@ int __print_format(char *buf, char *fmt, va_list ap)
  	*ptr++ = '\0';
 	return ptr - buf;
 }
-int sprintf(char *buf, char *fmt, ...)
+int sprintf(char *buf, const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -111,7 +110,7 @@ int sprintf(char *buf, char *fmt, ...)
 	va_end(ap);
 	return ret;
 }
-int printf(char *fmt, ...)
+int printf(const char *fmt, ...)
 {
 	char buf[1024];
 	va_list ap;
