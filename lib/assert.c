@@ -1,5 +1,5 @@
 #include <klibc.h>
-#include <cpu.h>
+#include <cpu_intrins.h>
 extern void (*__stdout)(char *str);
 
 void __assert_fail(const char *__assertion, const char *__file, unsigned int __line, const char *__function)
@@ -17,5 +17,5 @@ void __assert_fail(const char *__assertion, const char *__file, unsigned int __l
 	strcat(buf, "\' failed.\n");
 	(*__stdout)(buf);
 // 	traceback();
-	__halt();
+	__halt__();
 }

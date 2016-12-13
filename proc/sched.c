@@ -1,36 +1,19 @@
 #include "proc.h"
+#include <list.h>
 
-struct run_queue
-{
-	list_head queue;
-	struct thread *thread;
-}*running;
+struct list_head proc_queue;
 
-void get_current_thread_pcb(void)
-{
-	//Save old thread's pcb into %rax register.
-	asm (
-		"mov %0, %%rax"
-		:
-		: "m"(current->thread->pcb)
-		:
-	);
-}
 /**
  * This function is called after context is saved,
  * then we can schedule.
  */
+void shed_init(void)
+{
+	list_init(&proc_queue);
+	struct proc
+}
 void sched(void)
 {
-	current = current->queue->next;
 	
-
-	//Save new thread's pcb into %rax register.
-	asm (
-		"mov %0, %%rax"
-		:
-		: "m"(current->thread->pcb)
-		:
-	);
 	
 }

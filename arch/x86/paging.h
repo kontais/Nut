@@ -2,6 +2,8 @@
 #define _PAGING_H_
 #include <types.h>
 #include <uefi.h>
+#include <mm.h>
+#include <klibc.h>
 //Bit order:big endian
 struct cr3
 {
@@ -127,9 +129,21 @@ struct pte_table
 #define PAGING_MASK_ENTRY_OFFSET	     0x1ff
 
 
-// uint64_t get_phy_addr(struct plm4_entry *plm4, uint64_t virt_addr);
-// uint64_t* get_virt_addr(struct plm4_entry *plm4, uint64_t phy_addr);
+#define DEFAULT_PTE_FLAG (PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD)
+#define DEAAULT_EMPTY_FLAG (PAGING_MASK_PWT | PAGING_MASK_PCD)
+#define DEFAULT_PT_FLAG (PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD)
 
+
+static inline uint64_t __convert_virt_to_phy(uint64_t addr)
+{
+	assert(addr > PHY_MAP_BASE);
+	return addr - PHY_MAP_BASE;
+}
+static inline uint64_t __convert_phy_to_virt(uint64_t addr)
+{
+	assert(addr < PHY_MAP_BASE);
+	return addr + PHY_MAP_BASE;
+}
 
 /**
  * Size in pages.
@@ -137,9 +151,9 @@ struct pte_table
 uint64_t page_alloc(uint64_t size);
 void page_free(uint64_t addr, uint64_t size);
 
-
-int modify_mapping(struct plm4e_table *plm4e, uint64_t virt_addr, uint64_t phy_addr, uint64_t flag);
-int query_mapping(struct plm4e_table *plm4e, uint64_t virt_addr, uint64_t *phy_addr, uint64_t *flag);
+uint64_t *get_current_plm4e(void);
+int modify_chunk_mapping(uint64_t *plm4e, uint64_t virt_start_addr, uint64_t phy_start_addr, uint64_t number_of_pages, uint64_t flag);
+int query_mapping(uint64_t *plm4e, uint64_t virt_addr, uint64_t *phy_addr, uint64_t *flag);
 
 #endif
 

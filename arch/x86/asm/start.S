@@ -22,3 +22,5 @@ _start:
 /* mm_map_addr:.quad 0 */
 .globl	__stdout
 __stdout:.quad 0
+
+.section .zero

@@ -4,14 +4,16 @@ SECTIONS
 {
 	. = 0xFFFFFFFF80004000;
 	.text : { 
-		arch/x86/asm/start.o
+		arch/x86/asm/start.o(.text)
 		*(.text)
 		}
 	.rodata : { *(.rodata) }
-	.bss : { *(.bss) }
 	.data : { *(.data) }
-	
-	
+	.bss : { *(.bss) } = 0
+	.zero : 
+	{
+		. += 8;
+	}
 	__text_start = LOADADDR(.text);
 	__text_end = LOADADDR(.text) + SIZEOF(.text);
 	__data_start = LOADADDR(.rodata);

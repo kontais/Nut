@@ -16,11 +16,63 @@ static void __gdt_init(void)
 	seg->s = 1;
 	seg->type = SEG_T_D_RW_A;
 	seg ++;
+	
 	seg->p = 1;
-	seg->l = 1;
 	seg->s = 1;
+	seg->l = 1;
 	seg->type = SEG_T_C_EX_R_A;
+	seg->dpl = 0;
 	seg ++;
+	
+	seg->p = 1;
+	seg->s = 1;
+	seg->l = 1;
+	seg->type = SEG_T_C_EX_R_A;
+	seg->dpl = 1;
+	seg ++;
+	
+	seg->p = 1;
+	seg->s = 1;
+	seg->l = 1;
+	seg->type = SEG_T_C_EX_R_A;
+	seg->dpl = 2;
+	seg ++;
+	
+	seg->p = 1;
+	seg->s = 1;
+	seg->l = 1;
+	seg->type = SEG_T_C_EX_R_A;
+	seg->dpl = 3;
+	seg ++;
+	
+	seg->p = 1;
+	seg->s = 1;
+	seg->l = 0;
+	seg->type = SEG_T_C_EX_R_A;
+	seg->dpl = 0;
+	seg ++;
+	
+	seg->p = 1;
+	seg->s = 1;
+	seg->l = 0;
+	seg->type = SEG_T_C_EX_R_A;
+	seg->dpl = 1;
+	seg ++;
+	
+	seg->p = 1;
+	seg->s = 1;
+	seg->l = 0;
+	seg->type = SEG_T_C_EX_R_A;
+	seg->dpl = 2;
+	seg ++;
+	
+	seg->p = 1;
+	seg->s = 1;
+	seg->l = 0;
+	seg->type = SEG_T_C_EX_R_A;
+	seg->dpl = 3;
+	seg ++;
+	
 	struct tss_ldt_dsc *tss_ldt = (struct tss_ldt_dsc *)seg;
 	tss_ldt->type = DSC_TYPE_TSS;
 	tss_ldt->base_0_15 = (TSS_BASE + PHY_MAP_BASE) & 0xffff;
@@ -30,6 +82,7 @@ static void __gdt_init(void)
 	tss_ldt->p = 1;
 	tss_ldt->seg_limit_0_15 = TSS_SIZE - 1;
 	tss_ldt->avl = 1;
+	tss_ldt ++;
 }
 static void __idt_init(void)
 {
@@ -118,7 +171,7 @@ void load_dsc_tables_and_seg_sels(void)
 		"mov	%%rax, %%ss\r\n"
 		"mov	%%rax, %%fs\r\n"
 		"mov	%%rax, %%gs\r\n"
-		"mov	$0x18, %%ax\r\n"
+		"mov	$0x50, %%ax\r\n"
 		"ltr	%%ax\r\n"
 		:
 		: "m" (pseudo_dsc.limit)

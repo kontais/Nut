@@ -23,6 +23,7 @@ struct thread
 /*
  * Process structure.
  */
+
 struct proc
 {
 	id_t			id;	//Process ID
@@ -37,7 +38,7 @@ struct proc
 	struct pargs		args;	//Arguments from command line
 	char			*pwd;	//Current working directory
 
-	struct list_head	mm;	//Memory space
+	struct vm_map		vm;	//Virtual memory map
 };
 /*
  * Process groups may have a or more processes.

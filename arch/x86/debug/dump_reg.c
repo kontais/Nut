@@ -25,6 +25,7 @@ asm
 );
 void __dump_reg(uint64_t *reg_stack)
 {
+
 	printf("RAX\t\t=\t%lx\n", *reg_stack++);
 	printf("RBX\t\t=\t%lx\n", *reg_stack++);
 	printf("RCX\t\t=\t%lx\n", *reg_stack++);
