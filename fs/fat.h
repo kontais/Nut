@@ -69,20 +69,20 @@ typedef struct FSInfo __attribute__((packed))
 	uint8_t FSI_TrailSig[4];
 }FSInfo_Type;
 
-typedef struct Dir_Struc
+typedef struct Dir_Struc __attribute__((packed))
 {
 	uint8_t DIR_Name[11];
 	uint8_t DIR_Attr;
 	uint8_t DIR_NTRes;
 	uint8_t DIR_CtrTimeTenth;
-	uint8_t DIR_CtrTIme[2];
-	uint8_t DIR_CtrDate[2];
-	uint8_t DIR_LstAccDate[2];
-	uint8_t DIR_FstClusHI[2];
-	uint8_t DIR_WriTime[2];
-	uint8_t DIR_WritDate[2];
-	uint8_t DIR_FstClusLO[2];
-	uint8_t DIR_FileSize[4];
+	uint16_t DIR_CtrTIme;
+	uint16_t DIR_CtrDate;
+	uint16_t DIR_LstAccDate;
+	uint16_t DIR_FstClusHI;
+	uint16_t DIR_WriTime;
+	uint16_t DIR_WritDate;
+	uint16_t DIR_FstClusLO;
+	uint32_t DIR_FileSize;
 }Dir_Struc_Type;
 
 #define ATTR_READ_ONLY	0x01
@@ -92,7 +92,7 @@ typedef struct Dir_Struc
 #define ATTR_DIRECTORY	0x10
 #define ATTR_ARCHIVE	0x20
 
-typedef struct LongNameDirEntry
+typedef struct LongNameDirEntry __attribute__((packed))
 {
 	uint8_t LDIR_Ord;
 	uint8_t LDIR_Name1[10];
@@ -100,7 +100,7 @@ typedef struct LongNameDirEntry
 	uint8_t LDIR_Type;
 	uint8_t LDIR_Chksum;
 	uint8_t LDIR_Name2[12];
-	uint8_t FstClusLO[2];
+	uint16_t FstClusLO; //Must be set to 0.
 	uint8_t LDIR_Name3[4];
 }LongNameDirEntry_Type;
 
