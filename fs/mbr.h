@@ -1,6 +1,7 @@
 #ifndef _MBR_H_
 #define _MBR_H_
-
+#include <klibc.h>
+//Little endian
 typedef struct Partition_Entry
 {
 	uint8_t Status;
@@ -20,5 +21,6 @@ typedef struct MBR_Record
 
 
 void MBR_Init(MBR_Record *record);
+int Get_Partition(MBR_Record *record, uint8_t index, uint32_t *LBA, uint32_t *size);
 
 #endif

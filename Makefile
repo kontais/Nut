@@ -2,7 +2,7 @@ AS=as
 CC=gcc
 Ld=ld
 
-COMMON_CFLAGS= -Iarch/x86/ -Iinclude/ -DX86 -I./ -Ilib/ -fno-asynchronous-unwind-tables -I./arch/x86/video/ -fno-builtin
+COMMON_CFLAGS= -Iarch/x86/ -Iinclude/ -DX86 -I./ -Ilib/ -fno-asynchronous-unwind-tables -I./arch/x86/video/ -fno-builtin -Ifs/
 
 CFLAGS=  $(COMMON_CFLAGS) -mcmodel=large
 LDFLAGS= --script=./ldscript -nostdlib 
@@ -16,7 +16,7 @@ INIT_SOURCE= arch/x86/init/init.S arch/x86/init/init_mm_map.c  arch/x86/init/ear
 INIT_OBJS= init.o init_mm_map.o early_print.o assert.o printf.o serial_port.o init_dsc_tables.o exception_handler.o dump_reg.o
 
 
-OBJS=  boot/main.o  arch/x86/video/vga.o lib/assert.o lib/printf.o  lib/string.o  arch/x86/asm/start.o arch/x86/paging.o lib/bug.o arch/x86/int_ctl.o arch/x86/isa.o arch/x86/asm/interrupt_handler.o mm/vm.o arch/x86/asm/exception_handler.o arch/x86/pci.o
+OBJS=  boot/main.o  arch/x86/video/vga.o lib/assert.o lib/printf.o  lib/string.o  arch/x86/asm/start.o arch/x86/paging.o lib/bug.o arch/x86/int_ctl.o arch/x86/isa.o arch/x86/asm/interrupt_handler.o mm/vm.o arch/x86/asm/exception_handler.o arch/x86/pci.o fs/mbr.o
 .PHONY:all
 all:init kernel
 	cat init kernel > kernel.img

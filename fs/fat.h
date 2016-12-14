@@ -2,44 +2,63 @@
 #define _FAT_H_
 
 //BPB structure common to FAT12, FAT16 and FAT32 implementations
-typedef struct BPB
+typedef struct BPB __attribute__((packed))
 {
 	uint8_t BS_jmpBoot[3];
 	uint8_t BS_OEMName[8];
-	uint8_t BPB_BytsPerSec[2];
+	uint16_t BPB_BytsPerSec;
 	uint8_t BPB_SecPerClus;
-	uint8_t BPB_RsvdSecCnt[2];
+	uint16_t BPB_RsvdSecCnt;
 	uint8_t BPB_NumFATs;
-	uint8_t BPB_RootEntCnt[2];
-	uint8_t BPB_TotSec16[2];
+	uint16_t BPB_RootEntCnt;
+	uint16_t BPB_TotSec16;
 	uint8_t BPB_Media;
-	uint8_t BPB_FATSz16[2];
-	uint8_t BPB_SecPerTrk[2];
-	uint8_t BPB_NumHeads[2];
-	uint8_t BPB_HiddSec[4];
-	uint8_t BPB_TotSec32[4];
-}BPB;
+	uint16_t BPB_FATSz16;
+	uint16_t BPB_SecPerTrk;
+	uint16_t BPB_NumHeads;
+	uint32_t BPB_HiddSec;
+	uint32_t BPB_TotSec32;
+}BPB_Type;
 
-typedef struct Ext_PBP
+typedef struct Ext_PBP_12_16  __attribute__((packed))
 {
 	uint8_t BS_DrvNum;
-	uint8_t BS_Reserved1;
+	uint8_t BS_Reserved1; //Set value to 0x0
 	uint8_t BS_BootSig;
-	uint8_t BS_VolID[4];
+	uint32_t BS_VolID;
 	uint8_t BS_VolLab[11];
 	uint8_t BS_FilSysType[8];
+	uint8_t _reserved_1[448]; //Set to 0x00
+	uint8_t Signature_word[2]; //0x55(at 510) 0xAA(at 511)
+}Ext_PBP_12_16_Type;
+
+typedef struct Ext_PBP_32  __attribute__((packed))
+{
+	uint32_t BPB_FATSz32;
+	uint16_t BPB_ExtFlags;
+	uint16_t BPB_FSVer;
+	uint32_t BPB_RootClus;
+	uint16_t BPB_FSInfo;
+	uint16_t BPB_BkBootSec;
+	uint8_t BPB_Reserved[12]; //Must be set to 0x00
+	uint8_t BS_DrvNum;
+	uint8_t BS_Reserved1; //Set value to 0x0
+	uint8_t BS_BootSig;
+	uint32_t BS_VOlID;
+	uint8_t BS_VolLab[11];
+	uint8_t BS_FilSysType;
 	uint8_t _reserved_1[420]; //Set to 0x00
 	uint8_t Signature_word[2]; //0x55(at 510) 0xAA(at 511)
-}Ext_PBP;
+}Ext_PBP_32_Type;
 
 typedef enum FAT_TYPE
 {
 	FAT12,
 	FAT16,
-	FAt32
+	FAT32
 }FAT_TYPE;
 
-typedef struct FSInfo
+typedef struct FSInfo __attribute__((packed))
 {
 	uint8_t FSI_LeadSig[4];
 	uint8_t FSI_Reserved1[480];
@@ -48,7 +67,7 @@ typedef struct FSInfo
 	uint8_t FSI_Nxt_Free[4];
 	uint8_t FSI_Reserved2[12];
 	uint8_t FSI_TrailSig[4];
-}FSInfo;
+}FSInfo_Type;
 
 typedef struct Dir_Struc
 {
@@ -64,7 +83,7 @@ typedef struct Dir_Struc
 	uint8_t DIR_WritDate[2];
 	uint8_t DIR_FstClusLO[2];
 	uint8_t DIR_FileSize[4];
-}Dir_Struc;
+}Dir_Struc_Type;
 
 #define ATTR_READ_ONLY	0x01
 #define ATTR_HIDDEN	0x02
@@ -83,11 +102,28 @@ typedef struct LongNameDirEntry
 	uint8_t LDIR_Name2[12];
 	uint8_t FstClusLO[2];
 	uint8_t LDIR_Name3[4];
-}LongNameDirEntry;
+}LongNameDirEntry_Type;
+
+typedef struct fatfs
+{
+	BPB_Type BPB;
+	union {
+		Ext_BPB_12_16_Type Ext_BPB_12_16;
+		Ext_BPB_32_Type Ext_BPB_32;
+	}Ext_BPB;
+	
+	FAT_TYPE Type;
+	uint32_t RootDirSecs;
+	uint32_t FATSecs;
+	uint32_t FATEnSize;
+	uint32_t DataSecs;
+	uint32_t TotSecs;
+	uint32_t CountOfClusters;
+}fatfs;
 
 
-FAT_TYPE extract_fat_type();
-uint32_t get_fat_entry(uint32_t cluster);
+
+void fatfs_init(fat_fs *fs);
 
 
 #endif

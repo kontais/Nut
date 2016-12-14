@@ -6,6 +6,7 @@
 
 #include <klibc.h>
 #include <mm.h>
+#include <mbr.h>
 void main(uint64_t *param_list)
 {
 	printf("\nStarting kernel...\n");
@@ -22,6 +23,12 @@ void main(uint64_t *param_list)
 	mm_init(param_list[2], param_list[3], param_list[4], param_list[5] + param_list[6] - PHY_MAP_BASE);
 	vm_init();
 	int_init();
+	MBR_Record record;
+	MBR_Init(&record);
+	uint32_t LBA, size;
+	Get_Partition(&record, 0, &LBA, &size);
+	printf("%x %x\n", LBA, size);
+	printf("%x %x\n", record.BootSig[0], record.BootSig[1]);
 // 	proc_init();	
 // 	ipc_init();
 // 	dev_init();
