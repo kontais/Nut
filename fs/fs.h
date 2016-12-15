@@ -24,5 +24,5 @@ void fs_init(void);
 void fs_mknode(const char path);
 void fs_rmnode(const char path);
 void fs_reghook(const char path, void *callback);
-void 
+
 #endif

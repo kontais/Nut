@@ -6,7 +6,7 @@
 
 #include <klibc.h>
 #include <mm.h>
-#include <mbr.h>
+#include <fat.h>
 void main(uint64_t *param_list)
 {
 	printf("\nStarting kernel...\n");
@@ -23,13 +23,34 @@ void main(uint64_t *param_list)
 	mm_init(param_list[2], param_list[3], param_list[4], param_list[5] + param_list[6] - PHY_MAP_BASE);
 	vm_init();
 	int_init();
-	MBR_Record record;
-	MBR_Init(&record);
-	uint32_t LBA, size;
-	Get_Partition(&record, 0, &LBA, &size);
-	printf("%x %x\n", LBA, size);
-	printf("%x %x\n", record.BootSig[0], record.BootSig[1]);
-// 	proc_init();	
+	fatfs fs;
+	fatfs_init(&fs);
+	printf("%d\n", fs.BPB->ExtBPB.Ext_BPB_32.BPB_RootClus);
+	printf("%d\n", fs.RootDirSecs);
+	printf("%d\n", fs.FATSecs);
+	printf("%d\n", fs.DataSecs);
+	printf("%d\n", fs.TotSecs);
+	printf("%d\n", fs.CountOfClus);
+	printf("%d\n", fs.FirstRootSec);
+	printf("%d\n", fs.FirstFATSec);
+	printf("%d\n", fs.FirstDataSec);
+	uint64_t *buf = malloc(65536);
+	read_cluster(&fs, buf, 2);
+// 	pio_read_sector(buf, 4144 + 2047);
+// 	for (int i = 0; i < (65536 >> 3); i ++)
+// 	{
+// 		printf("%lx ", *(buf + i));
+// 		if ((i+1) % 4 == 0)
+// 			printf("\n");
+// 	}
+	for (int i = 0; i < 16; i ++)
+		printf("%x\n", extract_fat_entry(&fs, i));
+	printf("%x\n", extract_fat_entry(&fs, 0x726B));
+	printf("%x\n", extract_fat_entry(&fs, 0xB94B));
+	printf("%x\n", extract_fat_entry(&fs, 0x13869));
+	printf("%x\n", extract_fat_entry(&fs, 0x16D81));
+	printf("%d\n", fs.BPB->BPB_SecPerClus);
+// 	proc_init();
 // 	ipc_init();
 // 	dev_init();
 // 	exec("init");
