@@ -29,6 +29,8 @@ void main(uint64_t *param_list)
 	Get_Partition(&record, 0, &LBA, &size);
 	printf("%x %x\n", LBA, size);
 	printf("%x %x\n", record.BootSig[0], record.BootSig[1]);
+	
+	
 // 	proc_init();	
 // 	ipc_init();
 // 	dev_init();

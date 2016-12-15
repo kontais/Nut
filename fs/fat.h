@@ -92,6 +92,8 @@ typedef struct Dir_Struc __attribute__((packed))
 #define ATTR_DIRECTORY	0x10
 #define ATTR_ARCHIVE	0x20
 
+#define ATTR_LONG_NAME 0x0f
+
 typedef struct LongNameDirEntry __attribute__((packed))
 {
 	uint8_t LDIR_Ord;

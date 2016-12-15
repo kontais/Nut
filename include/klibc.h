@@ -67,6 +67,19 @@ static inline char *strncpy(char *dst, const char *src, uint64_t n)
 	while(n-- > 0 && (*dst++ = *src++) != '\0');
 	return dst;
 }
+/**
+ * Wide characters' string copy function,with a limit of the nubmer of characters.
+ * @dst destination buffer
+ * @src source string
+ * @n   maximum number of characters in total
+ * @retval pointer to dst destination buffer
+ * 
+ */
+static inline wchar *wstrncpy(wchar *dst, const wchar *src, uint64_t n)
+{
+	while(n -- >0 && (*dst ++ = *src ++) != 0x0000);
+	return dst;
+}
 //Memory
 /**
  * Use @ch to initialize @buf of size @count bytes.
