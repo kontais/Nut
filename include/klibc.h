@@ -115,12 +115,12 @@ static inline void *memcpy(void *dest, const void *src, uint64_t n)
  * @size number of bytes to be allocted
  * @retval pointer to the allocated memory,NULL on error
  */
-extern void *kmalloc(uint64_t size);
+extern void *malloc(uint64_t size);
 /**
  * Free memory allocated by kmalloc.
  * @ptr pointer to allocated memory
  */
-extern void kfree(void *ptr);
+extern void free(void *ptr);
 
 //Input/Output
 extern void (*__stdout)(char *str);
