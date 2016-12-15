@@ -38,19 +38,26 @@ void main(uint64_t *param_list)
 	uint64_t *buf = malloc(65536);
 	read_cluster(&fs, buf, 2);
 // 	pio_read_sector(buf, 4144 + 2047);
-// 	for (int i = 0; i < (65536 >> 3); i ++)
-// 	{
-// 		printf("%lx ", *(buf + i));
-// 		if ((i+1) % 4 == 0)
-// 			printf("\n");
-// 	}
-	for (int i = 0; i < 16; i ++)
-		printf("%x\n", extract_fat_entry(&fs, i));
-	printf("%x\n", extract_fat_entry(&fs, 0x726B));
-	printf("%x\n", extract_fat_entry(&fs, 0xB94B));
-	printf("%x\n", extract_fat_entry(&fs, 0x13869));
-	printf("%x\n", extract_fat_entry(&fs, 0x16D81));
-	printf("%d\n", fs.BPB->BPB_SecPerClus);
+	for (int i = 0; i < 8 << 3; i ++)
+	{
+		printf("%lx ", *(buf + i));
+		if ((i+1) % 4 == 0)
+			printf("\n");
+	}
+// 	for (int i = 0; i < 16; i ++)
+// 		printf("%x\n", extract_fat_entry(&fs, i));
+// 	printf("%x\n", extract_fat_entry(&fs, 0x726B));
+// 	printf("%x\n", extract_fat_entry(&fs, 0xB94B));
+// 	printf("%x\n", extract_fat_entry(&fs, 0x13869));
+// 	printf("%x\n", extract_fat_entry(&fs, 0x16D81));
+// 	printf("%d\n", fs.BPB->BPB_SecPerClus);
+	char str[128] = {0};
+	printf("%d\n", read_lname(buf + 64, str, 128));
+	for (int i = 0; i < 128; i++)
+		printf("%c",str[i]);
+	printf("\n");
+	printf("%x\n", str[0]);
+	printf("%x\n", str[1]);
 // 	proc_init();
 // 	ipc_init();
 // 	dev_init();

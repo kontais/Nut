@@ -129,11 +129,10 @@ void fatfs_init(fatfs *fs)
 }
 
 //Max is the number of entries.
-int read_lname(struct LongNameDirEntry *dir_entry, char *lname, uint32_t max)
+int read_lname(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 {
 	struct LongNameDirEntry *entry = dir_entry;
-	
-	while(entry->LDIR_Type == ATTR_LONG_NAME)
+	while(entry->LDIR_Attr == ATTR_LONG_NAME)
 	{
 		entry ++;
 		
@@ -143,8 +142,8 @@ int read_lname(struct LongNameDirEntry *dir_entry, char *lname, uint32_t max)
 	
 	entry --;
 	
-	if (entry->LDIR_Type != ATTR_LONG_NAME)
-		return -1;
+	if (entry->LDIR_Attr != ATTR_LONG_NAME)
+		return -2;
 	
 	do
 	{
@@ -159,7 +158,7 @@ int read_lname(struct LongNameDirEntry *dir_entry, char *lname, uint32_t max)
 		lname = wstrncpy(lname, entry->LDIR_Name3, 2);
 		
 		if (entry < dir_entry)
-			return -1;
+			return -3;
 	} while(!((entry--)->LDIR_Ord & 0x40));
 	
 	return 0;

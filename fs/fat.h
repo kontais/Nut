@@ -104,14 +104,14 @@ typedef struct __attribute__((packed)) Dir_Struc
 }Dir_Struc_Type;
 
 #define ATTR_READ_ONLY	0x01
-#define ATTR_HIDDEN	0x02
-#define ATTR_SYSTEM	0x04
+#define ATTR_HIDDEN		0x02
+#define ATTR_SYSTEM		0x04
 #define ATTR_VOLUMN_ID	0x08
 #define ATTR_DIRECTORY	0x10
 #define ATTR_ARCHIVE	0x20
 
 
-#define ATTR_LONG_NAME 0x0f
+#define ATTR_LONG_NAME	0x0F
 
 typedef struct __attribute__((packed)) LongNameDirEntry 
 {
