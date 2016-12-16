@@ -243,14 +243,14 @@ uint64_t __page_alloc(uint64_t size)
 		{
 			list_del(it);
 			mm_pool.available -= size;
-			printf("Allocate %d pages, %d pages left.\n", size, mm_pool.available);
+// 			printf("Allocate %d pages, %d pages left.\n", size, mm_pool.available);
 			return (uint64_t)it;
 		}
 		else if (entry->length > size)
 		{
 			entry->length -= size;
 			mm_pool.available -= size;
-			printf("Allocate %d pages, %d pages left.\n", size, mm_pool.available);
+// 			printf("Allocate %d pages, %d pages left.\n", size, mm_pool.available);
 			return (uint64_t)it + (entry->length << 12);
 		}
 	}
@@ -284,7 +284,7 @@ void __page_free(uint64_t addr, uint64_t size)
 	}
 	list_add_before(it, &block_ptr->mm_block_list);
 	mm_pool.available += size;
-	printf("Free %d pages, %d pages left.\n", size, mm_pool.available);
+// 	printf("Free %d pages, %d pages left.\n", size, mm_pool.available);
 }
 void __page_merge(void)
 {

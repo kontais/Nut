@@ -21,7 +21,7 @@ void malloc_expand_heap(uint64_t size)
 {
 	
 }
-#define INITIAL_HEAP_SIZE 0x100
+#define INITIAL_HEAP_SIZE 0x10000
 void malloc_init(void)
 {
 	list_init(&vm_heap.mm_list);
@@ -195,11 +195,11 @@ void vm_init(void)
 	uint64_t *a[10] = {0};
 	for (int i = 0; i < 10; i ++)
 		a[i] = malloc(s[i]);
-	__dump_mm_list();
+// 	__dump_mm_list();
 	__merge_block();
 	for (int i = 0; i < 10; i ++)
 		free(a[i]);
-	__dump_mm_list();
+// 	__dump_mm_list();
 	__merge_block();
 	__dump_mm_list();
 }
