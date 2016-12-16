@@ -51,13 +51,26 @@ void main(uint64_t *param_list)
 // 	printf("%x\n", extract_fat_entry(&fs, 0x13869));
 // 	printf("%x\n", extract_fat_entry(&fs, 0x16D81));
 // 	printf("%d\n", fs.BPB->BPB_SecPerClus);
-	char str[128] = {0};
-	printf("%d\n", read_lname(buf + 64, str, 128));
-	for (int i = 0; i < 128; i++)
-		printf("%c",str[i]);
+	char str[128] = {0xd2,0x79,0xe3,0x89,0x68,0x51,0xfd,0x56,0xcc,0x53,0xbf,0x7e};
+// 	printf("%d\n", read_lname(buf + 96, str, 128));
+// 	for (int i = 0; i < 128; i++)
+// 		printf("%c",str[i]);
+// 	printf("\n");
+// 	printf("%x\n", str[0]);
+// 	printf("%x\n", str[1]);
+	char utf8[64] = {0xe7,0xa7,0x92,0x0A,0x00};
+	int pos = 0;
+	for (int i = 0; i < 64; i ++)
+	{
+		pos += unicode_into_utf8(*(uint16_t*)(str + i * 2), utf8 + pos);
+	}
+	for (int i = 0; i < 64; i ++)
+	{
+		printf("%c", *(utf8 + i));
+	}
+// 	printf("\n");
 	printf("\n");
-	printf("%x\n", str[0]);
-	printf("%x\n", str[1]);
+// 	printf("%c%c%c%c\n", 0xe7,0xa7,0x92,0x0A);
 // 	proc_init();
 // 	ipc_init();
 // 	dev_init();
