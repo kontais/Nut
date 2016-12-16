@@ -58,4 +58,14 @@ int unicode_into_utf8(uint32_t unicode, char *utf8)
 }
 
 
+int loop_unicode_into_utf8(uint16_t *unicode, char *utf8)
+{
+	uint64_t sum_size=0;
+	for(; *unicode!= 0x0000; unicode++)
+	{
+		sum_size += unicode_into_utf8(*unicode,utf8 + sum_size);
+	}
+	return sum_size;
+}
+
 
