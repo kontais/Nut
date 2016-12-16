@@ -65,13 +65,13 @@ typedef enum FAT_TYPE
 	FAT16,
 	FAT32
 }FAT_TYPE;
-#define FAT12_ENTRY_FREE			0x000
+#define FAT12_ENTRY_FREE		0x000
 #define FAT12_ENTRY_END_OF_FILE		0xFFF
 
-#define FAT16_ENTRY_FREE			0x0000
+#define FAT16_ENTRY_FREE		0x0000
 #define FAT16_ENTRY_END_OF_FILE		0xFFFF
 
-#define FAT32_ENTRY_FREE			0x0000000
+#define FAT32_ENTRY_FREE		0x0000000
 #define FAT32_ENTRY_END_OF_FILE		0xFFFFFFF
 
 
@@ -104,8 +104,8 @@ typedef struct __attribute__((packed)) Dir_Struc
 }Dir_Struc_Type;
 
 #define ATTR_READ_ONLY	0x01
-#define ATTR_HIDDEN		0x02
-#define ATTR_SYSTEM		0x04
+#define ATTR_HIDDEN	0x02
+#define ATTR_SYSTEM	0x04
 #define ATTR_VOLUMN_ID	0x08
 #define ATTR_DIRECTORY	0x10
 #define ATTR_ARCHIVE	0x20
@@ -116,13 +116,13 @@ typedef struct __attribute__((packed)) Dir_Struc
 typedef struct __attribute__((packed)) LongNameDirEntry 
 {
 	uint8_t LDIR_Ord;
-	uint8_t LDIR_Name1[10];
+	uint16_t LDIR_Name1[5];
 	uint8_t LDIR_Attr;
 	uint8_t LDIR_Type;
 	uint8_t LDIR_Chksum;
-	uint8_t LDIR_Name2[12];
+	uint16_t LDIR_Name2[6];
 	uint16_t FstClusLO; //Must be set to 0.
-	uint8_t LDIR_Name3[4];
+	uint16_t LDIR_Name3[2];
 }LongNameDirEntry_Type;
 
 typedef struct fatfs
@@ -145,6 +145,6 @@ typedef struct fatfs
 
 
 void fatfs_init(fatfs *fs);
-
+void fatfs_destroy(fatfs *fs);
 
 #endif

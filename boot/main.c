@@ -51,6 +51,7 @@ void main(uint64_t *param_list)
 // 	printf("%x\n", extract_fat_entry(&fs, 0x13869));
 // 	printf("%x\n", extract_fat_entry(&fs, 0x16D81));
 // 	printf("%d\n", fs.BPB->BPB_SecPerClus);
+	printf("%d\n", compute_cluster_chain_length(&fs, 2));
 	char str[128] = {0};
 	printf("%d\n", read_lname(buf + 64, str, 128));
 	for (int i = 0; i < 128; i++)
