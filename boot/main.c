@@ -23,9 +23,10 @@ void main(uint64_t *param_list)
 	mm_init(param_list[2], param_list[3], param_list[4], param_list[5] + param_list[6] - PHY_MAP_BASE);
 	vm_init();
 	int_init();
-	
+// 	fs_init();
 	fatfs fs;
 	fatfs_init(&fs);
+	
 	printf("%d\n", fs.BPB->ExtBPB.Ext_BPB_32.BPB_RootClus);
 	printf("%d\n", fs.RootDirSecs);
 	printf("%d\n", fs.FATSecs);
