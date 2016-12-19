@@ -54,12 +54,15 @@ void main(uint64_t *param_list)
 // 	printf("%d\n", fs.BPB->BPB_SecPerClus);
 	printf("%d\n", compute_cluster_chain_length(&fs, 2));
 	char str[128] = {0};
-	printf("%d\n", read_lname(buf + 64, str, 128));
-	for (int i = 0; i < 128; i++)
-		printf("%c",str[i]);
-	printf("\n");
-	printf("%x\n", str[0]);
-	printf("%x\n", str[1]);
+	int pos = 0;
+	for (int i = 0; i < 128; i ++)
+	{
+		printf("%d\n", pos += read_lname(buf + pos * 4, str, 128) + 1);
+		for (int i = 0; i < 128; i++)
+			printf("%c",str[i]);
+		printf("\n");
+	}
+// 	printf("%c%c%c%c\n", 0xe7,0xa7,0x92,0x0A);
 // 	proc_init();
 // 	ipc_init();
 // 	dev_init();

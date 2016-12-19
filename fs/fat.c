@@ -142,6 +142,8 @@ uint32_t read_cluster_chain(fatfs *fs, void *buf, uint32_t bufsize, uint32_t clu
 int read_lname(LongNameDirEntry_Type *dir_entry, wchar *lname, uint32_t max)
 {
 	int offset;
+	char buf[128];
+	wchar *unicode_lname = buf;
 	struct LongNameDirEntry *entry = dir_entry;
 	while(entry->LDIR_Attr == ATTR_LONG_NAME)
 	{
@@ -162,17 +164,18 @@ int read_lname(LongNameDirEntry_Type *dir_entry, wchar *lname, uint32_t max)
 	{
 		if (entry->LDIR_Name1[0] == 0xffff)
 			break;
-		lname = wstrncpy(lname, entry->LDIR_Name1, 5);
+		unicode_lname = wstrncpy(unicode_lname, entry->LDIR_Name1, 5);
 		if (entry->LDIR_Name2[0] == 0xffff)
 			break;
-		lname = wstrncpy(lname, entry->LDIR_Name2, 6);
+		unicode_lname = wstrncpy(unicode_lname, entry->LDIR_Name2, 6);
 		if (entry->LDIR_Name3[0] == 0xffff)
 			break;
-		lname = wstrncpy(lname, entry->LDIR_Name3, 2);
+		unicode_lname = wstrncpy(unicode_lname, entry->LDIR_Name3, 2);
 		
 		if (entry < dir_entry)
 			return -1;
 	} while(!((entry--)->LDIR_Ord & 0x40));
+	loop_unicode_into_utf8(buf, lname);
 	
 	return offset;
 }
