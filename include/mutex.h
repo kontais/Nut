@@ -3,7 +3,6 @@
 #include <types.h>
 #include <proc.h>
 #include <list.h>
-#include <atom.h>
 struct mutex
 {
 	/*-1:unlocked,0:locked,positive:locked,waiters*/

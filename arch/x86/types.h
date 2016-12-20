@@ -66,6 +66,6 @@ typedef unsigned long long int	UINT64;
 typedef uint64_t 		size_t;
 typedef uint64_t		id_t;
 typedef uint8_t			atomic_t;
-
+typedef int32_t			nice_t;
 typedef uint16_t		wchar;
 #endif

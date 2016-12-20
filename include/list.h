@@ -1,11 +1,11 @@
 #ifndef _LIST_H_
 #define _LIST_H_
 
-struct list_head
+typedef struct list_head
 {
 	struct list_head *next;
 	struct list_head *prev;
-};
+}list_head_t;
 /**
  * Init a new entry.
  */

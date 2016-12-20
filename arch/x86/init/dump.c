@@ -23,9 +23,37 @@ asm
 	"call	__dump_reg\r\n"
 	"hlt\r\n"
 );
+const char *exception_type[] = {
+	"Divide Error Exception",
+	"Debug Exception",
+	"NMI Interrupt",
+	"Breakpoint Exception",
+	"Overflow Exception",
+	"BOUND Range Exceeded Exception",
+	"Invalid Opcode Exception",
+	"Device Not Available Exception",
+	"Double Fault Exception",
+	"Coprocessor Segment Overrun",
+	"Invalid TSS Exception",
+	"Segment Not Present",
+	"Stack Fault Exception",
+	"General Protection Exception",
+	"Page-Fault Exception",
+	"",
+	"x87 FPU Floating-Point Error",
+	"Alignment Check Exception",
+	"Machine-Check Exception",
+	"SIMD Floating-Point Exception",
+	"Virtualization Exception",
+};
+
+extern char __INIT_START[];
 void __dump_reg(uint64_t *reg_stack)
 {
-
+	uint64_t type = *(reg_stack + 16);
+	if (type <= 20)
+		printf("%s\n", (char *)((uint64_t)exception_type[type] + (uint64_t)__INIT_START));
+	
 	printf("RAX\t\t=\t%lx\n", *reg_stack++);
 	printf("RBX\t\t=\t%lx\n", *reg_stack++);
 	printf("RCX\t\t=\t%lx\n", *reg_stack++);
@@ -42,6 +70,7 @@ void __dump_reg(uint64_t *reg_stack)
 	printf("R14\t\t=\t%lx\n", *reg_stack++);
 	printf("R15\t\t=\t%lx\n", *reg_stack++);
 	reg_stack++;
+	printf("Exception Type\t=\t%lx\n",  *reg_stack++);
 	printf("Error Code\t= \t%lx\n", *reg_stack++);
 	printf("RIP\t\t=\t%lx\n", *reg_stack++);
 	printf("CS\t\t=\t%lx\n", *reg_stack++);

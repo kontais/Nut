@@ -2,6 +2,7 @@
 #define _FS_H_
 
 #include <list.h>
+#include <klibc.h>
 
 #define FILE_TYPE_ROOT			0x00
 #define FILE_TYPE_DIRCTORY		0x01

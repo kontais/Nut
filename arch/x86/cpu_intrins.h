@@ -95,4 +95,15 @@ static inline uint64_t __read_cr3__()
 	);
 	return cr3;
 }
+static inline uint64_t __read_rflags__(void)
+{
+	uint64_t rflags;
+	asm (
+		"pushfq\r\n"
+		"pop %0\r\n"
+		: "=m" (rflags)
+		:
+	);
+	return rflags;	
+}
 #endif

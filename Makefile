@@ -2,20 +2,20 @@ AS=as
 CC=gcc
 Ld=ld
 
-COMMON_CFLAGS= -Iarch/x86/ -Iinclude/ -DX86 -I./ -Ilib/ -fno-asynchronous-unwind-tables -I./arch/x86/video/ -fno-builtin -Ifs/ -Isyscall/
+COMMON_CFLAGS= -Iarch/x86/ -Iinclude/ -DX86 -I./ -Ilib/ -fno-asynchronous-unwind-tables -I./arch/x86/video/ -fno-builtin -Ifs/ -Isyscall/ -Iproc/ -Imm/
 
 CFLAGS=  $(COMMON_CFLAGS) -mcmodel=large
 LDFLAGS= --script=./ldscript -nostdlib 
 
 INCLUDE= 
 
-INIT_CFLAGS = $(COMMON_CFLAGS) -c -fPIE 
-INIT_LDFLAGS=  --script=./init_ldscript -nostdlib
+INIT_CFLAGS= $(COMMON_CFLAGS) -c -fpie
+INIT_LDFLAGS=  --script=./init_ldscript -nostdlib -pie
 
-INIT_SOURCE= arch/x86/init/init.S arch/x86/init/init_mm_map.c  arch/x86/init/early_print.c lib/assert.c lib/printf.c  arch/x86/serial_port/serial_port.c arch/x86/init/init_dsc_tables.c arch/x86/init/exception_handler.S arch/x86/debug/dump_reg.c
-INIT_OBJS= init.o init_mm_map.o early_print.o assert.o printf.o serial_port.o init_dsc_tables.o exception_handler.o dump_reg.o
+INIT_SOURCE= arch/x86/init/init.S arch/x86/init/init_mm_map.c  arch/x86/init/early_print.c lib/assert.c lib/printf.c  arch/x86/serial_port/serial_port.c arch/x86/init/init_dsc_tables.c arch/x86/init/exception_handler.S arch/x86/init/dump.c
+INIT_OBJS= init.o init_mm_map.o early_print.o assert.o printf.o serial_port.o init_dsc_tables.o exception_handler.o dump.o
 
-OBJS=  boot/main.o  arch/x86/video/vga.o lib/assert.o lib/printf.o  lib/string.o  arch/x86/asm/start.o arch/x86/paging.o lib/bug.o arch/x86/int_ctl.o arch/x86/isa.o arch/x86/asm/interrupt_handler.o mm/vm.o arch/x86/asm/exception_handler.o arch/x86/pci.o fs/fat.o syscall/syscall.o fs/fs.o lib/coding.o
+OBJS=  boot/main.o  arch/x86/video/vga.o lib/assert.o lib/printf.o  lib/string.o  arch/x86/asm/start.o arch/x86/paging.o lib/bug.o arch/x86/int_ctl.o arch/x86/isa.o arch/x86/asm/interrupt_handler.o mm/vm.o arch/x86/asm/exception_handler.o arch/x86/pci.o fs/fat.o syscall/syscall.o fs/fs.o lib/coding.o proc/sched.o arch/x86/asm/context_switch.o proc/proc.o proc/thread.o
 
 .PHONY:all
 all:init kernel

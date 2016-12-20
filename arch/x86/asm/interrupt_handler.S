@@ -1,8 +1,7 @@
 
 .globl systick_handler
 systick_handler:
-	call handler
-	iretq
+	jmp	context_switch
 	
 .globl syscall_handler, syscall_table
 syscall_handler:

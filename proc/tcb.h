@@ -1,11 +1,11 @@
 #ifndef _MACHINE_TCB_H_
 #define _MACHINE_TCB_H_
-#include <ktypes.h>
+#include <types.h>
 /**
  * Thread control blocks definitions,
  * including registers and 
  */
-struct tcb
+typedef struct tcb
 {
 /**
  * General-perpose registers
@@ -45,22 +45,19 @@ struct tcb
  * FS,GS may be used as additional base
  * registers in linear address calculations.
  */
-	uint64_t DS;
-	uint64_t ES;
 	uint64_t FS;
 	uint64_t GS;
 	
-//RSP:Stack pointer(in the SS segment)
-	uint64_t SS;	//Stack Segment
-	uint64_t RSP;	
+//Instruction Pointer register
+	uint64_t RIP;	//RIP in the program counter(PC)
+	uint64_t CS;	//Code Segment
 //Flags and Status register
 	uint64_t RFLAGS;
-
-//Instruction Pointer register
-	uint64_t CS;	//Code Segment
-	uint64_t RIP;	//RIP in the program counter(PC)
-
+//RSP:Stack pointer(in the SS segment)
+	uint64_t RSP;
+	uint64_t SS;	//Stack Segment
 //FPU registers
 //TODO: add all the registers!
-};
+}tcb_t;
+
 #endif

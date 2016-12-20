@@ -116,6 +116,10 @@ static void __idt_init(void)
 	for (int i = 0; i < 16; i ++)
 	{
 		*(int_trap + i) = exception_handler_dsc;
+		handler_addr += 4;
+		exception_handler_dsc.offset_0_15 = handler_addr;
+		exception_handler_dsc.offset_16_31 = handler_addr >> 16;
+		exception_handler_dsc.offset_32_63 = handler_addr >> 32;
 	}
 }
 static void __tss_init(void)

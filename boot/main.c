@@ -22,7 +22,10 @@ void main(uint64_t *param_list)
 	
 	mm_init(param_list[2], param_list[3], param_list[4], param_list[5] + param_list[6] - PHY_MAP_BASE);
 	vm_init();
+	proc_init();
+	syscall_init();
 	int_init();
+	
 // 	fs_init();
 // 	fatfs fs;
 // 	fatfs_init(&fs);
@@ -71,6 +74,8 @@ void main(uint64_t *param_list)
 // 	printf("%lx", mm_map);
 // 	printf("%lx", cr3);
 // 	asm("hlt");
+// 	asm("int	$3");
+	printf("Dead loop.\n");
 	while(1)
 	{
 // 		extern uint64_t count;
@@ -79,12 +84,18 @@ void main(uint64_t *param_list)
 // 	asm("hlt");
 }
 
-// void thread1(void)
-// {
-// 	kprint("This is thread1.\n");
-// 	
-// } 
-// void thread2(void)
-// {
-// 	kprint("This is thread2.\n");
-// }
+void thread1(void)
+{
+
+	while(1)
+	{
+		printf("This is thread1.\n");
+	}
+} 
+void thread2(void)
+{
+	while(1)
+	{
+		printf("This is thread2.\n");
+	}
+}
