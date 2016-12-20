@@ -80,6 +80,13 @@ static inline wchar *wstrncpy(wchar *dst, const wchar *src, uint64_t n)
 	while(n -- >0 && (*dst ++ = *src ++) != 0x0000);
 	return dst;
 }
+/**
+ * String compare function.
+ * @s1 @s2 string to compare
+ * @retval 1 if s1 is longer than s2 
+ *         0 if s1 is as long as s2
+ *         -1 if s1 is shorter than s2
+ */
 static inline int strcmp(const char *s1, const char *s2)
 {
 	while((*s1 == *s2) && (*s1 != '\0'))
@@ -94,6 +101,38 @@ static inline int strcmp(const char *s1, const char *s2)
 	else
 		return 0;
 }
+
+/* Parse S into tokens separated by characters in DELIM. 
+ * If S is NULL, the saved pointer in SAVE_PTR is used as 
+ * the next starting point.  For example: 
+ *      char s[] = "-abc-=-def"; 
+ *      char *sp; 
+ *      x = strtok_r(s, "-", &sp);      // x = "abc", sp = "=-def" 
+ *      x = strtok_r(NULL, "-=", &sp);  // x = "def", sp = NULL 
+ *      x = strtok_r(NULL, "=", &sp);   // x = NULL 
+ *              // s = "abc\0-def\0" 
+**/  
+char *strtok_r(char *s, const char *delim, char **save_ptr);
+/**
+ * strchr, strrchr
+ * locate the first (last) occurrence of character c in the string s.
+ * @s string
+ * @c character(one byte)
+ * @retval pointer to the character in the string.
+ */
+char *strchr(const char *s, int c);
+char *strrchr(const char *s, int c);
+
+/**
+ * strspn, strcspn
+ * get length of a prefix substring
+ * @s string
+ * @accept char set to accept
+ * @reject char set to reject
+ */
+size_t strspn(const char *s, const char *accept);
+size_t strcspn(const char *s, const char *reject);
+
 //Memory
 /**
  * Use @ch to initialize @buf of size @count bytes.

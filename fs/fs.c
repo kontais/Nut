@@ -51,7 +51,7 @@ int file_ioctl(file_node_t *file, int request, ...)
 void fs_init(void)
 {
 	root = malloc(sizeof(file_node_t));
-	root->name = malloc(sizeof("/"));
+	root->name = malloc(2);
 	strcpy(root->name,  "/");
 	root->type = FILE_TYPE_ROOT;
 	root->inode = NULL;
