@@ -65,6 +65,7 @@ static inline char *strcpy(char *dst, const char *src)
 static inline char *strncpy(char *dst, const char *src, uint64_t n)
 {
 	while(n-- > 0 && (*dst++ = *src++) != '\0');
+	*dst = '\0';
 	return dst;
 }
 /**
@@ -78,6 +79,7 @@ static inline char *strncpy(char *dst, const char *src, uint64_t n)
 static inline wchar *wstrncpy(wchar *dst, const wchar *src, uint64_t n)
 {
 	while(n -- >0 && (*dst ++ = *src ++) != 0x0000);
+	*dst = 0x0000;
 	return dst;
 }
 /**

@@ -24,8 +24,8 @@ void main(uint64_t *param_list)
 	vm_init();
 	int_init();
 // 	fs_init();
-// 	fatfs fs;
-// 	fatfs_init(&fs);
+	FATFS_Type fs;
+	fatfs_init(&fs);
 // 	
 // 	printf("%d\n", fs.BPB->ExtBPB.Ext_BPB_32.BPB_RootClus);
 // 	printf("%d\n", fs.RootDirSecs);
@@ -36,8 +36,8 @@ void main(uint64_t *param_list)
 // 	printf("%d\n", fs.FirstRootSec);
 // 	printf("%d\n", fs.FirstFATSec);
 // 	printf("%d\n", fs.FirstDataSec);
-// 	uint64_t *buf = malloc(65536);
-// 	read_cluster(&fs, buf, 2);
+	uint64_t *buf = malloc(65536);
+	read_cluster(&fs, buf, 2);
 // 	pio_read_sector(buf, 4144 + 2047);
 // 	for (int i = 0; i < 8 << 3; i ++)
 // 	{
@@ -54,14 +54,20 @@ void main(uint64_t *param_list)
 // 	printf("%d\n", fs.BPB->BPB_SecPerClus);
 // 	printf("%d\n", compute_cluster_chain_length(&fs, 2));
 // 	char str[128] = {0};
+// 	memset(str,'A', 128);
 // 	int pos = 0;
 // 	for (int i = 0; i < 128; i ++)
 // 	{
 // 		printf("%d\n", pos += read_lname(buf + pos * 4, str, 128) + 1);
-// 		for (int i = 0; i < 128; i++)
-// 			printf("%c",str[i]);
+// 		printf("%s\n", str);
+// // 		for (int i = 0; i < 128; i++)
+// // 			printf("%c",str[i]);
 // 		printf("\n");
 // 	}
+// 	
+	char stu[4096]={0};
+	printf("%d\n", read_file(&fs,"program",stu,4096));
+	printf("%s\n", stu);
 // 	printf("%c%c%c%c\n", 0xe7,0xa7,0x92,0x0A);
 // 	proc_init();
 // 	ipc_init();

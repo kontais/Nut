@@ -125,7 +125,7 @@ typedef struct __attribute__((packed)) LongNameDirEntry
 	uint16_t LDIR_Name3[2];
 }LongNameDirEntry_Type;
 
-typedef struct FATFs
+typedef struct FATFS
 {
 	uint32_t LBAStart;
 	
@@ -141,7 +141,7 @@ typedef struct FATFs
 	uint32_t FirstRootSec;
 	uint32_t FirstFATSec;
 	uint32_t FirstDataSec;
-}FatFs_Type;
+}FATFS_Type;
 
 typedef struct FATFile
 {
@@ -165,14 +165,14 @@ typedef struct FATDir
 	uint32_t offset;//In bytes.
 }FATDir_Type;
 
-void fatfs_init(FatFs_Type *fs);
-void fatfs_destroy(FatFs_Type *fs);
+void fatfs_init(FATFS_Type *fs);
+void fatfs_destroy(FATFS_Type *fs);
 
-// FATDir_Type *fatfs_opendir(FatFs_Type *fs, const char *path);
-// FATFile_Type fatfs_readdir(FatFs_Type *fs, FATDir_Type *dir);
-// void fatfs_rewinddir(FatFs_Type *fs, FATDir_Type *dir);
-// void fatfs_closedir(FatFs_Type *fs, FATDir_Type *dir);
+// FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path);
+// FATFile_Type fatfs_readdir(FATFS_Type *fs, FATDir_Type *dir);
+// void fatfs_rewinddir(FATFS_Type *fs, FATDir_Type *dir);
+// void fatfs_closedir(FATFS_Type *fs, FATDir_Type *dir);
 // 
-// void fatfs_readfile(FatFs_Type *fs, FATFile_Type *file);
+// void fatfs_readfile(FATFS_Type *fs, FATFile_Type *file);
 
 #endif
