@@ -150,7 +150,7 @@ typedef struct FATFile
 	uint8_t Type;
 	uint32_t First_Cluster;
 	
-	uint32_t Time;//In tenth seconds
+	uint32_t Creation_Time;//In tenth seconds
 	uint32_t Creation_Date;
 	uint32_t Write_Time;
 	uint32_t Write_Date;
@@ -161,8 +161,9 @@ typedef struct FATFile
 typedef struct FATDir
 {
 	void *buf;
-	
+	uint32_t size;
 	uint32_t offset;//In bytes.
+	FATFile_Type *file_info;
 }FATDir_Type;
 
 void fatfs_init(FATFS_Type *fs);
