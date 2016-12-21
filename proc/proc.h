@@ -1,11 +1,14 @@
 #ifndef _PROC_H_
 #define _PROC_H_
 
-#include <tcb.h>
 #include <ktypes.h>
 // #include <mutex.h>
 #include <fs.h>
 #include <vm.h>
+#include <context.h>
+
+#define KERNEL_STACK_SIZE	0x4000
+#define FD_TABLE_SIZE		0x0100
 typedef struct pargs
 {
 	int argc;
@@ -15,6 +18,19 @@ typedef struct penvs
 {
 	char *pwd;
 }penvs_t;
+
+/**
+ * Thread control blocks definitions,
+ * including registers and 
+ */
+typedef struct tcb
+{
+	context_t 		context;//Registers content
+	size_t 			stack_size;//Size of the user stack
+	uint64_t		kernel_stack;//Kernel stack top, the size if fixed
+	uint64_t		entry_point;//Entry point of the thread
+	
+}tcb_t;
 /*
  * Kernel runnable context (thread).
  * This is what is put to sleep and reactivated.
@@ -29,8 +45,7 @@ typedef struct thread
 // 	struct mutex		mutex;	//Thread struct lock
 
 	tcb_t			tcb;	//Thread control blocks(machine-dependent)
-	size_t 			stack_size;//Size of the stack
-	uint64_t		entry_point;//Entry point of the thread
+
 }thread_t;
 
 /*
@@ -45,15 +60,15 @@ typedef struct proc
 // 	struct mutex		mutex;	//Process struct lock
 
 	struct proc		*parent;//Parent Process
-	struct list_head	*child;	//Child Process list entry
+	struct list_head	child;	//Child Process list entry
 
 	nice_t	 		nice;	//Nice of the process
 	pargs_t			args;	//Arguments from command line
 	penvs_t			envs;	//Current working directory
 
-	vm_map_t		vm;	//Virtual memory map
+	vm_map_t		*vm;	//Virtual memory map
 	
-	fd_t			fd_table[512];//File descriptor table
+	fd_t			fd_table[FD_TABLE_SIZE];//File descriptor table
 }proc_t;
 // /*
 //  * Process groups may have a or more processes.
@@ -85,9 +100,5 @@ typedef struct proc
 // 
 // };
 
-#define MAX_PID		256
-#define PID_TABLE_SIZE	(MAX_PID * sizeof(uint8_t))
 
-#define MAX_TID		1024
-#define TID_TABLE_SIZE	(MAX_TID * sizeof(uint8_t))
 #endif

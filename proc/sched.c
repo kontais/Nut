@@ -1,35 +1,65 @@
+#include <sched.h>
 #include <proc.h>
-#include <tcb.h>
 #include <list.h>
+
 
 list_head_t thread_list;
 list_head_t proc_list;
 
+
 thread_t *current_thread;
 proc_t *current_proc;
 
-thread_t *th1,*th2,*th3;
-/**
- * This function is called after context is saved,
- * then we can schedule.
- */
 
-void context_save(uint64_t *stack_top)
+thread_t *th1,*th2,*th3;
+
+uint8_t *pid_table;
+uint8_t *tid_table;
+//Simple functions to manipulate PID and TID
+id_t pid_alloc(void)
 {
-	int regnum = sizeof(tcb_t) >> 3;
-	uint64_t *save_location = (uint64_t *)&current_thread->tcb;
-	for (int i = 0; i < regnum; i ++)
-		*save_location++ = *stack_top++;
+	for (int i = 0; i < MAX_PID; i ++)
+	{
+		if(*(pid_table + i) == 0)
+		{
+			*(pid_table + i) = 1;
+			return i;
+		}
+	}
+	return -1;
 }
-void context_load(uint64_t *stack_top)
+void pid_free(id_t id)
 {
-	int regnum = sizeof(tcb_t) >> 3;
-	uint64_t *save_location = (uint64_t *)&current_thread->tcb;
-	for (int i = 0; i < regnum; i ++)
-		 *stack_top++ = *save_location++;
+	*(pid_table + id) = 0;
 }
+id_t tid_alloc(void)
+{
+	for (int i = 0; i < MAX_PID; i ++)
+	{
+		if(*(tid_table + i) == 0)
+		{
+			*(tid_table + i) = 1;
+			return i;
+		}
+	}
+	return -1;
+}
+void tid_free(id_t id)
+{
+	*(tid_table + id) = 0;
+}
+void id_table_init(void)
+{
+	pid_table = malloc(PID_TABLE_SIZE);
+	memset(pid_table, 0, PID_TABLE_SIZE);
+	tid_table = malloc(TID_TABLE_SIZE);
+	memset(tid_table, 0, TID_TABLE_SIZE);
+}
+
 void sched_init(void)
 {
+	id_table_init();
+	
 	current_thread = NULL;
 	current_proc = NULL;
 	
@@ -40,6 +70,7 @@ void sched_init(void)
 	th2 =  malloc(sizeof(thread_t));
 	th3 =  malloc(sizeof(thread_t));
 	current_thread = th1;
+	current_context = &th1->tcb.context;
 // 	current_thread = malloc(sizeof(thread_t));
 	void *stack1 = malloc(4096);
 	void *stack2 = malloc(4096);
@@ -48,24 +79,28 @@ void sched_init(void)
 	void thread2(void);
 	thread_init(th3, NULL, &thread2, stack2+4096);
 	
-// 	int regnum = sizeof(tcb_t) >> 3;
-// 	uint64_t *save_location = (uint64_t *)&th2->tcb;
-// 	for (int i = 0; i < regnum; i ++)
-// 		printf("%lx\n", *save_location++);
 }
+/**
+ * This function is called after context is saved,
+ * then we can schedule.
+ */
 void sched(void)
 {
-// 	int regnum = sizeof(tcb_t) >> 3;
-// 	uint64_t *save_location = (uint64_t *)&current_thread->tcb;
-// 	for (int i = 0; i < regnum; i ++)
-// 		printf("%lx\n", *save_location++);
 // 	printf("\n");
 // 	printf("%lx\n", th1->tcb.RIP);
-// 	printf("Schedule.\n");
-	if (current_thread == th2)
-		current_thread = th3;
-	else
-		current_thread = th2;
+	printf("Schedule.\n");
+	
+	
+// 	if (current_thread == th2)
+// 	{
+// 		current_thread = th3;
+// 		current_context = &th3->tcb.context;
+// 	}
+// 	else
+// 	{
+// 		current_thread = th2;
+// 		current_context = &th2->tcb.context;
+// 	}
 // 	if (list_empty(&thread_list))
 // 	{
 // 		current_thread = NULL;

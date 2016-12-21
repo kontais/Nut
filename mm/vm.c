@@ -45,7 +45,7 @@ void malloc_init(void)
  */
 static inline uint64_t roundsize(uint64_t size)
 {
-	return size & 0xf ? (size & 0xfffffffffffffff0) + 1 : size;
+	return size & 0xf ? (size & 0xfffffffffffffff0) + 0x10 : size;
 }
 /**
  * Allocate a buffer of size bytes.
@@ -177,6 +177,7 @@ void *malloc(size_t size)
 		ret = __malloc(size);
 	}
 	__mm_list_consistency_check();
+// 	__dump_mm_list();
 	return ret;
 }
 void free(void *ptr)

@@ -1,7 +1,11 @@
 
 .globl systick_handler
 systick_handler:
-	jmp	context_switch
+	call	context_save
+	call	sched			#Schedule routine
+	call	context_load
+	iretq				#Automatically load the registers
+	
 	
 .globl syscall_handler, syscall_table
 syscall_handler:

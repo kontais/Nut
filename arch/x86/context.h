@@ -1,11 +1,7 @@
-#ifndef _MACHINE_TCB_H_
-#define _MACHINE_TCB_H_
-#include <types.h>
-/**
- * Thread control blocks definitions,
- * including registers and 
- */
-typedef struct tcb
+#ifndef _CONTEXT_H_
+#define _CONTEXT_H_
+
+typedef struct context
 {
 /**
  * General-perpose registers
@@ -58,6 +54,9 @@ typedef struct tcb
 	uint64_t SS;	//Stack Segment
 //FPU registers
 //TODO: add all the registers!
-}tcb_t;
+}context_t;
+
+extern context_t *current_context;
 
 #endif
+

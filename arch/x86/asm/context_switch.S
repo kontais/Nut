@@ -2,8 +2,8 @@
 #Save all registers in the stack.
 #Push all registers except RSP,RIP,CS,DS,ES,SS,which are automatically pushed by call
 #
-.globl context_switch
-context_switch:
+.globl context_save, context_load
+context_save:
 	push	%gs
 	push	%fs
 	
@@ -25,13 +25,19 @@ context_switch:
 	push	%rcx
 	push	%rax
 	
-	mov	%rsp, %rdi		#Passed As an argument
-	call	context_save		#Save context in the stack
-	
-	call	sched			#Schedule routine
 	
 	mov	%rsp, %rdi		#Passed As an argument
-	call	context_load		#Get the address of current pcb
+	call	__context_save		#Save context in the stack
+	
+	add	$0x88, %rsp		#Move SP upwards,equivalent to sequentially popping stack
+	
+	ret
+	
+context_load:
+	sub	$0x88, %rsp
+	
+	mov	%rsp, %rdi		#Passed As an argument
+	call	__context_load		#Get the address of current pcb
 	
 	pop	%rax
 	pop	%rcx
@@ -54,6 +60,6 @@ context_switch:
 	pop	%fs
 	pop	%gs
 	
-#This instruction automatically load the rest registers        
-	iretq
+	ret
+   
 

@@ -7,6 +7,11 @@
 #include <klibc.h>
 #include <mm.h>
 #include <fat.h>
+
+#include <sched.h>
+#include <syscall.h>
+#include <int_ctl.h>
+#include <queue.h>
 void main(uint64_t *param_list)
 {
 	printf("\nStarting kernel...\n");
@@ -22,10 +27,23 @@ void main(uint64_t *param_list)
 	
 	mm_init(param_list[2], param_list[3], param_list[4], param_list[5] + param_list[6] - PHY_MAP_BASE);
 	vm_init();
-	proc_init();
+	sched_init();
 	syscall_init();
-	int_init();
+// 	int_init();
+	queue_t queue;
+	queue_init(&queue);
 	
+	for (int i = 0; i < 255; i ++)
+	{
+		queue_enqueue(&queue, i);
+	}
+	for (int i = 0; i < 255; i ++)
+	{
+		printf("%x\n", queue_dequeue(&queue));
+	}
+	printf("Is it empty?%d", queue_isempty(&queue));
+	
+// 	queue_destroy(&queue);
 // 	fs_init();
 // 	fatfs fs;
 // 	fatfs_init(&fs);
