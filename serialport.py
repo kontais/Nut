@@ -1,8 +1,11 @@
 #!/bin/python3
 import socket,sys
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(("127.0.0.1", int(sys.argv[1])))
-sock.settimeout(0.01)
+sock.bind(('localhost', 20000))
+sock.listen(10)
+sock,addr = sock.accept()
+#sock.connect(("127.0.0.1", int(sys.argv[1])))
+sock.settimeout(60)
 while True:
 	try:
 		sys.stdout.buffer.write(sock.recv(1))
