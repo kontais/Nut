@@ -56,7 +56,7 @@ typedef struct context
 //TODO: add all the registers!
 }context_t;
 
-extern context_t *current_context;
-
+extern context_t *save_context;
+extern context_t *load_context;
 #endif
 

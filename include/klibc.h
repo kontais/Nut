@@ -166,6 +166,14 @@ static inline void *memcpy(void *dest, const void *src, uint64_t n)
 	return dest;
 }
 /**
+ * strpbrk
+ * search a string for any of a set of bytes
+ * @s string
+ * @accept set of bytes to locate
+ * @retval pointer to the byte in @s that matches
+ */
+char *strpbrk(const char *s, const char *accept);
+/**
  * Allocate continuous @size bytes of a array.
  * @size number of bytes to be allocted
  * @retval pointer to the allocated memory,NULL on error

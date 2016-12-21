@@ -45,7 +45,7 @@ typedef struct thread
 // 	struct mutex		mutex;	//Thread struct lock
 
 	tcb_t			tcb;	//Thread control blocks(machine-dependent)
-
+	
 }thread_t;
 
 /*

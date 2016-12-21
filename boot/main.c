@@ -30,18 +30,50 @@ void main(uint64_t *param_list)
 	sched_init();
 	syscall_init();
 // 	int_init();
-	queue_t queue;
-	queue_init(&queue);
+// 	queue_t queue;
+// 	queue_init(&queue);
+	char *save;
+	printf("%s\n", strtok_r("/root/home/sys/program/", "/", &save));
+	printf("%s\n", save);
+	printf("%s\n", strtok_r(NULL, "/", &save));
+	printf("%s\n", save);
+	printf("%s\n", strtok_r(NULL, "/", &save));
+	printf("%s\n", save);
+	printf("%s\n", strtok_r(NULL, "/", &save));
+	printf("%s\n", save);
+	printf("%s\n", strtok_r(NULL, "/", &save));
+	printf("%s\n", save);
+	printf("%s\n", strtok_r(NULL, "/", &save));
+	printf("%s\n", save);
 	
-	for (int i = 0; i < 255; i ++)
-	{
-		queue_enqueue(&queue, i);
-	}
-	for (int i = 0; i < 255; i ++)
-	{
-		printf("%x\n", queue_dequeue(&queue));
-	}
-	printf("Is it empty?%d", queue_isempty(&queue));
+// 	printf("%c\n", *strpbrk("Hello,wolrd.", "r"));
+// 	printf("%c\n", *strpbrk("Hello,wolrd.", "abcde"));
+// 	printf("%c\n", *strchr("Hello,wolrd.", 'l'));
+// 	printf("%c\n", *strrchr("Hello,wolrd.", 'l'));
+// 	printf("%d\n", strspn("Hello,wolrd.", "Habcdefghijklmnopqrstyvwxyz,."));
+// 	printf("%d\n", strcspn("Hello,wolrd.", "l"));
+// 	printf("%d\n", strspn("Hello,wolrd.", ""));
+// 	printf("%d\n", strcspn("Hello,wolrd.", ""));
+// 	
+// 	printf("%c\n", *strpbrk("Hello,wolrd.", ""));
+// 	printf("%c\n", *strpbrk("Hello,wolrd.", ""));
+// 	printf("%c\n", *strchr("Hello,wolrd.", '\0'));
+// 	printf("%c\n", *strrchr("Hello,wolrd.", '\0'));
+// 	printf("%c\n", *strpbrk("Hello,wolrd.", "X"));
+// 	printf("%c\n", *strpbrk("Hello,wolrd.", "X"));
+// 	printf("%c\n", *strchr("Hello,wolrd.", 'X'));
+// 	printf("%c\n", *strrchr("Hello,wolrd.", 'X'));
+	
+	printf("Dead loop.\n");
+// 	for (int i = 0; i < 255; i ++)
+// 	{
+// 		queue_enqueue(&queue, i);
+// 	}
+// 	for (int i = 0; i < 255; i ++)
+// 	{
+// 		printf("%x\n", queue_dequeue(&queue));
+// 	}
+// 	printf("Is it empty?%d", queue_isempty(&queue));
 	
 // 	queue_destroy(&queue);
 // 	fs_init();
@@ -86,9 +118,11 @@ void main(uint64_t *param_list)
 // 		printf("\n");
 // 	}
 // 	
-	char stu[4096]={0};
-	printf("%d\n", read_file(&fs,"program",stu,4096));
-	printf("%s\n", stu);
+	
+// 	char stu[4096]={0};
+// 	printf("%d\n", read_file(&fs,"program",stu,4096));
+// 	printf("%s\n", stu);
+// 	
 // 	printf("%c%c%c%c\n", 0xe7,0xa7,0x92,0x0A);
 // 	proc_init();
 // 	ipc_init();

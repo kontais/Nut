@@ -1,17 +1,15 @@
 #include <sched.h>
 #include <proc.h>
 #include <list.h>
-
+#include <queue.h>
 
 list_head_t thread_list;
 list_head_t proc_list;
 
-
 thread_t *current_thread;
 proc_t *current_proc;
 
-
-thread_t *th1,*th2,*th3;
+queue_t *ready_queue;
 
 uint8_t *pid_table;
 uint8_t *tid_table;
@@ -59,25 +57,21 @@ void id_table_init(void)
 void sched_init(void)
 {
 	id_table_init();
-	
-	current_thread = NULL;
 	current_proc = NULL;
 	
 	list_init(&thread_list);
 	list_init(&proc_list);
 	
-	th1 =  malloc(sizeof(thread_t));
-	th2 =  malloc(sizeof(thread_t));
-	th3 =  malloc(sizeof(thread_t));
-	current_thread = th1;
-	current_context = &th1->tcb.context;
-// 	current_thread = malloc(sizeof(thread_t));
-	void *stack1 = malloc(4096);
-	void *stack2 = malloc(4096);
-	void thread1(void);
-	thread_init(th2, NULL, &thread1, stack1+4096);
-	void thread2(void);
-	thread_init(th3, NULL, &thread2, stack2+4096);
+	ready_queue = malloc(sizeof(queue_t));
+	queue_init(ready_queue);
+	thread_t *initial_kernel_thread = malloc(sizeof(thread_t));
+	
+	current_thread = initial_kernel_thread;
+	list_add_before(&thread_list, &initial_kernel_thread->list);
+	initial_kernel_thread->proc = NULL;
+	initial_kernel_thread->status = 0;
+	memset(&initial_kernel_thread->tcb, 0, sizeof(tcb_t));
+	
 	
 }
 /**
