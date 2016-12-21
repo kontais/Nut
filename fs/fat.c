@@ -5,7 +5,7 @@
  * fat_index : 0,2,3...
  * 
  */
-void compute_fat_for_cluster(FatFs_Type *fs, uint8_t fat_index, uint32_t cluster, uint32_t *sec_off, uint32_t *entry_off)
+void compute_fat_for_cluster(FATFS_Type *fs, uint8_t fat_index, uint32_t cluster, uint32_t *sec_off, uint32_t *entry_off)
 {
 	uint32_t FATOffset;
 	switch(fs->Type)
@@ -27,7 +27,7 @@ void compute_fat_for_cluster(FatFs_Type *fs, uint8_t fat_index, uint32_t cluster
 	*entry_off = FATOffset % fs->BPB->BPB_BytsPerSec;
 }
 
-uint32_t extract_fat_entry(FatFs_Type *fs, uint32_t cluster)
+uint32_t extract_fat_entry(FATFS_Type *fs, uint32_t cluster)
 {
 	uint8_t buf[512];
 	uint32_t sec_off, entry_off;
@@ -55,7 +55,7 @@ uint32_t extract_fat_entry(FatFs_Type *fs, uint32_t cluster)
 	}
 	return entry;
 }
-void read_cluster(FatFs_Type *fs, void *buf, uint32_t cluster)
+void read_cluster(FATFS_Type *fs, void *buf, uint32_t cluster)
 {
 	uint32_t count = fs->BPB->BPB_SecPerClus;
 	uint32_t start = fs->LBAStart + fs->FirstDataSec + (cluster - 2) * fs->BPB->BPB_SecPerClus;
@@ -64,7 +64,7 @@ void read_cluster(FatFs_Type *fs, void *buf, uint32_t cluster)
 		pio_read_sector(buf + (i << 9), start + i);
 	}
 }
-uint32_t compute_cluster_chain_length(FatFs_Type *fs, uint32_t cluster)
+uint32_t compute_cluster_chain_length(FATFS_Type *fs, uint32_t cluster)
 {
 	uint8_t end = 0;
 	uint32_t chain_length = 0;
@@ -93,7 +93,7 @@ uint32_t compute_cluster_chain_length(FatFs_Type *fs, uint32_t cluster)
 	} while(!end);
 	return chain_length;
 }
-uint32_t read_cluster_chain(FatFs_Type *fs, void *buf, uint32_t bufsize, uint32_t cluster, uint32_t cluster_offset)
+uint32_t read_cluster_chain(FATFS_Type *fs, void *buf, uint32_t bufsize, uint32_t cluster, uint32_t cluster_offset)
 {
 	uint8_t end = 0;
 	uint32_t read_size = 0;
@@ -139,11 +139,11 @@ uint32_t read_cluster_chain(FatFs_Type *fs, void *buf, uint32_t bufsize, uint32_
 
 
 //Max is the number of entries.
-int read_lname(LongNameDirEntry_Type *dir_entry, wchar *lname, uint32_t max)
+int read_lname(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 {
 	int offset;
 	char buf[512];
-	wchar *unicode_lname = buf;
+	wchar *unicode_lname = (wchar *)buf;
 	struct LongNameDirEntry *entry = dir_entry;
 	while(entry->LDIR_Attr == ATTR_LONG_NAME)
 	{
@@ -154,7 +154,6 @@ int read_lname(LongNameDirEntry_Type *dir_entry, wchar *lname, uint32_t max)
 	}
 	
 	offset = entry - dir_entry;
-	assert(offset > 0);
 	entry --;
 	
 	if (entry->LDIR_Attr != ATTR_LONG_NAME)
@@ -180,7 +179,7 @@ int read_lname(LongNameDirEntry_Type *dir_entry, wchar *lname, uint32_t max)
 	return offset;
 }
 
-uint32_t read_file(FatFs_Type *fs, const char *name, void *buf, uint64_t bufsize)
+uint32_t read_file(FATFS_Type *fs, const char *name, void *buf, uint64_t bufsize)
 {
 	uint32_t rootdir_size = compute_cluster_chain_length(fs, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus) * fs->BPB->BPB_SecPerClus << 9;
 	void *rootdir = malloc(rootdir_size);
@@ -193,7 +192,8 @@ uint32_t read_file(FatFs_Type *fs, const char *name, void *buf, uint64_t bufsize
 	int ret;
 	do
 	{
-		if ((ret = read_lname(rootdir + pos, name_buf, (rootdir_size >> 5) - pos)) == -1)
+
+		if ((ret = read_lname((LongNameDirEntry_Type *)rootdir + pos, name_buf, (rootdir_size >> 5) - pos)) == -1)
 		{
 			bug("Extracting file name from root directory failed unexpectedly");
 			break;
@@ -201,7 +201,7 @@ uint32_t read_file(FatFs_Type *fs, const char *name, void *buf, uint64_t bufsize
 		pos += ret + 1;
 	} while(strcmp(name_buf, name) != 0);
 	
-	Dir_Struc_Type *dir_struct = pos - 1;
+	Dir_Struc_Type *dir_struct = (Dir_Struc_Type *)rootdir + pos - 1;
 	
 	if (bufsize < dir_struct->DIR_FileSize)
 		return 0;
@@ -209,7 +209,7 @@ uint32_t read_file(FatFs_Type *fs, const char *name, void *buf, uint64_t bufsize
 	return read_cluster_chain(fs, buf, bufsize, dir_struct->DIR_FstClusHI << 16 | dir_struct->DIR_FstClusLO, 0);
 }
 
-void fatfs_init(FatFs_Type *fs)
+void fatfs_init(FATFS_Type *fs)
 {
 	fs->LBAStart = 2048;
 	fs->BPB = malloc(sizeof(BPB_Type));
@@ -243,26 +243,26 @@ void fatfs_init(FatFs_Type *fs)
 	}
 }
 
-// FATDir_Type *fatfs_opendir(FatFs_Type *fs, const char *path)
+// FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 // {
 // 	
 // 	FATDir_Type *fatdir = malloc(sizeof(FATDir_Type));
 // 	fatdir->buf = 
 // 	
 // }
-// FATFile_Type fatfs_readdir(FatFs_Type *fs, FATDir_Type *dir)
+// FATFile_Type fatfs_readdir(FATFS_Type *fs, FATDir_Type *dir)
 // {
 // 	
 // }
-// void fatfs_rewinddir(FatFs_Type *fs, FATDir_Type *dir)
+// void fatfs_rewinddir(FATFS_Type *fs, FATDir_Type *dir)
 // {
 // 	
 // }
-// void fatfs_closedir(FatFs_Type *fs, FATDir_Type *dir)
+// void fatfs_closedir(FATFS_Type *fs, FATDir_Type *dir)
 // {
 // 	
 // }
 // 
-// void fatfs_readfile(FatFs_Type *fs, FATFile_Type *file)
+// void fatfs_readfile(FATFS_Type *fs, FATFile_Type *file)
 // {
 // }

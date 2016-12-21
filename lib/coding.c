@@ -65,7 +65,7 @@ int loop_unicode_into_utf8(uint16_t *unicode, char *utf8)
 	{
 		sum_size += unicode_into_utf8(*unicode,utf8 + sum_size);
 	}
-	*(utf8 + ++sum_size) = '\0';
+	*(utf8 + sum_size) = '\0';
 	return sum_size;
 }
 
