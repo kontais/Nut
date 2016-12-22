@@ -174,6 +174,13 @@ static inline void *memcpy(void *dest, const void *src, uint64_t n)
  */
 char *strpbrk(const char *s, const char *accept);
 /**
+ * Convert unicode string to utf-8 string
+ * @unicode input
+ * @utf8 output
+ * @retval size of string to be converted(not including NULL terminator)
+ */
+int str_unicode_to_utf8(wchar *unicode, char *utf8);
+/**
  * Allocate continuous @size bytes of a array.
  * @size number of bytes to be allocted
  * @retval pointer to the allocated memory,NULL on error

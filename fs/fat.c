@@ -154,7 +154,7 @@ int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 		*(lname + str_len) = '\0';
 		
 		if (strcmp(lname, ".") == 0 || strcmp(lname, "..") == 0 || ((Dir_Struc_Type*)dir_entry)->DIR_Name[8] == ' ')
-			return 1;
+			return 0;
 		
 		*(lname + str_len) = '.';
 		memcpy(lname + str_len + 1, ((Dir_Struc_Type*)dir_entry)->DIR_Name + 8, 3);
@@ -162,7 +162,7 @@ int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 		str_len = strcspn(lname, " ");
 		*(lname + str_len) = '\0';
 		
-		return 1;
+		return 0;
 	}
 //Handle long name directory
 	int offset;
@@ -198,7 +198,7 @@ int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 		if (entry < dir_entry)
 			return -1;
 	} while(!((entry--)->LDIR_Ord & 0x40));
-	loop_unicode_into_utf8(buf, lname);
+	str_unicode_to_utf8((wchar *)buf, lname);
 	
 	return offset;
 }
@@ -285,7 +285,9 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 	assert(fatdir->buf != NULL);
 	buf_size = fatdir->size = read_cluster_chain(fs, fatdir->buf, buf_size, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus, 0);
 	
-	dir_name = strtok_r(path, "/", &last_str);
+	char *path_buf = malloc(strlen(path) + 1);
+	strcpy(path_buf, path);
+	dir_name = strtok_r(path_buf, "/", &last_str);
 	
 	while(dir_name != NULL)
 	{
@@ -331,26 +333,40 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 	fatdir->offset = 0;
 	fatdir->file_info = malloc(sizeof(FATFile_Type));
 	memset(fatdir->file_info, 0, sizeof(FATFile_Type));
+	
+	free(path_buf);
 	return fatdir;
 }
 
 
 
-FATFile_Type fatfs_readdir(FATFS_Type *fs, FATDir_Type *dir)
+FATFile_Type *fatfs_readdir(FATFS_Type *fs, FATDir_Type *dir)
 {
-	Dir_Struc_Type *dir_struct = fatdir->buf + fatdir->offset;
-	dir->file_info->Name = dir_struct->DIR_Name;
-	dir->file_info->Type = dir_struct->DIR_Attr;
-	dir->file_info->First_Cluster = dir_struct->DIR_FstClusHI<<16 | dir_struct->DIR_FstClusLO;
-	dir->file_info->Creation_Time = dir_struct->DIR_CtrTIme;
-	dir->file_info->Creation_Date = dir_struct->DIR_CtrDate;
-	dir->file_info->Write_Time = dir_struct->WriTime;
-	dir->file_info->Write_Date = dir_struct->WriDate;
-	dir->file_info->Access_Date = dir_struct->LstAccDate;
-	dir->file_info->FileSize = dir_struct->DIR->FileSize;
-	dir->buf = malloc(dir->file_info->FileSize);
-	dir->file_info->FileSize = read_cluster_chain(fs, dir->buf, dir->size, dir->file_info->First_Cluster, 0);
+	Dir_Struc_Type *dir_struct;
+	uint32_t ret;
+	if (dir->offset == dir->size)
+		return NULL;
 	
+	if ((ret = read_name(dir->buf + dir->offset, dir->file_info->Name, (dir->size - dir->offset) >> 5)) == -1)
+	{
+		bug("Extracting file name from root directory failed unexpectedly");
+		return NULL;
+	}
+
+	dir_struct = dir->buf + dir->offset + (ret << 5);	
+	dir->file_info->Type = dir_struct->DIR_Attr;
+	dir->file_info->First_Cluster = dir_struct->DIR_FstClusHI << 16 | dir_struct->DIR_FstClusLO;
+	dir->file_info->Creation_Time = dir_struct->DIR_CtrTIme + dir_struct->DIR_CtrTimeTenth / 10;
+	dir->file_info->Creation_Date = dir_struct->DIR_CtrDate;
+	dir->file_info->Write_Time = dir_struct->DIR_WriTime;
+	dir->file_info->Write_Date = dir_struct->DIR_WritDate;
+	dir->file_info->Access_Date = dir_struct->DIR_LstAccDate;
+	dir->file_info->FileSize = dir_struct->DIR_FileSize;
+// 	dir->buf = malloc(dir->file_info->FileSize);
+// 	dir->file_info->FileSize = read_cluster_chain(fs, dir->buf, dir->size, dir->file_info->First_Cluster, 0);
+// 	
+	dir->offset += 32;
+	return  dir->file_info;
 	
 	
 }
