@@ -31,20 +31,32 @@ void main(uint64_t *param_list)
 // 	syscall_init();
 	int_init();
 	
-// 	FATFS_Type fs;
-// 	fatfs_init(&fs);
-// 	
-// 	FATDir_Type *dir = fatfs_opendir(&fs, "/");
-// 	char name[512];
-// 	printf("%d\n", read_lname(dir->buf, name, 2));
-// 	printf("%s\n", name);
-	uint64_t *buf = malloc(65536);
+	FATFS_Type fs;
+	fatfs_init(&fs);
+	
+	FATDir_Type *dir = fatfs_opendir(&fs, "/MdePkg");
+	char name[512];
+	printf("%lx\n", dir);
+	printf("%lx\n", dir->buf);
+	printf("%lx\n", dir->size);
+	printf("%lx\n", dir->offset);
+	printf("%d\n", read_name(dir->buf, name, 8));
+	printf("%s\n", name);
+	printf("%d\n", read_name(dir->buf + 32, name, 8));
+	printf("%s\n", name);
+	printf("%d\n", read_name(dir->buf + 64, name, 8));
+	printf("%s\n", name);
+	printf("%d\n", read_name(dir->buf + 96, name, 8));
+	printf("%s\n", name);
+	printf("%d\n", read_name(dir->buf + 128, name, 8));
+	printf("%s\n", name);
+// 	uint64_t *buf = malloc(65536);
 // 	read_cluster(&fs, buf, 2);
-	printf("%d\n", pio_read_sector(buf, 0));
+// 	printf("%d\n", pio_read_sector(buf, 0));
 // 	pio_read_sector(buf, 4144 + 2047);
-	for (int i = 0; i < 64; i ++)
+	for (int i = 0; i < 16; i ++)
 	{
-		printf("%lx ", *(buf + i));
+		printf("%lx ", *(uint64_t *)(dir->buf + i * 8));
 		if ((i+1) % 4 == 0)
 			printf("\n");
 	}

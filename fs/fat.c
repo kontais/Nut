@@ -140,12 +140,35 @@ uint32_t read_cluster_chain(FATFS_Type *fs, void *buf, uint32_t bufsize, uint32_
 
 
 //Max is the number of entries.
-int read_lname(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
+int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 {
+//Empty directory
+	if (((Dir_Struc_Type*)dir_entry)->DIR_Name[0] == 0x00)
+		return -1;
+//Handle short name directory
+	if (((Dir_Struc_Type*)dir_entry)->DIR_Attr != ATTR_LONG_NAME)
+	{
+		memcpy(lname, ((Dir_Struc_Type*)dir_entry)->DIR_Name, 8);
+		*(lname + 8) = '\0';
+		uint8_t str_len = strcspn(lname, " ");
+		*(lname + str_len) = '\0';
+		
+		if (strcmp(lname, ".") == 0 || strcmp(lname, "..") == 0 || ((Dir_Struc_Type*)dir_entry)->DIR_Name[8] == ' ')
+			return 1;
+		
+		*(lname + str_len) = '.';
+		memcpy(lname + str_len + 1, ((Dir_Struc_Type*)dir_entry)->DIR_Name + 8, 3);
+		*(lname + str_len + 1 + 3) = '\0';
+		str_len = strcspn(lname, " ");
+		*(lname + str_len) = '\0';
+		
+		return 1;
+	}
+//Handle long name directory
 	int offset;
 	char buf[512];
 	wchar *unicode_lname = (wchar *)buf;
-	struct LongNameDirEntry *entry = dir_entry;
+	LongNameDirEntry_Type *entry = dir_entry;
 	while(entry->LDIR_Attr == ATTR_LONG_NAME)
 	{
 		entry ++;
@@ -194,7 +217,7 @@ uint32_t read_file(FATFS_Type *fs, const char *name, void *buf, uint64_t bufsize
 	do
 	{
 
-		if ((ret = read_lname((LongNameDirEntry_Type *)rootdir + pos, name_buf, (rootdir_size >> 5) - pos)) == -1)
+		if ((ret = read_name((LongNameDirEntry_Type *)rootdir + pos, name_buf, (rootdir_size >> 5) - pos)) == -1)
 		{
 			bug("Extracting file name from root directory failed unexpectedly");
 			break;
@@ -218,8 +241,6 @@ void fatfs_init(FATFS_Type *fs)
 	
 	//The partition begins at 2048 sectors.
 	pio_read_sector(fs->BPB, fs->LBAStart);
-	printf("%d\n", fs->BPB->BPB_BytsPerSec);
-	printf("%d\n", fs->BPB->BPB_SecPerClus);
 	assert(fs->BPB->BPB_BytsPerSec == 512);
 	
 	fs->RootDirSecs = ((fs->BPB->BPB_RootEntCnt * 32) + (fs->BPB->BPB_BytsPerSec - 1)) / fs->BPB->BPB_BytsPerSec;
@@ -260,20 +281,20 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 	
 	fatdir = malloc(sizeof(FATDir_Type));
 	fatdir->size = compute_cluster_chain_length(fs, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus) * fs->BPB->BPB_SecPerClus << 9;
-// 	fatdir->buf = malloc(fatdir->size);
-// 	buf_size = fatdir->size = read_cluster_chain(fs, fatdir->buf, fatdir->size, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus, 0);
+	fatdir->buf = malloc(fatdir->size);
+	assert(fatdir->buf != NULL);
+	buf_size = fatdir->size = read_cluster_chain(fs, fatdir->buf, buf_size, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus, 0);
 	
 	dir_name = strtok_r(path, "/", &last_str);
 	
-	printf("Here\n");
 	while(dir_name != NULL)
 	{
 		pos = 0;
-
+		
 		do
 		{
-
-			if ((ret = read_lname(fatdir->buf + pos, name_buf, (fatdir->size >> 5) - pos)) == -1)
+			
+			if ((ret = read_name(fatdir->buf + pos, name_buf, (fatdir->size - pos) >> 5)) == -1)
 			{
 				bug("Extracting file name from root directory failed unexpectedly");
 				break;
@@ -291,18 +312,22 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 		
 		Dir_Struc_Type *dir_struc = fatdir->buf + (pos - 32);
 		uint32_t first_cluster = dir_struc->DIR_FstClusHI << 16 | dir_struc->DIR_FstClusLO;
+		printf("%x\n", first_cluster);
 		fatdir->size = dir_struc->DIR_FileSize;
-
+		
 		if (fatdir->size > buf_size)
 		{
 			free(fatdir->buf);
 			fatdir->buf = malloc(fatdir->size);
+			buf_size = fatdir->size;
+			assert(fatdir->buf != NULL);
 		}
 		
-		fatdir->size = read_cluster_chain(fs, fatdir->buf, fatdir->size, first_cluster, 0);
+		fatdir->size = read_cluster_chain(fs, fatdir->buf, buf_size, first_cluster, 0);
 		
 		dir_name = strtok_r(NULL, "/", &last_str);
 	}
+	printf("2\n");
 	fatdir->offset = 0;
 	fatdir->file_info = malloc(sizeof(FATFile_Type));
 	memset(fatdir->file_info, 0, sizeof(FATFile_Type));
