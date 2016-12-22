@@ -174,6 +174,6 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path);
 // void fatfs_rewinddir(FATFS_Type *fs, FATDir_Type *dir);
 // void fatfs_closedir(FATFS_Type *fs, FATDir_Type *dir);
 // 
-// void fatfs_readfile(FATFS_Type *fs, FATFile_Type *file);
+uint32_t fatfs_readfile(FATFS_Type *fs, FATFile_Type *file, void *buf, uint32_t bufsize);
 
 #endif
