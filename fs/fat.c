@@ -253,32 +253,18 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 	int ret;
 	char name_buf[512];
 	uint32_t buf_size;
-// 	rootdir_name=strtok_r(path,"/",last_str);d
+	
 	fatdir = malloc(sizeof(FATDir_Type));
 	fatdir->size = compute_cluster_chain_length(fs, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus) * fs->BPB->BPB_SecPerClus << 9;
 	fatdir->buf = malloc(fatdir->size);
 	buf_size = fatdir->size = read_cluster_chain(fs, fatdir->buf, fatdir->size, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus, 0);
 	
 	dir_name = strtok_r(path, "/", &last_str);
-// 	do
-// 	{
-// 
-// 		if ((ret = read_lname((LongNameDirEntry_Type *)fatdir->buf + pos, name_buf, (fatdir->size >> 5) - pos)) == -1)
-// 		{
-// 			bug("Extracting file name from root directory failed unexpectedly");
-// 			break;
-// 		}
-// 		pos += ret + 1;
-// 	} while(strcmp(name_buf, rootdir_name) != 0);
-// 	fatdir->file_info = fatdir->buf + pos - 1;
-// 	fatdir->offset=pos;
-// 	free(fatdir->buf);
-// 	path=NULL;
+
 	while(dir_name != NULL)
 	{
 		pos = 0;
-// 		fatdir->size=fatdir->file_info->FileSize;
-// 		fatdir->buf=malloc(fatdir->size);
+
 		do
 		{
 
@@ -309,9 +295,6 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 		}
 		
 		fatdir->size = read_cluster_chain(fs, fatdir->buf, fatdir->size, first_cluster, 0);
-// 		fatdir->file_info = fatdir->buf + pos - 1;
-// 		fatdir->offset = pos;
-		
 		
 		dir_name = strtok_r(NULL, "/", &last_str);
 	}
@@ -320,11 +303,8 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 	memset(fatdir->file_info, 0, sizeof(FATFile_Type));
 	return fatdir;
 }
-// 	
-// 	FATDir_Type *fatdir = malloc(sizeof(FATDir_Type));
-// 	fatdir->buf = 
-// 	
-// }
+
+
 FATFile_Type fatfs_readdir(FATFS_Type *fs, FATDir_Type *dir)
 {
 	

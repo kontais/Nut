@@ -27,70 +27,20 @@ void main(uint64_t *param_list)
 	
 	mm_init(param_list[2], param_list[3], param_list[4], param_list[5] + param_list[6] - PHY_MAP_BASE);
 	vm_init();
-	sched_init();
-	syscall_init();
+// 	sched_init();
+// 	syscall_init();
 // 	int_init();
-// 	queue_t queue;
-// 	queue_init(&queue);
-	char *save;
-	printf("%s\n", strtok_r("/root/home/sys/program/", "/", &save));
-	printf("%s\n", save);
-	printf("%s\n", strtok_r(NULL, "/", &save));
-	printf("%s\n", save);
-	printf("%s\n", strtok_r(NULL, "/", &save));
-	printf("%s\n", save);
-	printf("%s\n", strtok_r(NULL, "/", &save));
-	printf("%s\n", save);
-	printf("%s\n", strtok_r(NULL, "/", &save));
-	printf("%s\n", save);
-	printf("%s\n", strtok_r(NULL, "/", &save));
-	printf("%s\n", save);
 	
-// 	printf("%c\n", *strpbrk("Hello,wolrd.", "r"));
-// 	printf("%c\n", *strpbrk("Hello,wolrd.", "abcde"));
-// 	printf("%c\n", *strchr("Hello,wolrd.", 'l'));
-// 	printf("%c\n", *strrchr("Hello,wolrd.", 'l'));
-// 	printf("%d\n", strspn("Hello,wolrd.", "Habcdefghijklmnopqrstyvwxyz,."));
-// 	printf("%d\n", strcspn("Hello,wolrd.", "l"));
-// 	printf("%d\n", strspn("Hello,wolrd.", ""));
-// 	printf("%d\n", strcspn("Hello,wolrd.", ""));
+// 	FATFS_Type fs;
+// 	fatfs_init(&fs);
 // 	
-// 	printf("%c\n", *strpbrk("Hello,wolrd.", ""));
-// 	printf("%c\n", *strpbrk("Hello,wolrd.", ""));
-// 	printf("%c\n", *strchr("Hello,wolrd.", '\0'));
-// 	printf("%c\n", *strrchr("Hello,wolrd.", '\0'));
-// 	printf("%c\n", *strpbrk("Hello,wolrd.", "X"));
-// 	printf("%c\n", *strpbrk("Hello,wolrd.", "X"));
-// 	printf("%c\n", *strchr("Hello,wolrd.", 'X'));
-// 	printf("%c\n", *strrchr("Hello,wolrd.", 'X'));
-	
-	printf("Dead loop.\n");
-// 	for (int i = 0; i < 255; i ++)
-// 	{
-// 		queue_enqueue(&queue, i);
-// 	}
-// 	for (int i = 0; i < 255; i ++)
-// 	{
-// 		printf("%x\n", queue_dequeue(&queue));
-// 	}
-// 	printf("Is it empty?%d", queue_isempty(&queue));
-	
-// 	queue_destroy(&queue);
-// 	fs_init();
-	FATFS_Type fs;
-	fatfs_init(&fs);
-// 	
-// 	printf("%d\n", fs.BPB->ExtBPB.Ext_BPB_32.BPB_RootClus);
-// 	printf("%d\n", fs.RootDirSecs);
-// 	printf("%d\n", fs.FATSecs);
-// 	printf("%d\n", fs.DataSecs);
-// 	printf("%d\n", fs.TotSecs);
-// 	printf("%d\n", fs.CountOfClus);
-// 	printf("%d\n", fs.FirstRootSec);
-// 	printf("%d\n", fs.FirstFATSec);
-// 	printf("%d\n", fs.FirstDataSec);
+// 	FATDir_Type *dir = fatfs_opendir(&fs, "/");
+// 	char name[512];
+// 	printf("%d\n", read_lname(dir->buf, name, 2));
+// 	printf("%s\n", name);
 	uint64_t *buf = malloc(65536);
-	read_cluster(&fs, buf, 2);
+// 	read_cluster(&fs, buf, 2);
+	printf("%d\n", pio_read_sector(buf, 0));
 // 	pio_read_sector(buf, 4144 + 2047);
 // 	for (int i = 0; i < 8 << 3; i ++)
 // 	{
@@ -134,6 +84,7 @@ void main(uint64_t *param_list)
 // 	asm("hlt");
 // 	asm("int	$3");
 	printf("Dead loop.\n");
+	printf("%s\n", "Hello,world");
 	while(1)
 	{
 // 		extern uint64_t count;

@@ -32,14 +32,14 @@ void pic_82c59_init(uint8_t vec_base)
 	__io_write_8(0x21, 1 << 2);
 	__io_write_8(0x21,  1 << 1 | 1);
 	//Mask all interrupt except IRQ2
-// 	__io_write_8(0x21, 0xfb);
+	__io_write_8(0x21, 0xfb);
 	
 	__io_write_8(0xa0, 1 << 4 | 1);
 	__io_write_8(0xa1, vec_base + 8);
 	__io_write_8(0xa1, 1 << 1);
 	__io_write_8(0xa1,  1 << 1 | 1);
 	//Mask all interrupt
-// 	__io_write_8(0xa1, 0xff);
+	__io_write_8(0xa1, 0xff);
 	
 }
 void pic_82c59_mask_int(uint8_t irq)
@@ -87,7 +87,7 @@ void pic_82c59_unmask_int(uint8_t irq)
 #define IDE_ATA_PIO_STATUS_IDX						0X02
 #define IDE_ATA_PIO_STATUS_ERR						0X01
 
-#define PIO_STATUS(flag) (__io_read_8(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_CONTROL_BLOCK_REG_OFFSET_ALT_STATUS_DEVICE_CONTROL) & flag != 0)
+#define PIO_STATUS(flag) (__io_read_8(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_STATUS_COMMAND) & flag != 0)
 
 // void pio_disk_reset(void)
 // {
@@ -107,7 +107,7 @@ void pic_82c59_unmask_int(uint8_t irq)
  * Only provide functionality to read one sector at one time.
  * 
  */
-void pio_read_sector(void *buf, uint32_t lba/*, uint8_t sec_count*/)
+int pio_read_sector(void *buf, uint32_t lba/*, uint8_t sec_count*/)
 {
 
 	assert((lba & 0xf0000000) == 0);
@@ -120,9 +120,10 @@ void pio_read_sector(void *buf, uint32_t lba/*, uint8_t sec_count*/)
 	__io_write_8(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_CYLINDER_HIGH, lba >> 16);
 	__io_write_8(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_DRIVE_HEAD, lba >> 24 | 1 << 6);
 	
-
 	__io_write_8(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_STATUS_COMMAND,  IDE_ATA_PIO_COMMAND_READ_SECTOR);	
 
+	if(PIO_STATUS(IDE_ATA_PIO_STATUS_ERR))
+		return __io_read_8(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_ERROR_FEATURES);
 // 	while(sec_count -- > 0)
 // 	{
 		while(PIO_STATUS(IDE_ATA_PIO_STATUS_BSY));
@@ -132,9 +133,10 @@ void pio_read_sector(void *buf, uint32_t lba/*, uint8_t sec_count*/)
 			*(uint16_t *)buf = __io_read_16(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_DATA);
 		}
 // 	}
+	return 0;
 }
 
-void pio_write_sector(void *buf, uint32_t lba)
+int pio_write_sector(void *buf, uint32_t lba)
 {
 	assert((lba & 0xf0000000) == 0);
 	while(PIO_STATUS(IDE_ATA_PIO_STATUS_BSY));
@@ -148,11 +150,14 @@ void pio_write_sector(void *buf, uint32_t lba)
 
 	__io_write_8(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_STATUS_COMMAND,  IDE_ATA_PIO_COMMAND_WRITE_SECTOR);	
 	
+	if(PIO_STATUS(IDE_ATA_PIO_STATUS_ERR))
+		return __io_read_8(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_ERROR_FEATURES);
+	
 	while(PIO_STATUS(IDE_ATA_PIO_STATUS_BSY));
 // 	while(!PIO_STATUS(IDE_ATA_PIO_STATUS_DRQ));
 	for (int i = 0; i < 256; i ++, buf += 2)
 	{
 		__io_write_16(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_DATA, *(uint16_t *)buf);
 	}
-	
+	return 0;
 }
