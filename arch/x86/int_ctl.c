@@ -23,7 +23,7 @@ int int_init(void)
 	int_reg(0x20, &systick_handler, INT);
 	timer_82c54_init(0, 2, 0xffff);
 	pic_82c59_init(0x20);
-	pic_82c59_unmask_int(0);
+// 	pic_82c59_unmask_int(0);
 	
 	int_reg(0x80, &syscall_handler, TRAP);
 	

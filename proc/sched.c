@@ -72,7 +72,9 @@ void sched_init(void)
 	initial_kernel_thread->status = 0;
 	memset(&initial_kernel_thread->tcb, 0, sizeof(tcb_t));
 	
+	queue_enqueue(ready_queue, initial_kernel_thread);
 	
+	save_context = &initial_kernel_thread->tcb.context;
 }
 /**
  * This function is called after context is saved,
@@ -84,7 +86,12 @@ void sched(void)
 // 	printf("%lx\n", th1->tcb.RIP);
 	printf("Schedule.\n");
 	
+	thread_t *load_thread = queue_dequeue(ready_queue);
+
+	load_context = &load_thread->tcb.context;
+	save_context = &load_thread->tcb.context;
 	
+	queue_enqueue(ready_queue, load_thread);
 // 	if (current_thread == th2)
 // 	{
 // 		current_thread = th3;
