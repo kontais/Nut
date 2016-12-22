@@ -322,11 +322,25 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 }
 // 	
 // 	FATDir_Type *fatdir = malloc(sizeof(FATDir_Type));
+
 // 	fatdir->buf = 
 // 	
 // }
 FATFile_Type fatfs_readdir(FATFS_Type *fs, FATDir_Type *dir)
 {
+	Dir_Struc_Type *dir_struct = fatdir->buf + fatdir->offset;
+	dir->file_info->Name = dir_struct->DIR_Name;
+	dir->file_info->Type = dir_struct->DIR_Attr;
+	dir->file_info->First_Cluster = dir_struct->DIR_FstClusHI<<16 | dir_struct->DIR_FstClusLO;
+	dir->file_info->Creation_Time = dir_struct->DIR_CtrTIme;
+	dir->file_info->Creation_Date = dir_struct->DIR_CtrDate;
+	dir->file_info->Write_Time = dir_struct->WriTime;
+	dir->file_info->Write_Date = dir_struct->WriDate;
+	dir->file_info->Access_Date = dir_struct->LstAccDate;
+	dir->file_info->FileSize = dir_struct->DIR->FileSize;
+	dir->buf = malloc(dir->file_info->FileSize);
+	dir->file_info->FileSize = read_cluster_chain(fs, dir->buf, dir->size, dir->file_info->First_Cluster, 0);
+	
 	
 	
 }

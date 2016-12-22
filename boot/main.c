@@ -79,7 +79,7 @@ void main(uint64_t *param_list)
 // 	fs_init();
 	FATFS_Type fs;
 	fatfs_init(&fs);
-// 	
+
 // 	printf("%d\n", fs.BPB->ExtBPB.Ext_BPB_32.BPB_RootClus);
 // 	printf("%d\n", fs.RootDirSecs);
 // 	printf("%d\n", fs.FATSecs);
@@ -106,22 +106,22 @@ void main(uint64_t *param_list)
 // 	printf("%x\n", extract_fat_entry(&fs, 0x16D81));
 // 	printf("%d\n", fs.BPB->BPB_SecPerClus);
 // 	printf("%d\n", compute_cluster_chain_length(&fs, 2));
-// 	char str[128] = {0};
-// 	memset(str,'A', 128);
-// 	int pos = 0;
-// 	for (int i = 0; i < 128; i ++)
-// 	{
-// 		printf("%d\n", pos += read_lname(buf + pos * 4, str, 128) + 1);
-// 		printf("%s\n", str);
+	char str[128] = {0};
+	memset(str,'A', 128);
+	int pos = 0;
+	for (int i = 0; i < 128; i ++)
+	{
+		printf("%d\n", pos += read_lname(buf + pos * 4, str, 128) + 1);
+		printf("%s\n", str);
 // // 		for (int i = 0; i < 128; i++)
 // // 			printf("%c",str[i]);
-// 		printf("\n");
-// 	}
-// 	
+		printf("\n");
+	}
 	
-// 	char stu[4096]={0};
-// 	printf("%d\n", read_file(&fs,"program",stu,4096));
-// 	printf("%s\n", stu);
+	
+	char stu[4096]={0};
+	printf("%d\n", read_file(&fs,"program",stu,4096));
+	printf("%s\n", stu);
 // 	
 // 	printf("%c%c%c%c\n", 0xe7,0xa7,0x92,0x0A);
 // 	proc_init();
