@@ -370,15 +370,25 @@ FATFile_Type *fatfs_readdir(FATFS_Type *fs, FATDir_Type *dir)
 	
 	
 }
-// void fatfs_rewinddir(FATFS_Type *fs, FATDir_Type *dir)
-// {
-// 	
-// }
-// void fatfs_closedir(FATFS_Type *fs, FATDir_Type *dir)
-// {
-// 	
-// }
-// 
-// void fatfs_readfile(FATFS_Type *fs, FATFile_Type *file)
-// {
-// }
+void fatfs_rewinddir(FATFS_Type *fs, FATDir_Type *dir)
+{
+	dir->offset = 0;
+	memset(dir->file_info, 0, sizeof(FATFile_Type));
+}
+void fatfs_closedir(FATFS_Type *fs, FATDir_Type *dir)
+{
+	free(dir->file_info);
+	dir->file_info = NULL;
+	free(dir->buf);
+	dir->buf = NULL;
+	dir->size = 0;
+	dir->offset = 0;
+}
+
+uint32_t fatfs_readfile(FATFS_Type *fs, FATFile_Type *file, void *buf, uint32_t bufsize)
+{
+	if (bufsize < file->FileSize)
+		return 0;
+	
+	return read_cluster_chain(fs, buf, bufsize, file->First_Cluster, 0);
+}
