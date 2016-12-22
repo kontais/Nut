@@ -134,16 +134,6 @@ struct pte_table
 #define DEFAULT_PT_FLAG (PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD)
 
 
-static inline uint64_t __convert_virt_to_phy(uint64_t addr)
-{
-	assert(addr > PHY_MAP_BASE);
-	return addr - PHY_MAP_BASE;
-}
-static inline uint64_t __convert_phy_to_virt(uint64_t addr)
-{
-	assert(addr < PHY_MAP_BASE);
-	return addr + PHY_MAP_BASE;
-}
 
 /**
  * Size in pages.

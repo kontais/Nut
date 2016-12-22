@@ -227,6 +227,8 @@ uint32_t read_file(FATFS_Type *fs, const char *name, void *buf, uint64_t bufsize
 	
 	Dir_Struc_Type *dir_struct = (Dir_Struc_Type *)rootdir + pos - 1;
 	
+	free(rootdir);
+	
 	if (bufsize < dir_struct->DIR_FileSize)
 		return 0;
 	

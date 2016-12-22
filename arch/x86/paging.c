@@ -8,7 +8,16 @@
 
 void __page_consistency_check(void);
 void __page_merge(void);
-
+static inline uint64_t __convert_virt_to_phy(uint64_t addr)
+{
+	assert(addr > PHY_MAP_BASE);
+	return addr - PHY_MAP_BASE;
+}
+static inline uint64_t __convert_phy_to_virt(uint64_t addr)
+{
+	assert(addr < PHY_MAP_BASE);
+	return addr + PHY_MAP_BASE;
+}
 
 static inline uint64_t __get_virt_addr(uint64_t *entry)
 {
@@ -39,6 +48,10 @@ static inline void __set_entry(void *table, uint16_t n, uint64_t addr, uint64_t 
 	assert(n < 512 && n >= 0);
 	*((uint64_t *)table + n) = addr & PAGING_MASK_ADDR | flag;
 }
+static inline void *__alloc_new_page_table(void)
+{
+	return __convert_phy_to_virt(page_alloc(1));
+}
 static int __do_mapping(uint64_t *plm4e, uint64_t virt_addr, uint64_t phy_addr, uint64_t flag)
 {
 	uint64_t *pdpte;
@@ -47,7 +60,7 @@ static int __do_mapping(uint64_t *plm4e, uint64_t virt_addr, uint64_t phy_addr, 
 	uint64_t *plm4e_entry = plm4e + (virt_addr >> 39 & PAGING_MASK_ENTRY_OFFSET);
 	if (!(*plm4e_entry & PAGING_MASK_P))
 	{
-		pdpte = (uint64_t *)page_alloc(1);
+		pdpte = __alloc_new_page_table();
 		__init_table(pdpte, DEAAULT_EMPTY_FLAG);
 		*plm4e_entry = __mk_entry(__convert_virt_to_phy((uint64_t)pdpte), DEFAULT_PT_FLAG);
 
@@ -58,7 +71,7 @@ static int __do_mapping(uint64_t *plm4e, uint64_t virt_addr, uint64_t phy_addr, 
 	uint64_t *pdpte_entry = pdpte + (virt_addr >> 30 & PAGING_MASK_ENTRY_OFFSET);
 	if (!(*pdpte_entry & PAGING_MASK_P))
 	{
-		pde = (uint64_t *)page_alloc(1);
+		pde = __alloc_new_page_table();
 		__init_table(pde, DEAAULT_EMPTY_FLAG);
 		*pdpte_entry = __mk_entry(__convert_virt_to_phy((uint64_t)pde), DEFAULT_PT_FLAG);
 	}
@@ -68,7 +81,7 @@ static int __do_mapping(uint64_t *plm4e, uint64_t virt_addr, uint64_t phy_addr, 
 	uint64_t *pde_entry = pde + (virt_addr >> 21 & PAGING_MASK_ENTRY_OFFSET);
 	if (!(*pde_entry & PAGING_MASK_P))
 	{
-		pte = (uint64_t *)page_alloc(1);
+		pte = __alloc_new_page_table();
 		__init_table(pte, DEAAULT_EMPTY_FLAG);
 		*pde_entry = __mk_entry(__convert_virt_to_phy((uint64_t )pte), DEFAULT_PT_FLAG);
 	}
@@ -244,14 +257,14 @@ uint64_t __page_alloc(uint64_t size)
 			list_del(it);
 			mm_pool.available -= size;
 // 			printf("Allocate %d pages, %d pages left.\n", size, mm_pool.available);
-			return (uint64_t)it;
+			return __convert_virt_to_phy((uint64_t)it);
 		}
 		else if (entry->length > size)
 		{
 			entry->length -= size;
 			mm_pool.available -= size;
 // 			printf("Allocate %d pages, %d pages left.\n", size, mm_pool.available);
-			return (uint64_t)it + (entry->length << 12);
+			return __convert_virt_to_phy((uint64_t)it + (entry->length << 12));
 		}
 	}
 	return INVALID_ADDR;
@@ -274,6 +287,7 @@ uint64_t page_alloc(uint64_t size)
 }
 void __page_free(uint64_t addr, uint64_t size)
 {
+	addr = __convert_phy_to_virt(size);
 	struct mm_block *block_ptr = __init_block(addr, size);
 	struct list_head *it;
 	list_for_each(it, &mm_pool.mm_list)

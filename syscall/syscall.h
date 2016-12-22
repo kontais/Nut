@@ -13,7 +13,7 @@
 #define	SYS_pipe	42
 
 
-
+void sys_syscall(void);
 
 #define SYS_CALL_TABLE_SIZE 1
 

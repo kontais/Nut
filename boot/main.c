@@ -27,39 +27,39 @@ void main(uint64_t *param_list)
 	
 	mm_init(param_list[2], param_list[3], param_list[4], param_list[5] + param_list[6] - PHY_MAP_BASE);
 	vm_init();
-// 	sched_init();
-// 	syscall_init();
-	int_init();
-	
+	sched_init();
+	syscall_init();
+// 	int_init();
+
 	FATFS_Type fs;
 	fatfs_init(&fs);
-	
-	FATDir_Type *dir = fatfs_opendir(&fs, "/MdePkg");
-	char name[512];
-	printf("%lx\n", dir);
-	printf("%lx\n", dir->buf);
-	printf("%lx\n", dir->size);
-	printf("%lx\n", dir->offset);
-	printf("%d\n", read_name(dir->buf, name, 8));
-	printf("%s\n", name);
-	printf("%d\n", read_name(dir->buf + 32, name, 8));
-	printf("%s\n", name);
-	printf("%d\n", read_name(dir->buf + 64, name, 8));
-	printf("%s\n", name);
-	printf("%d\n", read_name(dir->buf + 96, name, 8));
-	printf("%s\n", name);
-	printf("%d\n", read_name(dir->buf + 128, name, 8));
-	printf("%s\n", name);
+// 	
+// 	FATDir_Type *dir = fatfs_opendir(&fs, "/MdePkg");
+// 	char name[512];
+// 	printf("%lx\n", dir);
+// 	printf("%lx\n", dir->buf);
+// 	printf("%lx\n", dir->size);
+// 	printf("%lx\n", dir->offset);
+// 	printf("%d\n", read_name(dir->buf, name, 8));
+// 	printf("%s\n", name);
+// 	printf("%d\n", read_name(dir->buf + 32, name, 8));
+// 	printf("%s\n", name);
+// 	printf("%d\n", read_name(dir->buf + 64, name, 8));
+// 	printf("%s\n", name);
+// 	printf("%d\n", read_name(dir->buf + 96, name, 8));
+// 	printf("%s\n", name);
+// 	printf("%d\n", read_name(dir->buf + 128, name, 8));
+// 	printf("%s\n", name);
 // 	uint64_t *buf = malloc(65536);
 // 	read_cluster(&fs, buf, 2);
 // 	printf("%d\n", pio_read_sector(buf, 0));
 // 	pio_read_sector(buf, 4144 + 2047);
-	for (int i = 0; i < 16; i ++)
-	{
-		printf("%lx ", *(uint64_t *)(dir->buf + i * 8));
-		if ((i+1) % 4 == 0)
-			printf("\n");
-	}
+// 	for (int i = 0; i < 16; i ++)
+// 	{
+// 		printf("%lx ", *(uint64_t *)(dir->buf + i * 8));
+// 		if ((i+1) % 4 == 0)
+// 			printf("\n");
+// 	}
 // 	for (int i = 0; i < 16; i ++)
 // 		printf("%x\n", extract_fat_entry(&fs, i));
 // 	printf("%x\n", extract_fat_entry(&fs, 0x726B));
@@ -81,10 +81,10 @@ void main(uint64_t *param_list)
 // 	}
 // 	
 	
-// 	char stu[4096]={0};
-// 	printf("%d\n", read_file(&fs,"program",stu,4096));
-// 	printf("%s\n", stu);
-// 	
+	char stu[4096]={0};
+	printf("%d\n", read_file(&fs,"test",stu,4096));
+	printf("%lx\n", *(uint64_t *)stu);
+	printf("%lx\n", *(uint64_t *)(stu + 8));
 // 	printf("%c%c%c%c\n", 0xe7,0xa7,0x92,0x0A);
 // 	proc_init();
 // 	ipc_init();
@@ -95,8 +95,17 @@ void main(uint64_t *param_list)
 // 	printf("%lx", cr3);
 // 	asm("hlt");
 // 	asm("int	$3");
+	void *stack = malloc(4096);
+	thread_t thread;
+	void thread1(void);
+	extern queue_t *ready_queue;
+	thread_init(&thread, NULL, &thread1, stack + 4096);
+	queue_enqueue(ready_queue, &thread);
 	printf("Dead loop.\n");
-	printf("%s\n", "Hello,world");
+// 	printf("%s\n", "Hello,world");
+	
+	
+	
 	while(1)
 	{
 // 		extern uint64_t count;
@@ -110,6 +119,10 @@ void thread1(void)
 
 	while(1)
 	{
+		asm(
+			"mov $0, %rax\r\n"
+			"int $0x80"
+		);
 		printf("This is thread1.\n");
 	}
 } 

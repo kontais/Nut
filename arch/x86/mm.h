@@ -1,7 +1,7 @@
 #ifndef _MM_
 #define _MM_
 
-#define SYSCALL_BASE		0xffffffffff000000
+#define SYSCALL_BASE		0xffffffffffff0000
 #define KERNEL_IMAGE_BASE	0xffffffff80000000
 #define KERNEL_HEAP_BASE	0xfffff80000000000
 #define VIRTUAL_MAP_BASE	0xfffff40000000000
