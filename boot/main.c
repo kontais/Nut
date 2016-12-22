@@ -68,16 +68,50 @@ void main(uint64_t *param_list)
 // 	{
 // 		printf("%d\n", pos += read_lname(buf + pos * 4, str, 128) + 1);
 // 		printf("%s\n", str);
-// // // 		for (int i = 0; i < 128; i++)
-// // // 			printf("%c",str[i]);
+// // // // 		for (int i = 0; i < 128; i++)
+// // // // 			printf("%c",str[i]);
 // 		printf("\n");
 // 	}
-// 	
+// // 	
 	
 // 	char stu[4096]={0};
 // 	printf("%d\n", read_file(&fs,"program",stu,4096));
 // 	printf("%s\n", stu);
 // 	
+	FATDir_Type *fatdir;
+	FATFile_Type *file_info;
+	const char *path="/MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib/OUTPUT/";
+	fatdir = fatfs_opendir(&fs,path);
+	printf("%d\n", fatdir->size);
+
+	for(;;)
+	{
+		file_info = fatfs_readdir(&fs,fatdir);
+		if (file_info == NULL)
+			break;
+		printf("%lx\t",file_info);
+		printf("%s\t%d\t%d\t%d\t",file_info->Name,file_info->First_Cluster,file_info->Creation_Date,file_info->FileSize);
+		printf("\n");
+	
+	
+	}
+	fatfs_rewinddir(&fs, fatdir);
+	for(;;)
+	{
+		file_info = fatfs_readdir(&fs,fatdir);
+		if (file_info == NULL)
+			break;
+		printf("%lx\t",file_info);
+		printf("%s\t%d\t%d\t%d\t",file_info->Name,file_info->First_Cluster,file_info->Creation_Date,file_info->FileSize);
+		printf("\n");
+	
+	
+	}
+	fatfs_closedir(&fs, fatdir);
+
+// 	
+	
+	
 // 	printf("%c%c%c%c\n", 0xe7,0xa7,0x92,0x0A);
 // 	proc_init();
 // 	ipc_init();

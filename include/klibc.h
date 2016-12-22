@@ -38,7 +38,6 @@ static inline char *strcat(char *dst, const char *src)
 	while(*dst != '\0')
 		dst++;
 	while((*dst++ = *src++)!= '\0');
-	*dst = '\0';
 	return dst;
 }
 /**
@@ -50,9 +49,9 @@ static inline char *strcat(char *dst, const char *src)
  */
 static inline char *strcpy(char *dst, const char *src)
 {
+	char *save = dst;
 	while((*dst++ = *src++) != '\0');
-	*dst = '\0';
-	return dst;
+	return save;
 }
 /**
  * String copy function,with a limit of the nubmer of characters.
@@ -65,7 +64,6 @@ static inline char *strcpy(char *dst, const char *src)
 static inline char *strncpy(char *dst, const char *src, uint64_t n)
 {
 	while(n-- > 0 && (*dst++ = *src++) != '\0');
-	*dst = '\0';
 	return dst;
 }
 /**
@@ -79,7 +77,6 @@ static inline char *strncpy(char *dst, const char *src, uint64_t n)
 static inline wchar *wstrncpy(wchar *dst, const wchar *src, uint64_t n)
 {
 	while(n -- >0 && (*dst ++ = *src ++) != 0x0000);
-	*dst = 0x0000;
 	return dst;
 }
 /**

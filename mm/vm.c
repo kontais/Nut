@@ -108,7 +108,7 @@ void __free(void *ptr)
 /**
  * Join small close block into continuous larger blocks.
  */
-static void __merge_block(void)
+void __merge_block(void)
 {
 	struct list_head *it;
 	list_for_each(it, &vm_heap.mm_list)
@@ -154,7 +154,7 @@ static void __mm_list_consistency_check(void)
 		bug("Memory leakage detected, total %d, found %d.\n", vm_heap.total, sum);
 	}
 }
-static void __dump_mm_list(void)
+void __dump_mm_list(void)
 {
 	printf("Total %ld Available %ld Block Count %ld\n", vm_heap.total, vm_heap.available, vm_heap.block_count);
 	struct list_head *it;
