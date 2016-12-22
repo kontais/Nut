@@ -87,7 +87,7 @@ void pic_82c59_unmask_int(uint8_t irq)
 #define IDE_ATA_PIO_STATUS_IDX						0X02
 #define IDE_ATA_PIO_STATUS_ERR						0X01
 
-#define PIO_STATUS(flag) (__io_read_8(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_STATUS_COMMAND) & flag != 0)
+#define PIO_STATUS(flag) (__io_read_8(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_STATUS_COMMAND) & flag)
 
 // void pio_disk_reset(void)
 // {

@@ -33,6 +33,7 @@ uint32_t extract_fat_entry(FATFS_Type *fs, uint32_t cluster)
 	uint32_t sec_off, entry_off;
 	uint32_t entry;
 	compute_fat_for_cluster(fs, 0, cluster, &sec_off, &entry_off);
+	assert(entry_off >= 0 && entry_off < 512);
 	pio_read_sector(buf, sec_off + fs->LBAStart);
 	switch(fs->Type)
 	{
@@ -217,6 +218,9 @@ void fatfs_init(FATFS_Type *fs)
 	
 	//The partition begins at 2048 sectors.
 	pio_read_sector(fs->BPB, fs->LBAStart);
+	printf("%d\n", fs->BPB->BPB_BytsPerSec);
+	printf("%d\n", fs->BPB->BPB_SecPerClus);
+	assert(fs->BPB->BPB_BytsPerSec == 512);
 	
 	fs->RootDirSecs = ((fs->BPB->BPB_RootEntCnt * 32) + (fs->BPB->BPB_BytsPerSec - 1)) / fs->BPB->BPB_BytsPerSec;
 	fs->FATSecs = fs->BPB->BPB_FATSz16 != 0 ? fs->BPB->BPB_FATSz16 : fs->BPB->ExtBPB.Ext_BPB_32.BPB_FATSz32;
@@ -256,11 +260,12 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 	
 	fatdir = malloc(sizeof(FATDir_Type));
 	fatdir->size = compute_cluster_chain_length(fs, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus) * fs->BPB->BPB_SecPerClus << 9;
-	fatdir->buf = malloc(fatdir->size);
-	buf_size = fatdir->size = read_cluster_chain(fs, fatdir->buf, fatdir->size, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus, 0);
+// 	fatdir->buf = malloc(fatdir->size);
+// 	buf_size = fatdir->size = read_cluster_chain(fs, fatdir->buf, fatdir->size, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus, 0);
 	
 	dir_name = strtok_r(path, "/", &last_str);
-
+	
+	printf("Here\n");
 	while(dir_name != NULL)
 	{
 		pos = 0;

@@ -29,7 +29,7 @@ void main(uint64_t *param_list)
 	vm_init();
 // 	sched_init();
 // 	syscall_init();
-// 	int_init();
+	int_init();
 	
 // 	FATFS_Type fs;
 // 	fatfs_init(&fs);
@@ -42,12 +42,12 @@ void main(uint64_t *param_list)
 // 	read_cluster(&fs, buf, 2);
 	printf("%d\n", pio_read_sector(buf, 0));
 // 	pio_read_sector(buf, 4144 + 2047);
-// 	for (int i = 0; i < 8 << 3; i ++)
-// 	{
-// 		printf("%lx ", *(buf + i));
-// 		if ((i+1) % 4 == 0)
-// 			printf("\n");
-// 	}
+	for (int i = 0; i < 64; i ++)
+	{
+		printf("%lx ", *(buf + i));
+		if ((i+1) % 4 == 0)
+			printf("\n");
+	}
 // 	for (int i = 0; i < 16; i ++)
 // 		printf("%x\n", extract_fat_entry(&fs, i));
 // 	printf("%x\n", extract_fat_entry(&fs, 0x726B));
