@@ -33,58 +33,46 @@ void main(uint64_t *param_list)
 
 	FATFS_Type fs;
 	fatfs_init(&fs);
-// 	
-// 	FATDir_Type *dir = fatfs_opendir(&fs, "/MdePkg");
-// 	char name[512];
-// 	printf("%lx\n", dir);
-// 	printf("%lx\n", dir->buf);
-// 	printf("%lx\n", dir->size);
-// 	printf("%lx\n", dir->offset);
-// 	printf("%d\n", read_name(dir->buf, name, 8));
-// 	printf("%s\n", name);
-// 	printf("%d\n", read_name(dir->buf + 32, name, 8));
-// 	printf("%s\n", name);
-// 	printf("%d\n", read_name(dir->buf + 64, name, 8));
-// 	printf("%s\n", name);
-// 	printf("%d\n", read_name(dir->buf + 96, name, 8));
-// 	printf("%s\n", name);
-// 	printf("%d\n", read_name(dir->buf + 128, name, 8));
-// 	printf("%s\n", name);
-// 	uint64_t *buf = malloc(65536);
-// 	read_cluster(&fs, buf, 2);
-// 	printf("%d\n", pio_read_sector(buf, 0));
-// 	pio_read_sector(buf, 4144 + 2047);
-// 	for (int i = 0; i < 16; i ++)
-// 	{
-// 		printf("%lx ", *(uint64_t *)(dir->buf + i * 8));
-// 		if ((i+1) % 4 == 0)
-// 			printf("\n");
-// 	}
-// 	for (int i = 0; i < 16; i ++)
-// 		printf("%x\n", extract_fat_entry(&fs, i));
-// 	printf("%x\n", extract_fat_entry(&fs, 0x726B));
-// 	printf("%x\n", extract_fat_entry(&fs, 0xB94B));
-// 	printf("%x\n", extract_fat_entry(&fs, 0x13869));
-// 	printf("%x\n", extract_fat_entry(&fs, 0x16D81));
-// 	printf("%d\n", fs.BPB->BPB_SecPerClus);
-// 	printf("%d\n", compute_cluster_chain_length(&fs, 2));
-// 	char str[128] = {0};
-// 	memset(str,'A', 128);
-// 	int pos = 0;
-// 	for (int i = 0; i < 128; i ++)
-// 	{
-// 		printf("%d\n", pos += read_lname(buf + pos * 4, str, 128) + 1);
-// 		printf("%s\n", str);
-// // 		for (int i = 0; i < 128; i++)
-// // 			printf("%c",str[i]);
-// 		printf("\n");
-// 	}
+
+
+// 	char stu[4096]={0};
+// 	printf("%d\n", read_file(&fs,"test",stu,4096));
+// 	printf("%lx\n", *(uint64_t *)stu);
+// 	printf("%lx\n", *(uint64_t *)(stu + 8));
+
+	FATDir_Type *fatdir;
+	FATFile_Type *file_info;
+	const char *path="/MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib/OUTPUT/";
+	fatdir = fatfs_opendir(&fs,path);
+	printf("%d\n", fatdir->size);
+
+	for(;;)
+	{
+		file_info = fatfs_readdir(&fs,fatdir);
+		if (file_info == NULL)
+			break;
+		printf("%lx\t",file_info);
+		printf("%s\t%d\t%d\t%d\t",file_info->Name,file_info->First_Cluster,file_info->Creation_Date,file_info->FileSize);
+		printf("\n");
+	
+	
+	}
+	fatfs_rewinddir(&fs, fatdir);
+	for(;;)
+	{
+		file_info = fatfs_readdir(&fs,fatdir);
+		if (file_info == NULL)
+			break;
+		printf("%lx\t",file_info);
+		printf("%s\t%d\t%d\t%d\t",file_info->Name,file_info->First_Cluster,file_info->Creation_Date,file_info->FileSize);
+		printf("\n");
+	
+	
+	}
+	fatfs_closedir(&fs, fatdir);
+
 // 	
 	
-	char stu[4096]={0};
-	printf("%d\n", read_file(&fs,"test",stu,4096));
-	printf("%lx\n", *(uint64_t *)stu);
-	printf("%lx\n", *(uint64_t *)(stu + 8));
 // 	printf("%c%c%c%c\n", 0xe7,0xa7,0x92,0x0A);
 // 	proc_init();
 // 	ipc_init();

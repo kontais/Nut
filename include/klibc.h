@@ -38,7 +38,6 @@ static inline char *strcat(char *dst, const char *src)
 	while(*dst != '\0')
 		dst++;
 	while((*dst++ = *src++)!= '\0');
-	*dst = '\0';
 	return dst;
 }
 /**
@@ -50,9 +49,9 @@ static inline char *strcat(char *dst, const char *src)
  */
 static inline char *strcpy(char *dst, const char *src)
 {
+	char *save = dst;
 	while((*dst++ = *src++) != '\0');
-	*dst = '\0';
-	return dst;
+	return save;
 }
 /**
  * String copy function,with a limit of the nubmer of characters.
@@ -65,7 +64,6 @@ static inline char *strcpy(char *dst, const char *src)
 static inline char *strncpy(char *dst, const char *src, uint64_t n)
 {
 	while(n-- > 0 && (*dst++ = *src++) != '\0');
-	*dst = '\0';
 	return dst;
 }
 /**
@@ -79,7 +77,6 @@ static inline char *strncpy(char *dst, const char *src, uint64_t n)
 static inline wchar *wstrncpy(wchar *dst, const wchar *src, uint64_t n)
 {
 	while(n -- >0 && (*dst ++ = *src ++) != 0x0000);
-	*dst = 0x0000;
 	return dst;
 }
 /**
@@ -173,6 +170,13 @@ static inline void *memcpy(void *dest, const void *src, uint64_t n)
  * @retval pointer to the byte in @s that matches
  */
 char *strpbrk(const char *s, const char *accept);
+/**
+ * Convert unicode string to utf-8 string
+ * @unicode input
+ * @utf8 output
+ * @retval size of string to be converted(not including NULL terminator)
+ */
+int str_unicode_to_utf8(wchar *unicode, char *utf8);
 /**
  * Allocate continuous @size bytes of a array.
  * @size number of bytes to be allocted

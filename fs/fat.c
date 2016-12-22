@@ -154,7 +154,7 @@ int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 		*(lname + str_len) = '\0';
 		
 		if (strcmp(lname, ".") == 0 || strcmp(lname, "..") == 0 || ((Dir_Struc_Type*)dir_entry)->DIR_Name[8] == ' ')
-			return 1;
+			return 0;
 		
 		*(lname + str_len) = '.';
 		memcpy(lname + str_len + 1, ((Dir_Struc_Type*)dir_entry)->DIR_Name + 8, 3);
@@ -162,7 +162,7 @@ int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 		str_len = strcspn(lname, " ");
 		*(lname + str_len) = '\0';
 		
-		return 1;
+		return 0;
 	}
 //Handle long name directory
 	int offset;
@@ -198,7 +198,7 @@ int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 		if (entry < dir_entry)
 			return -1;
 	} while(!((entry--)->LDIR_Ord & 0x40));
-	loop_unicode_into_utf8(buf, lname);
+	str_unicode_to_utf8((wchar *)buf, lname);
 	
 	return offset;
 }
@@ -282,12 +282,14 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 	uint32_t buf_size;
 	
 	fatdir = malloc(sizeof(FATDir_Type));
-	fatdir->size = compute_cluster_chain_length(fs, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus) * fs->BPB->BPB_SecPerClus << 9;
+	buf_size = fatdir->size = compute_cluster_chain_length(fs, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus) * fs->BPB->BPB_SecPerClus * fs->BPB->BPB_BytsPerSec;
 	fatdir->buf = malloc(fatdir->size);
 	assert(fatdir->buf != NULL);
-	buf_size = fatdir->size = read_cluster_chain(fs, fatdir->buf, buf_size, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus, 0);
+	read_cluster_chain(fs, fatdir->buf, buf_size, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus, 0);
 	
-	dir_name = strtok_r(path, "/", &last_str);
+	char *path_buf = malloc(strlen(path) + 1);
+	strcpy(path_buf, path);
+	dir_name = strtok_r(path_buf, "/", &last_str);
 	
 	while(dir_name != NULL)
 	{
@@ -299,7 +301,7 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 			if ((ret = read_name(fatdir->buf + pos, name_buf, (fatdir->size - pos) >> 5)) == -1)
 			{
 				bug("Extracting file name from root directory failed unexpectedly");
-				break;
+				return NULL;
 			}
 			pos += (ret + 1) << 5;
 			
@@ -309,14 +311,11 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 				free(fatdir);
 				return NULL;
 			}
-		
 		} while(strcmp(name_buf, dir_name) != 0);
 		
 		Dir_Struc_Type *dir_struc = fatdir->buf + (pos - 32);
 		uint32_t first_cluster = dir_struc->DIR_FstClusHI << 16 | dir_struc->DIR_FstClusLO;
-		printf("%x\n", first_cluster);
-		fatdir->size = dir_struc->DIR_FileSize;
-		
+		fatdir->size = compute_cluster_chain_length(fs, first_cluster) * fs->BPB->BPB_SecPerClus * fs->BPB->BPB_BytsPerSec;
 		if (fatdir->size > buf_size)
 		{
 			free(fatdir->buf);
@@ -325,21 +324,46 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 			assert(fatdir->buf != NULL);
 		}
 		
-		fatdir->size = read_cluster_chain(fs, fatdir->buf, buf_size, first_cluster, 0);
+		if(read_cluster_chain(fs, fatdir->buf, buf_size, first_cluster, 0) != fatdir->size)
+			bug("Error reading cluster chain");
 		
 		dir_name = strtok_r(NULL, "/", &last_str);
 	}
-	printf("2\n");
 	fatdir->offset = 0;
 	fatdir->file_info = malloc(sizeof(FATFile_Type));
 	memset(fatdir->file_info, 0, sizeof(FATFile_Type));
+	
+	free(path_buf);
 	return fatdir;
 }
 
 
-FATFile_Type fatfs_readdir(FATFS_Type *fs, FATDir_Type *dir)
+
+FATFile_Type *fatfs_readdir(FATFS_Type *fs, FATDir_Type *dir)
 {
+	Dir_Struc_Type *dir_struct;
+	uint32_t ret;
+	if (dir->offset >= dir->size)
+		return NULL;
 	
+	if ((ret = read_name(dir->buf + dir->offset, dir->file_info->Name, (dir->size - dir->offset) >> 5)) == -1)
+	{
+		return NULL;
+	}
+	dir->offset += (ret + 1) << 5;
+	
+	dir_struct = dir->buf + dir->offset - 32;
+	dir->file_info->Type = dir_struct->DIR_Attr;
+	dir->file_info->First_Cluster = dir_struct->DIR_FstClusHI << 16 | dir_struct->DIR_FstClusLO;
+	dir->file_info->Creation_Time = dir_struct->DIR_CtrTIme + dir_struct->DIR_CtrTimeTenth / 10;
+	dir->file_info->Creation_Date = dir_struct->DIR_CtrDate;
+	dir->file_info->Write_Time = dir_struct->DIR_WriTime;
+	dir->file_info->Write_Date = dir_struct->DIR_WritDate;
+	dir->file_info->Access_Date = dir_struct->DIR_LstAccDate;
+	dir->file_info->FileSize = dir_struct->DIR_FileSize;
+
+
+	return  dir->file_info;
 	
 }
 void fatfs_rewinddir(FATFS_Type *fs, FATDir_Type *dir)
@@ -355,6 +379,7 @@ void fatfs_closedir(FATFS_Type *fs, FATDir_Type *dir)
 	dir->buf = NULL;
 	dir->size = 0;
 	dir->offset = 0;
+	free(dir);
 }
 
 uint32_t fatfs_readfile(FATFS_Type *fs, FATFile_Type *file, void *buf, uint32_t bufsize)
