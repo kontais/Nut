@@ -1,4 +1,5 @@
 #include <proc.h>
+#include <id.h>
 #include <cpu_intrins.h>
 #include <klibc.h>
 #include <cpu_reg.h>

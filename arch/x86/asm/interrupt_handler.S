@@ -9,8 +9,10 @@ systick_handler:
 	
 .globl syscall_handler, syscall_table
 syscall_handler:
+	cli
 	push	%rbp
 	mov	syscall_table, %rbp
 	call	*(%rbp, %rax, 8)
 	pop	%rbp
+	sti
 	iretq

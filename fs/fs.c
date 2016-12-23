@@ -3,6 +3,19 @@
 file_node_t *root;
 void *desc_table;
 
+void strip_tail_slash(char *dst, const char *src)
+{
+	char *tail_slash = strrchr(src, '/');
+	size_t length = strlen(src);
+	if (*(tail_slash + 1) == '\0')
+	{
+		memcpy(dst, src, length);
+		*(dst + length - 1) = '\0';
+	}
+	else
+		strcpy(dst, src);
+}
+
 static file_node_t *alloc_node(void)
 {
 	file_node_t *node = malloc(sizeof(file_node_t));
@@ -29,7 +42,7 @@ static void free_node(file_node_t *node)
  */
 static file_node_t *find_node(const char *path)
 {
-	char *path_buf = malloc(strlen(path));
+	char *path_buf = malloc(strlen(path) + 1);
 	strcpy(path_buf, path);
 	
 	char *save_ptr;
@@ -65,31 +78,29 @@ static file_node_t *find_node(const char *path)
 file_node_t *fs_getnode(const char *path)
 {
 	file_node_t *node = find_node(path);
+	char *node_name = strrchr(path, '/') + 1;
 	if (node == NULL)
 		return NULL;
-	if(strcmp(path, node->name) == 0)
+	if(strcmp(node_name, node->name) == 0)
 		return node;
 	return NULL;
 }
-void fs_init(void)
-{
-	root = alloc_node();
-	
-	root->name = malloc(2);
-	strcpy(root->name,  "/");
-	root->type = FILE_TYPE_ROOT;
-}
+
 int fs_mknode(const char *path, uint64_t type)
 {
 	if (strcmp(path, "/") == 0)
 		return -1;
 	
-	char *new_node_name = strrchr(path, '/') + 1;
+	char *stripped_path = malloc(strlen(path) + 1);
+	strip_tail_slash(stripped_path, path);
 	
-	char *dir_path_buf = malloc(new_node_name - path);
-	memcpy(dir_path_buf, path, new_node_name - path);
-	dir_path_buf[new_node_name - path - 1] = '\0';
+	char *new_node_name = strrchr(stripped_path, '/') + 1;
+	printf("%s\n", new_node_name);
+	char *dir_path_buf = malloc(new_node_name - stripped_path + 1);
+	memcpy(dir_path_buf, stripped_path, new_node_name - stripped_path);
+	dir_path_buf[new_node_name - stripped_path] = '\0';
 	
+	printf("%s\n", dir_path_buf);
 	file_node_t *parent_dir = find_node(dir_path_buf);
 	if (parent_dir == NULL)
 		return -1;
@@ -100,7 +111,11 @@ int fs_mknode(const char *path, uint64_t type)
 	new_node->type = type;
 	new_node->parent = parent_dir;
 	list_add_before(&parent_dir->children, &new_node->list);
+	
+	free(stripped_path);
 	free(dir_path_buf);
+	
+	return 0;
 }
 int fs_rmnode(const char *path)
 {
@@ -139,8 +154,6 @@ fs_context_t *fs_open(const char *path,int oflag)
 	fs_context_t *context = malloc(sizeof(fs_context_t));
 	file_node_t *node = fs_getnode(path);
 	context->context = node->hook->open(node, path, oflag);
-	if(context->context == NULL)
-		return -1;
 	context->node = node;
 	return context;
 }
@@ -152,13 +165,13 @@ int fs_close(fs_context_t *context)
 	free(context->context);
 	return ret;
 }
-int fs_read(fs_context_t *context, void *buf, uint64_t size)
+ssize_t fs_read(fs_context_t *context, void *buf, uint64_t size)
 {
 	if (context->node->hook->read == NULL)
 		return -1;
 	return context->node->hook->read(context->node, context->context, buf, size);
 }
-int fs_write(fs_context_t *context, void *buf, uint64_t size)
+ssize_t fs_write(fs_context_t *context, const void *buf, uint64_t size)
 {
 	if (context->node->hook->write == NULL)
 		return -1;
@@ -170,7 +183,7 @@ off_t fs_lseek(fs_context_t *context, off_t offset, int whence)
 		return -1;
 	return context->node->hook->lseek(context->node, context->context, offset, whence);
 }
-int fs_ioctl(fs_context_t *context, int request, ...)
+int fs_ioctl(fs_context_t *context, int request)
 {
 	if (context->node->hook->ioctl == NULL)
 		return -1;
@@ -182,4 +195,16 @@ int fs_fstat(fs_context_t *context, void *buf)
 		return -1;
 	return context->node->hook->fstat(context->node, context->context, buf);
 }
-
+void fs_init(void)
+{
+	//Create root directory
+	root = alloc_node();
+	
+	root->name = malloc(2);
+	strcpy(root->name,  "/");
+	root->type = FILE_TYPE_ROOT;
+	
+	//Create stdio special file in root directory
+	
+	stdio_mknode("/stdio");
+}

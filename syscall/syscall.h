@@ -1,6 +1,10 @@
 #ifndef _SYSCALL_H_
 #define _SYSCALL_H_
 
+#include <fs.h>
+#include <sched.h>
+#include <proc.h>
+
 #define	SYS_syscall	0
 #define	SYS_exit	1
 #define	SYS_fork	2
@@ -14,6 +18,8 @@
 
 
 void sys_syscall(void);
+int sys_open(const char *path, int oflag);
+ssize_t sys_write(int fd, const void *buf, size_t count);
 
 #define SYS_CALL_TABLE_SIZE 1
 

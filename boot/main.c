@@ -14,6 +14,8 @@
 #include <queue.h>
 
 #include <pci.h>
+
+#include <fs.h>
 void main(uint64_t *param_list)
 {
 	printf("\nStarting kernel...\n");
@@ -29,6 +31,7 @@ void main(uint64_t *param_list)
 	
 	mm_init(param_list[2], param_list[3], param_list[4], param_list[5] + param_list[6] - PHY_MAP_BASE);
 	vm_init();
+	id_init();
 	sched_init();
 	syscall_init();
 // 	int_init();
@@ -38,6 +41,18 @@ void main(uint64_t *param_list)
 	execv("/test", NULL);
 	
 	int_init();
+	fs_init();
+	printf("%d\n", fs_mknode("/home/", FILE_TYPE_DIRCTORY));
+	printf("%d\n", fs_mknode("/home/dev", FILE_TYPE_DIRCTORY));
+	printf("%lx\n", fs_getnode("/home"));
+	printf("%s\n", fs_getnode("/home")->name);
+	printf("%s\n", fs_getnode("/home/dev")->name);
+	printf("%d\n", fs_rmnode("/home"));
+	printf("%s\n", fs_getnode("/home")->name);
+	printf("%s\n", fs_getnode("/home/dev")->name);
+	printf("%d\n", fs_rmnode("/home/dev"));
+	printf("%s\n", fs_getnode("/home")->name);
+	printf("%s\n", fs_getnode("/home/dev")->name);
 // 	asm("mov $0, %rax\r\nint $0x80");
 // 	asm("int $3");
 // 	FATFS_Type fs;
@@ -86,7 +101,6 @@ void main(uint64_t *param_list)
 // 	
 // 	}
 // 	fatfs_closedir(&fs, fatdir);
-
 // 	
 	
 // 	printf("%c%c%c%c\n", 0xe7,0xa7,0x92,0x0A);
