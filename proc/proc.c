@@ -15,12 +15,12 @@ int proc_init(proc_t *proc, proc_t *parent, pargs_t *args, penvs_t *envs, vm_map
 	proc->vm_map = vm_map;
 	if (parent != NULL)
 	{
-		memcpy(proc->fd_table, parent->fd_table, FD_TABLE_SIZE * sizeof(fd_t));
+		memcpy(proc->fd_table, parent->fd_table, FD_TABLE_SIZE * sizeof(void *));
 		list_add_before(&parent->child, &proc->list);
 	}
 	else
 	{
-		memset(proc->fd_table, 0, FD_TABLE_SIZE * sizeof(fd_t));
+		memset(proc->fd_table, 0, FD_TABLE_SIZE * sizeof(void *));
 	}
 }
 void proc_destroy(proc_t *proc)

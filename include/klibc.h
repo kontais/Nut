@@ -13,19 +13,13 @@
  * @retval integer the string represents
  * 
  */
-extern int atoi(const char *str);
+int atoi(const char *str);
 /**
  * Similar function as standard string functions.
  * @str the string to evaluate length of
  * @return the length of the string,
  */
-static inline int strlen(const char *str)
-{
-	int len = 0;
-	while (*str++ != '\0')
-		len ++;
-	return len;
-}
+int strlen(const char *str);
 /**
  * String copy function,with a limit of the nubmer of characters.
  * @dst destination buffer
@@ -33,13 +27,7 @@ static inline int strlen(const char *str)
  * @retval dst destination buffer
  * 
  */
-static inline char *strcat(char *dst, const char *src)
-{
-	while(*dst != '\0')
-		dst++;
-	while((*dst++ = *src++)!= '\0');
-	return dst;
-}
+char *strcat(char *dst, const char *src);
 /**
  * String copy function,with a limit of the nubmer of characters.
  * @dst destination buffer
@@ -47,12 +35,7 @@ static inline char *strcat(char *dst, const char *src)
  * @retval dst destination buffer
  * 
  */
-static inline char *strcpy(char *dst, const char *src)
-{
-	char *save = dst;
-	while((*dst++ = *src++) != '\0');
-	return save;
-}
+char *strcpy(char *dst, const char *src);
 /**
  * String copy function,with a limit of the nubmer of characters.
  * @dst destination buffer
@@ -61,11 +44,7 @@ static inline char *strcpy(char *dst, const char *src)
  * @retval pointer to dst destination buffer
  * 
  */
-static inline char *strncpy(char *dst, const char *src, uint64_t n)
-{
-	while(n-- > 0 && (*dst++ = *src++) != '\0');
-	return dst;
-}
+char *strncpy(char *dst, const char *src, uint64_t n);
 /**
  * Wide characters' string copy function,with a limit of the nubmer of characters.
  * @dst destination buffer
@@ -74,11 +53,7 @@ static inline char *strncpy(char *dst, const char *src, uint64_t n)
  * @retval pointer to dst destination buffer
  * 
  */
-static inline wchar *wstrncpy(wchar *dst, const wchar *src, uint64_t n)
-{
-	while(n -- >0 && (*dst ++ = *src ++) != 0x0000);
-	return dst;
-}
+wchar *wstrncpy(wchar *dst, const wchar *src, uint64_t n);
 /**
  * String compare function.
  * @s1 @s2 string to compare
@@ -86,20 +61,7 @@ static inline wchar *wstrncpy(wchar *dst, const wchar *src, uint64_t n)
  *         0 if s1 is as long as s2
  *         -1 if s1 is shorter than s2
  */
-static inline int strcmp(const char *s1, const char *s2)
-{
-	while((*s1 == *s2) && (*s1 != '\0'))
-	{
-		s1 ++;
-		s2 ++;
-	}
-	if (*s1 < *s2)
-		return -1;
-	else if (*s1 > *s2)
-		return 1;
-	else
-		return 0;
-}
+int strcmp(const char *s1, const char *s2);
 
 /* Parse S into tokens separated by characters in DELIM. 
  * If S is NULL, the saved pointer in SAVE_PTR is used as 
@@ -140,13 +102,7 @@ size_t strcspn(const char *s, const char *reject);
  * @count size of the buffer
  * @retval pointer to the buffer
  */
-static inline void *memset(void *dest, char ch, uint64_t n)
-{
-	char *dest_ptr = dest;
-	while(n-- > 0)
-		*(dest_ptr++) = ch;
-	return dest;
-}
+void *memset(void *dest, char ch, uint64_t n);
 /**
  * Copy @count bytes data from @src to @dest.
  * @dest pointer to destination buffer
@@ -154,14 +110,7 @@ static inline void *memset(void *dest, char ch, uint64_t n)
  * @n size of data to be copied
  * @retval pointer to dest
  */
-static inline void *memcpy(void *dest, const void *src, uint64_t n)
-{
-	char *dest_ptr = dest;
-	const char *src_ptr = src;
-	while (n-- > 0)
-		*(dest_ptr++) = *(src_ptr++);
-	return dest;
-}
+void *memcpy(void *dest, const void *src, uint64_t n);
 /**
  * strpbrk
  * search a string for any of a set of bytes
