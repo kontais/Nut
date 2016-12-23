@@ -23,6 +23,10 @@ static void free_node(file_node_t *node)
 		free(node->hook);
 	free(node);
 }
+/**
+ * Find a node which matches the given path or 
+ * a mountpoint node which matches the path's prefix
+ */
 static file_node_t *find_node(const char *path)
 {
 	char *path_buf = malloc(strlen(path));
@@ -47,8 +51,10 @@ static file_node_t *find_node(const char *path)
 		
 		if (strcmp(node->name, dir_name) != 0)
 		{
-			free(path_buf);
-			return NULL;
+			if (node->type == FILE_TYPE_MOUNT_POINT)
+				return node;
+			else
+				return NULL;
 		}
 		
 		dir_name = strtok_r(NULL, "/", &save_ptr);
@@ -58,7 +64,12 @@ static file_node_t *find_node(const char *path)
 }
 file_node_t *fs_getnode(const char *path)
 {
-	return find_node(path);
+	file_node_t *node = find_node(path);
+	if (node == NULL)
+		return NULL;
+	if(strcmp(path, node->name) == 0)
+		return node;
+	return NULL;
 }
 void fs_init(void)
 {
@@ -123,7 +134,16 @@ int fs_reghook(const char *path, int hook_index, void *hook)
 	
 	return 0;
 }
-
+fs_context_t *fs_open(const char *path,int oflag)
+{
+	fs_context_t *context = malloc(sizeof(fs_context_t));
+	file_node_t *node = fs_getnode(path);
+	context->context = node->hook->open(node, path, oflag);
+	if(context->context == NULL)
+		return -1;
+	context->node = node;
+	return context;
+}
 int fs_close(fs_context_t *context)
 {
 	if (context->node->hook->close == NULL)
@@ -163,24 +183,3 @@ int fs_fstat(fs_context_t *context, void *buf)
 	return context->node->hook->fstat(context->node, context->context, buf);
 }
 
-fs_context_t *fs_open(const char *path,int oflag)
-{
-	fs_context_t *fs_cont = malloc(sizeof(fs_context_t));
-	file_node_t *node = fs_getnode(path);
-	fs_cont->context = node->hook->open(node,path,oflag);
-	if(fs_cont->context == NULL)
-		return -1;
-	fs_cont->node = node;
-	return fs_cont;
-}
-int fs_close(fs_context_t *context);
-{
-	free(context);
-	return 0;
-	
-}
-int fs_read(fs_context_t *context, void *buf, uint64_t size)
-{
-	read(context->node,context,buf,size);
-	return 0;
-}
