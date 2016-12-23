@@ -12,6 +12,10 @@
 #include <syscall.h>
 #include <int_ctl.h>
 #include <queue.h>
+#include <GlyphBDF.h>
+#include <ProtableGrayMap.h>
+#include <pci.h>
+#include <paging.h>
 void main(uint64_t *param_list)
 {
 	printf("\nStarting kernel...\n");
@@ -26,13 +30,48 @@ void main(uint64_t *param_list)
 	printf("bss_end\t\t=\t%lx\n", __bss_end);
 	
 	mm_init(param_list[2], param_list[3], param_list[4], param_list[5] + param_list[6] - PHY_MAP_BASE);
+	
 	vm_init();
-	sched_init();
-	syscall_init();
+	modify_chunk_mapping(get_current_plm4e(), 0x80000000, 0x80000000, 0x1000, DEFAULT_PTE_FLAG);
+	
+	for (int i = 0; i < 5; i ++)
+	{
+		for (int j = 0; j < 10; j ++)
+		{
+			printf("%x\n", __pci_read_reg(0, i, 0, j));
+		}
+		printf("\n");
+	}
+//	sched_init();
+//	syscall_init();
 // 	int_init();
-
-	FATFS_Type fs;
+	uint32_t *ptr = (uint32_t *)0x80000000;
+	for (int i = 0; i < 1024 * 768;i ++)
+		*ptr++ = 0;
+//	*ptr = 0x80808080;
+	/*FATFS_Type fs;
 	fatfs_init(&fs);
+	unsigned char *buf = malloc(40960);
+	unsigned char *stream =buf;
+	memset(buf, 0, 40960);
+	
+	printf("%d\n", read_file(&fs,"unifont-asiic.bdf",buf,40960));
+	
+	GlyphBDF Glyph_BDF;
+	Glyph_BDF_init(&Glyph_BDF);
+	GetBitmapFromGlyphBDF(&stream,&Glyph_BDF,'g');
+	
+	printf("%c\n",Glyph_BDF.ENCODIN);
+	for(int i=0;i<16;i++){
+		for(int j=0;j<2;j++)
+		{
+			printf("%c",Glyph_BDF.BITMAP[i][j]);
+		}
+		printf("\n");
+	}
+	*/
+	Display();
+	
 // 	
 // 	FATDir_Type *dir = fatfs_opendir(&fs, "/MdePkg");
 // 	char name[512];
@@ -81,10 +120,9 @@ void main(uint64_t *param_list)
 // 	}
 // 	
 	
-	char stu[4096]={0};
-	printf("%d\n", read_file(&fs,"test",stu,4096));
-	printf("%lx\n", *(uint64_t *)stu);
-	printf("%lx\n", *(uint64_t *)(stu + 8));
+	
+//	printf("%lx\n", *(uint64_t *)stu);
+//	printf("%lx\n", *(uint64_t *)(stu + 8));
 // 	printf("%c%c%c%c\n", 0xe7,0xa7,0x92,0x0A);
 // 	proc_init();
 // 	ipc_init();
@@ -95,13 +133,13 @@ void main(uint64_t *param_list)
 // 	printf("%lx", cr3);
 // 	asm("hlt");
 // 	asm("int	$3");
-	void *stack = malloc(4096);
-	thread_t thread;
-	void thread1(void);
-	extern queue_t *ready_queue;
-	thread_init(&thread, NULL, &thread1, stack + 4096);
-	queue_enqueue(ready_queue, &thread);
-	printf("Dead loop.\n");
+//	void *stack = malloc(4096);
+//	thread_t thread;
+//	void thread1(void);
+//	extern queue_t *ready_queue;
+//	thread_init(&thread, NULL, &thread1, stack + 4096);
+//	queue_enqueue(ready_queue, &thread);
+//	printf("Dead loop.\n");
 // 	printf("%s\n", "Hello,world");
 	
 	
