@@ -3,7 +3,7 @@
 #include "fat.h"
 #include "klibc.h"
 
-unsigned char PGMBuffer[Max_range*32][Max_line*16];
+unsigned char PGMBuffer[Max_range*16][Max_line*8];
 
 /**
 	*function:get the bitmap of Glyph to PGM map
@@ -301,14 +301,14 @@ void WritePGMData(PGM PGM_Map,int range,int line) {
      			
         for(int j=0;j<8;j++) {   // every line 
         		
-        		PGMBuffer[range*32+2*i][line*16+2*j]=PGM_Map->ASIIC_versions[i][j];
-        		PGMBuffer[range*32+2*i][line*16+2*j+1]=PGM_Map->ASIIC_versions[i][j];
+        		PGMBuffer[range*16+i][line*8+j]=PGM_Map->ASIIC_versions[i][j];
+        		//PGMBuffer[range*32+2*i][line*16+2*j+1]=PGM_Map->ASIIC_versions[i][j];
         } 
-        for(int j=0;j<8;j++) {   // every line  
+        /*for(int j=0;j<8;j++) {   // every line  
         
         	PGMBuffer[range*32+2*i+1][line*16+2*j]=PGM_Map->ASIIC_versions[i][j];
         	PGMBuffer[range*32+2*i+1][line*16+2*j+1]=PGM_Map->ASIIC_versions[i][j];	 
-        } 
+        } */
     }
     
 } 
@@ -318,7 +318,7 @@ void WritePGMData(PGM PGM_Map,int range,int line) {
 	*/
 void WritePGMBufferInit(PGM PGM_Map,int max_range,int max_line){
 	
-	ProtableGrayMapASIIC_Init(PGM_Map,max_line*16,max_range*32,' ');
+	ProtableGrayMapASIIC_Init(PGM_Map,max_line*8,max_range*16,' ');
 	for(int i=0;i<max_range;i++)
 		for(int j=0;j<max_line;j++)
 			WritePGMData(PGM_Map,i,j);
@@ -333,22 +333,22 @@ void DisplayInit(void ){
 	ProtableGrayMap PGM_Map;
 	WritePGMBufferInit(&PGM_Map,Max_range,Max_line);
 	
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*16,Max_range*32,'H');
+	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'H');
 	WritePGMData(&PGM_Map,10,40);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*16,Max_range*32,'e');
+	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'e');
 	WritePGMData(&PGM_Map,10,41);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*16,Max_range*32,'l');
+	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'l');
 	WritePGMData(&PGM_Map,10,42);
 	WritePGMData(&PGM_Map,10,43);
 	WritePGMData(&PGM_Map,10,49);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*16,Max_range*32,'o');
+	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'o');
 	WritePGMData(&PGM_Map,10,44);
 	WritePGMData(&PGM_Map,10,48);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*16,Max_range*32,'w');
+	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'w');
 	WritePGMData(&PGM_Map,10,46);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*16,Max_range*32,'r');
+	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'r');
 	WritePGMData(&PGM_Map,10,47);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*16,Max_range*32,'d');
+	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'d');
 	WritePGMData(&PGM_Map,10,50);
 	
 }
@@ -358,11 +358,11 @@ void Display(void){
 	
 	DisplayInit();
 	uint32_t *ptr = (uint32_t *)0x80000000;
-	for(int i=0;i<Max_range*32;i++){
+	for(int i=0;i<Max_range*16;i++){
 	
-		for(int j=0;j<Max_line*16;j++){
+		for(int j=0;j<Max_line*8;j++){
 		
-			ptr[i*Max_line*16+j]=PGMBuffer[i][j]*16*16*16*16*16*16+PGMBuffer[i][j]*16*16*16*16+PGMBuffer[i][j]*16*16+PGMBuffer[i][j];
+			ptr[i*Max_line*8+j]=PGMBuffer[i][j]*16*16*16*16*16*16+PGMBuffer[i][j]*16*16*16*16+PGMBuffer[i][j]*16*16+PGMBuffer[i][j];
 			
 		}
 	

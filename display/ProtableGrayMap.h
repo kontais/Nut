@@ -2,8 +2,8 @@
 #define _PROTABLEGRAYMAP_H_
 //#include "stdio.h"
 
-#define Max_range 24
-#define Max_line 64
+#define Max_range 48
+#define Max_line 128
 typedef struct ProtableGreyMap{
 	
 	unsigned char Magic;//magic number identifies the type of file it is(PBM,PGM,and PPM)and its encoding(ASCII or binary)
