@@ -39,7 +39,7 @@ typedef struct file_hook
 typedef struct fs_context
 {
 	file_node_t *node;
-	void **context;
+	void *context;
 }fs_context_t;
 
 void fs_init(void);
