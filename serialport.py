@@ -5,7 +5,7 @@ sock.bind(('localhost', int(sys.argv[1])))
 sock.listen(10)
 sock,addr = sock.accept()
 #sock.connect(("127.0.0.1", int(sys.argv[1])))
-sock.settimeout(600)
+sock.settimeout(6000)
 while True:
 	sys.stdout.buffer.write(sock.recv(1))
 	sys.stdout.flush()

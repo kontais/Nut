@@ -53,7 +53,6 @@ void id_table_init(void)
 	tid_table = malloc(TID_TABLE_SIZE);
 	memset(tid_table, 0, TID_TABLE_SIZE);
 }
-
 void sched_init(void)
 {
 	id_table_init();
@@ -84,14 +83,20 @@ void sched(void)
 {
 // 	printf("\n");
 // 	printf("%lx\n", th1->tcb.RIP);
-	printf("Schedule.\n");
+// 	printf("Schedule.\n");
 	
 	thread_t *load_thread = queue_dequeue(ready_queue);
-
+	
 	load_context = &load_thread->tcb.context;
 	save_context = &load_thread->tcb.context;
 	
 	queue_enqueue(ready_queue, load_thread);
+	
+	current_thread = load_thread;
+	current_proc = load_thread->proc;
+	if (current_proc != NULL)
+		vm_map_do_mapping(current_proc->vm_map);
+	
 // 	if (current_thread == th2)
 // 	{
 // 		current_thread = th3;

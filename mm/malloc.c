@@ -37,7 +37,6 @@ void *__malloc(size_t size)
 		return NULL;
 	}
 	
-	size = roundsize(size);
 	struct list_head *it;
 	list_for_each(it, &vm_heap.mm_list)
 	{
@@ -133,7 +132,7 @@ static void __mm_list_consistency_check(void)
 		bug("Memory leakage detected, total %d, found %d.\n", vm_heap.total, sum);
 	}
 }
-static void __dump_mm_list(void)
+void __dump_mm_list(void)
 {
 	printf("Total %ld Available %ld Block Count %ld\n", vm_heap.total, vm_heap.available, vm_heap.block_count);
 	struct list_head *it;
@@ -146,16 +145,20 @@ static void __dump_mm_list(void)
 }
 void *malloc(size_t size)
 {
+	uint64_t *ret;
 	if (size == 0)
 		return NULL;
-	uint64_t *ret;
+	
+	size = roundsize(size);
 	ret = __malloc(size);
 	if (ret == NULL)
 	{
 		__merge_block();
 		ret = __malloc(size);
 	}
+	memset(ret, 0, size);
 	__mm_list_consistency_check();
+// 	printf("Alloc %d\n", size);
 // 	__dump_mm_list();
 	return ret;
 }
@@ -189,7 +192,7 @@ void malloc_init(void)
 
 //Test
 	__dump_mm_list();
-	uint64_t s[10] = { 1,2,4,8,16.32,64,128,256,512,1024};
+	uint64_t s[10] = {2,4,8,16,32,64,128,256,512,1024};
 	uint64_t *a[10] = {0};
 	for (int i = 0; i < 10; i ++)
 		a[i] = malloc(s[i]);

@@ -2,7 +2,7 @@
 #include <list.h>
 #include <sched.h>
 
-int proc_init(proc_t *proc, proc_t *parent, uint64_t size, pargs_t args, penvs_t envs, vm_map_t *vm)
+int proc_init(proc_t *proc, proc_t *parent, pargs_t *args, penvs_t *envs, vm_map_t *vm_map)
 {
 	proc->id = pid_alloc();
 	list_init(&proc->list);
@@ -12,8 +12,7 @@ int proc_init(proc_t *proc, proc_t *parent, uint64_t size, pargs_t args, penvs_t
 	proc->nice = 0;
 	proc->args = args;
 	proc->envs = envs;
-	proc->vm = vm;
-	
+	proc->vm_map = vm_map;
 	if (parent != NULL)
 	{
 		memcpy(proc->fd_table, parent->fd_table, FD_TABLE_SIZE * sizeof(fd_t));

@@ -15,10 +15,10 @@ int thread_init(thread_t *thread, proc_t *proc, uint64_t entrypoint, uint64_t st
 	memset(&thread->tcb.context, 0, sizeof(context_t));
 	thread->tcb.context.RIP = entrypoint;
 	thread->tcb.context.RSP = stack_top;
-	thread->tcb.context.SS = 0x8;
+	thread->tcb.context.SS = proc == NULL ? 0x8 : (0x20 | 0x3);
 	thread->tcb.context.FS = 0x8;
 	thread->tcb.context.GS = 0x8;
-	thread->tcb.context.CS = proc == NULL ? 0x10 : 0x28;
+	thread->tcb.context.CS = proc == NULL ? 0x28 : (0x40 | 0x3);
 // 	thread->tcb.RFLAGS = __read_rflags__();
 	thread->tcb.context.RFLAGS = REG_FLAGS_IF_MASK;
 	

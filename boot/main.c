@@ -12,6 +12,8 @@
 #include <syscall.h>
 #include <int_ctl.h>
 #include <queue.h>
+
+#include <pci.h>
 void main(uint64_t *param_list)
 {
 	printf("\nStarting kernel...\n");
@@ -30,46 +32,60 @@ void main(uint64_t *param_list)
 	sched_init();
 	syscall_init();
 // 	int_init();
-
-	FATFS_Type fs;
-	fatfs_init(&fs);
-
-
+// 	char *ptr = malloc(4096);
+// 	for (int i = 0; i < 4096; i ++)
+// 		printf("%d ", *(ptr + i));
+	execv("/test", NULL);
+	
+	int_init();
+// 	asm("mov $0, %rax\r\nint $0x80");
+// 	asm("int $3");
+// 	FATFS_Type fs;
+// 	fatfs_init(&fs);
+// 	for (int i = 0; i < 10; i ++)
+// 	{
+// 		for (int j = 0; j < 10;j ++)
+// 			printf("%lx\n", __pci_read_reg(0, i, 0, j));
+// 		printf("\n");
+// 	}
+// 	char *ptr = (char *)0xE0000000;
+// 	for (int i = 0; i < 1024 * 768 * 4; i ++)
+// 		*(ptr + i) = 0;
 // 	char stu[4096]={0};
 // 	printf("%d\n", read_file(&fs,"test",stu,4096));
 // 	printf("%lx\n", *(uint64_t *)stu);
 // 	printf("%lx\n", *(uint64_t *)(stu + 8));
 
-	FATDir_Type *fatdir;
-	FATFile_Type *file_info;
-	const char *path="/MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib/OUTPUT/";
-	fatdir = fatfs_opendir(&fs,path);
-	printf("%d\n", fatdir->size);
-
-	for(;;)
-	{
-		file_info = fatfs_readdir(&fs,fatdir);
-		if (file_info == NULL)
-			break;
-		printf("%lx\t",file_info);
-		printf("%s\t%d\t%d\t%d\t",file_info->Name,file_info->First_Cluster,file_info->Creation_Date,file_info->FileSize);
-		printf("\n");
-	
-	
-	}
-	fatfs_rewinddir(&fs, fatdir);
-	for(;;)
-	{
-		file_info = fatfs_readdir(&fs,fatdir);
-		if (file_info == NULL)
-			break;
-		printf("%lx\t",file_info);
-		printf("%s\t%d\t%d\t%d\t",file_info->Name,file_info->First_Cluster,file_info->Creation_Date,file_info->FileSize);
-		printf("\n");
-	
-	
-	}
-	fatfs_closedir(&fs, fatdir);
+// 	FATDir_Type *fatdir;
+// 	FATFile_Type *file_info;
+// 	const char *path="/MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib/OUTPUT/";
+// 	fatdir = fatfs_opendir(&fs,path);
+// 	printf("%d\n", fatdir->size);
+// 
+// 	for(;;)
+// 	{
+// 		file_info = fatfs_readdir(&fs,fatdir);
+// 		if (file_info == NULL)
+// 			break;
+// 		printf("%lx\t",file_info);
+// 		printf("%s\t%d\t%d\t%d\t",file_info->Name,file_info->First_Cluster,file_info->Creation_Date,file_info->FileSize);
+// 		printf("\n");
+// 	
+// 	
+// 	}
+// 	fatfs_rewinddir(&fs, fatdir);
+// 	for(;;)
+// 	{
+// 		file_info = fatfs_readdir(&fs,fatdir);
+// 		if (file_info == NULL)
+// 			break;
+// 		printf("%lx\t",file_info);
+// 		printf("%s\t%d\t%d\t%d\t",file_info->Name,file_info->First_Cluster,file_info->Creation_Date,file_info->FileSize);
+// 		printf("\n");
+// 	
+// 	
+// 	}
+// 	fatfs_closedir(&fs, fatdir);
 
 // 	
 	
@@ -83,16 +99,16 @@ void main(uint64_t *param_list)
 // 	printf("%lx", cr3);
 // 	asm("hlt");
 // 	asm("int	$3");
-	void *stack = malloc(4096);
-	thread_t thread;
-	void thread1(void);
-	extern queue_t *ready_queue;
-	thread_init(&thread, NULL, &thread1, stack + 4096);
-	queue_enqueue(ready_queue, &thread);
+// 	void *stack = malloc(4096);
+// 	thread_t thread;
+// 	void thread1(void);
+// 	extern queue_t *ready_queue;
+// 	thread_init(&thread, NULL, &thread1, stack + 4096);
+// 	queue_enqueue(ready_queue, &thread);
 	printf("Dead loop.\n");
 // 	printf("%s\n", "Hello,world");
 	
-	
+	pic_82c59_unmask_int(0);
 	
 	while(1)
 	{

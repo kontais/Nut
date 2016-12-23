@@ -14,6 +14,25 @@ static void __gdt_init(void)
 	//Two segement initialize, data,
 	seg->p = 1;
 	seg->s = 1;
+	seg->dpl = 0;
+	seg->type = SEG_T_D_RW_A;
+	seg ++;
+	
+	seg->p = 1;
+	seg->s = 1;
+	seg->dpl = 1;
+	seg->type = SEG_T_D_RW_A;
+	seg ++;
+	
+	seg->p = 1;
+	seg->s = 1;
+	seg->dpl = 2;
+	seg->type = SEG_T_D_RW_A;
+	seg ++;
+	
+	seg->p = 1;
+	seg->s = 1;
+	seg->dpl = 3;
 	seg->type = SEG_T_D_RW_A;
 	seg ++;
 	
@@ -99,7 +118,7 @@ static void __idt_init(void)
 	printf("Exception Handler locates at %lx\n", handler_addr);
 	seg_sel_dsc.rpl = 0;
 	seg_sel_dsc.ti = 0;
-	seg_sel_dsc.index = 2;
+	seg_sel_dsc.index = 5;
 	exception_handler_dsc.p = 1;
 	exception_handler_dsc.dpl = 0;
 	exception_handler_dsc.zero_1 = 0;
@@ -175,7 +194,7 @@ void load_dsc_tables_and_seg_sels(void)
 		"mov	%%rax, %%ss\r\n"
 		"mov	%%rax, %%fs\r\n"
 		"mov	%%rax, %%gs\r\n"
-		"mov	$0x50, %%ax\r\n"
+		"mov	$0x68, %%ax\r\n"
 		"ltr	%%ax\r\n"
 		:
 		: "m" (pseudo_dsc.limit)
@@ -198,7 +217,7 @@ void load_dsc_tables_and_seg_sels(void)
 		uint32_t offset;
 		uint32_t seg_sel;
 	} far_ptr;
-	far_ptr.seg_sel = 0x10;
+	far_ptr.seg_sel = 0x28;
 	far_ptr.offset = 0;
 	asm (
 		"lea	%1, %%rax\r\n"

@@ -66,5 +66,4 @@ void fs_mknode(const char *path, file_node_t *dsc);
 void fs_rmnode(const char *path);
 file_node_t *fs_getnode(const char *path);
 
-
 #endif

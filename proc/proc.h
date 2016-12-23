@@ -63,10 +63,10 @@ typedef struct proc
 	struct list_head	child;	//Child Process list entry
 
 	nice_t	 		nice;	//Nice of the process
-	pargs_t			args;	//Arguments from command line
-	penvs_t			envs;	//Current working directory
+	pargs_t			*args;	//Arguments from command line
+	penvs_t			*envs;	//Current working directory
 
-	vm_map_t		*vm;	//Virtual memory map
+	vm_map_t		*vm_map;	//Virtual memory map
 	
 	fd_t			fd_table[FD_TABLE_SIZE];//File descriptor table
 }proc_t;
@@ -99,6 +99,5 @@ typedef struct proc
 // 	struct list_head	list;	//List of all namespaces
 // 
 // };
-
 
 #endif

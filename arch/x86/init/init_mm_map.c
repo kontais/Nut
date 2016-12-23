@@ -25,8 +25,8 @@ extern uint64_t stack_page_base;
 extern uint64_t stack_pages;
 
 #define DEFAULT_PTE_FLAG (PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD)
-#define DEAAULT_EMPTY_FLAG (PAGING_MASK_PWT | PAGING_MASK_PCD)
-#define DEFAULT_PT_FLAG (PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD)
+#define DEAAULT_EMPTY_FLAG (PAGING_MASK_PWT | PAGING_MASK_PCD | PAGING_MASK_U_S)
+#define DEFAULT_PT_FLAG (PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD | PAGING_MASK_U_S)
 
 static inline uint64_t __get_addr(uint64_t *entry)
 {
@@ -214,8 +214,8 @@ void init_mm_map(void)
 	__validate_mapping(plm4e, 0, 0, phy_pages, DEFAULT_PTE_FLAG);
 	
 	//Map stack pages
-	__map_by_pages(plm4e, (KERNEL_STACK_TOP + 1) - stack_pages * 0x1000, stack_page_base, stack_pages, DEFAULT_PTE_FLAG);
-	__validate_mapping(plm4e, (KERNEL_STACK_TOP + 1) - stack_pages * 0x1000, stack_page_base, stack_pages, DEFAULT_PTE_FLAG);
+	__map_by_pages(plm4e, KERNEL_STACK_TOP - stack_pages * 0x1000, stack_page_base, stack_pages, DEFAULT_PTE_FLAG);
+	__validate_mapping(plm4e, KERNEL_STACK_TOP - stack_pages * 0x1000, stack_page_base, stack_pages, DEFAULT_PTE_FLAG);
 
 	printf("Page Table Size = %lx\n", page_table_size);
 }

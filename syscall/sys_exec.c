@@ -1,7 +1,8 @@
 #include <klibc.h>
+
 int sys_exec(struct proc *proc, const char *path, char *const argv[], char *const envp[])
 {
-	proc->status = 0;
+	
 	destroy_threads(&proc->threads);
 	vm_unmap(&proc->vm);
 	

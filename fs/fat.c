@@ -247,9 +247,11 @@ void fatfs_init(FATFS_Type *fs)
 	
 	fs->RootDirSecs = ((fs->BPB->BPB_RootEntCnt * 32) + (fs->BPB->BPB_BytsPerSec - 1)) / fs->BPB->BPB_BytsPerSec;
 	fs->FATSecs = fs->BPB->BPB_FATSz16 != 0 ? fs->BPB->BPB_FATSz16 : fs->BPB->ExtBPB.Ext_BPB_32.BPB_FATSz32;
+
 	fs->TotSecs = fs->BPB->BPB_TotSec16 != 0 ? fs->BPB->BPB_TotSec16 : fs->BPB->BPB_TotSec32;
 	fs->DataSecs = fs->TotSecs - (fs->BPB->BPB_RsvdSecCnt + (fs->BPB->BPB_NumFATs * fs->FATSecs) + fs->RootDirSecs);
 	fs->CountOfClus = fs->DataSecs / fs->BPB->BPB_SecPerClus;
+	
 	
 	fs->FirstFATSec = fs->BPB->BPB_RsvdSecCnt;
 	fs->FirstDataSec = fs->BPB->BPB_RsvdSecCnt + (fs->BPB->BPB_NumFATs * fs->FATSecs + fs->RootDirSecs);
@@ -287,6 +289,11 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 	assert(fatdir->buf != NULL);
 	read_cluster_chain(fs, fatdir->buf, buf_size, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus, 0);
 	
+	fatdir->offset = 0;
+	fatdir->file_info = malloc(sizeof(FATFile_Type));
+	memset(fatdir->file_info, 0, sizeof(FATFile_Type));
+	
+	
 	char *path_buf = malloc(strlen(path) + 1);
 	strcpy(path_buf, path);
 	dir_name = strtok_r(path_buf, "/", &last_str);
@@ -314,6 +321,12 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 		} while(strcmp(name_buf, dir_name) != 0);
 		
 		Dir_Struc_Type *dir_struc = fatdir->buf + (pos - 32);
+// 		if (!(dir_struc->DIR_Attr & ATTR_DIRECTORY))
+// 		{
+// 			free(path_buf);
+// 			return fatdir;
+// 		}
+		
 		uint32_t first_cluster = dir_struc->DIR_FstClusHI << 16 | dir_struc->DIR_FstClusLO;
 		fatdir->size = compute_cluster_chain_length(fs, first_cluster) * fs->BPB->BPB_SecPerClus * fs->BPB->BPB_BytsPerSec;
 		if (fatdir->size > buf_size)
@@ -329,10 +342,6 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 		
 		dir_name = strtok_r(NULL, "/", &last_str);
 	}
-	fatdir->offset = 0;
-	fatdir->file_info = malloc(sizeof(FATFile_Type));
-	memset(fatdir->file_info, 0, sizeof(FATFile_Type));
-	
 	free(path_buf);
 	return fatdir;
 }
@@ -380,6 +389,35 @@ void fatfs_closedir(FATFS_Type *fs, FATDir_Type *dir)
 	dir->size = 0;
 	dir->offset = 0;
 	free(dir);
+}
+
+int fatfs_searchfile(FATFS_Type *fs, FATFile_Type *buf, const char *path)
+{
+	char *file_name = strrchr(path, '/') + 1;
+	size_t dir_path_len = strlen(path) - strlen(file_name);
+	char *dir_path = malloc(dir_path_len + 1);
+	memcpy(dir_path, path, dir_path_len);
+	*(dir_path + dir_path_len) = '\0';
+	
+	FATDir_Type *dir = fatfs_opendir(fs, dir_path);
+	if (dir == NULL)
+	{
+		fatfs_closedir(fs, dir);
+		return -1;
+	}
+	
+	FATFile_Type *file;
+	while((file = fatfs_readdir(fs, dir)) != NULL && strcmp(file->Name, file_name) != 0);
+	
+	if (file == NULL)
+	{
+		fatfs_closedir(fs, dir);
+		return -1;
+	}
+	memcpy(buf, file, sizeof(FATFile_Type));
+	
+	fatfs_closedir(fs, dir);
+	return 0;
 }
 
 uint32_t fatfs_readfile(FATFS_Type *fs, FATFile_Type *file, void *buf, uint32_t bufsize)

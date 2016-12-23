@@ -130,16 +130,26 @@ struct pte_table
 
 
 #define DEFAULT_PTE_FLAG (PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD)
-#define DEAAULT_EMPTY_FLAG (PAGING_MASK_PWT | PAGING_MASK_PCD)
-#define DEFAULT_PT_FLAG (PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD)
+#define DEFAULT_EMPTY_FLAG (PAGING_MASK_PWT | PAGING_MASK_PCD | PAGING_MASK_U_S)
+#define DEFAULT_PT_FLAG (PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD | PAGING_MASK_U_S)
 
-
-
+#define DEFAULT_USER_TEXT_PTE_FLAGS (PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD | PAGING_MASK_U_S)
 /**
  * Size in pages.
  */
 uint64_t page_alloc(uint64_t size);
 void page_free(uint64_t addr, uint64_t size);
+
+static inline uint64_t convert_virt_to_phy(uint64_t addr)
+{
+	assert(addr > PHY_MAP_BASE);
+	return addr - PHY_MAP_BASE;
+}
+static inline uint64_t convert_phy_to_virt(uint64_t addr)
+{
+	assert(addr < PHY_MAP_BASE);
+	return addr + PHY_MAP_BASE;
+}
 
 uint64_t *get_current_plm4e(void);
 int modify_chunk_mapping(uint64_t *plm4e, uint64_t virt_start_addr, uint64_t phy_start_addr, uint64_t number_of_pages, uint64_t flag);
