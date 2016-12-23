@@ -26,19 +26,12 @@ void execv(const char *path, char *const argv[])
 	FATFS_Type *fs = malloc(sizeof(FATFS_Type));
 	fatfs_init(fs);
 
-// 	FATDir_Type *dir = fatfs_opendir(fs, "/EFI");
-// 	char *filename = strrchr(path, '/') + 1;
-// 	printf("%s\n", filename);
 	FATFile_Type *file = malloc(sizeof(FATFile_Type));
 	if(fatfs_searchfile(fs, file, path))
 		bug("Error reading file %s", path);
 	void *ptr = (void *)convert_phy_to_virt(new_entry->phy_addr);
-	printf("Buf Addr:%lx\n", ptr);
 	printf("Load file succeed, file size:%d bytes\n", fatfs_readfile(fs, file, ptr, 4096));
 	printf("File Size %d\n", file->FileSize);
-	printf("%lx\n", *(uint64_t *)ptr);
-// 	printf("%lx\n", file);
-// 	printf("%s\n", file->Name);
 	
 	pargs_t *pargs = malloc(sizeof(int) + 2 * sizeof(char*));
 	pargs->argc = 1;

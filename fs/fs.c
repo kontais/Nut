@@ -4,50 +4,6 @@
 file_node_t *root;
 void *desc_table;
 
-int dir_open(file_node_t *file)
-{
-	
-	return 0;
-}
-int dir_close(file_node_t *file)
-{
-	return 0;
-}
-int dir_read(file_node_t *file, void *buf, uint64_t size)
-{
-	
-}
-int dir_write(file_node_t *file, void *buf, uint64_t size)
-{
-	
-}
-int dir_ioctl(file_node_t *file, int request, ...)
-{
-	
-}
-
-int file_open(file_node_t *file)
-{
-	
-	return 0;
-}
-int file_close(file_node_t *file)
-{
-	return 0;
-}
-
-int file_read(file_node_t *file, void *buf, uint64_t size)
-{
-	
-}
-int file_write(file_node_t *file, void *buf, uint64_t size)
-{
-	
-}
-int file_ioctl(file_node_t *file, int request, ...)
-{
-	
-}
 void fs_init(void)
 {
 	root = malloc(sizeof(file_node_t));
@@ -59,12 +15,13 @@ void fs_init(void)
 	list_init(&root->content);
 	list_init(&root->list);
 	root->parent = NULL;
+	root->hook = NULL;
 }
-void fs_mknode(const char *path, file_node_t *dsc)
+int fs_mknode(const char *path, file_node_t *dsc)
 {
 	
 }
-void fs_rmnode(const char *path)
+int fs_rmnode(const char *path)
 {
 	
 }

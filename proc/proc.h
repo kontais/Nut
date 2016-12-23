@@ -68,7 +68,7 @@ typedef struct proc
 
 	vm_map_t		*vm_map;	//Virtual memory map
 	
-	fd_t			fd_table[FD_TABLE_SIZE];//File descriptor table
+	void*			fd_table[FD_TABLE_SIZE];//File descriptor table
 }proc_t;
 // /*
 //  * Process groups may have a or more processes.

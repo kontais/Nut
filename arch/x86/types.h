@@ -68,4 +68,5 @@ typedef uint64_t		id_t;
 typedef uint8_t			atomic_t;
 typedef int32_t			nice_t;
 typedef uint16_t		wchar;
+typedef uint64_t		off_t;
 #endif
