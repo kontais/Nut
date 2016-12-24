@@ -34,7 +34,7 @@ typedef struct file_hook
 	int (*read)(file_node_t *node, void *context, void *buf, uint64_t size);
 	int (*write)(file_node_t *node, void *context, void *buf, uint64_t size);
 	off_t (*lseek)(file_node_t *node, void *context, off_t offset, int whence);
-	int (*ioctl)(file_node_t *node, void *context, int request, ...);
+	int (*ioctl)(file_node_t *node, void *context, int request);
 	int (*fstat)(file_node_t *node, void *context, void *buf);
 }file_hook_t;
 
@@ -64,7 +64,7 @@ int fs_close(fs_context_t *context);
 int fs_read(fs_context_t *context, void *buf, uint64_t size);
 int fs_write(fs_context_t *context, void *buf, uint64_t size);
 off_t fs_lseek(fs_context_t *context, off_t offset, int whence);
-int fs_ioctl(fs_context_t *context, int request, ...);
+int fs_ioctl(fs_context_t *context, int request);
 int fs_fstat(fs_context_t *context, void *buf);
 
 

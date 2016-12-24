@@ -170,7 +170,7 @@ off_t fs_lseek(fs_context_t *context, off_t offset, int whence)
 		return -1;
 	return context->node->hook->lseek(context->node, context->context, offset, whence);
 }
-int fs_ioctl(fs_context_t *context, int request, ...)
+int fs_ioctl(fs_context_t *context, int request)
 {
 	if (context->node->hook->ioctl == NULL)
 		return -1;
