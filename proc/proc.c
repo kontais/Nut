@@ -1,6 +1,7 @@
 #include <proc.h>
 #include <list.h>
 #include <sched.h>
+#include <id.h>
 
 int proc_init(proc_t *proc, proc_t *parent, pargs_t *args, penvs_t *envs, vm_map_t *vm_map)
 {
@@ -40,4 +41,31 @@ void proc_destroy(proc_t *proc)
 			
 		}
 	}
+}
+int fd_alloc(void *ptr)
+{
+	assert(ptr != NULL);
+	proc_t *proc = get_current_proc();
+	int i;
+	for (i = 0; i < FD_TABLE_SIZE; i ++)
+	{
+		if (proc->fd_table[i] == NULL)
+		{
+			proc->fd_table[i] = ptr;
+			return i;
+		}
+	}
+	return -1;
+}
+void fd_free(int fd)
+{
+	assert(fd >= 0 && fd < FD_TABLE_SIZE);
+	proc_t *proc = get_current_proc();
+	proc->fd_table[fd] = NULL;
+}
+void *get_fd_ptr(int fd)
+{
+	assert(fd >= 0 && fd < FD_TABLE_SIZE);
+	proc_t *proc = get_current_proc();
+	return proc->fd_table[fd];
 }

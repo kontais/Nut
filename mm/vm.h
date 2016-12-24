@@ -21,7 +21,7 @@ typedef struct vm_map
 }vm_map_t;
 
 
-
+void malloc_init(void);
 void *malloc(size_t size);
 void free(void *ptr);
 

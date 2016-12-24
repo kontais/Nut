@@ -100,4 +100,7 @@ typedef struct proc
 // 
 // };
 
+int fd_alloc(void *ptr);
+void fd_free(int fd);
+void *get_fd_ptr(int fd);
 #endif
