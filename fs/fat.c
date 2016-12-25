@@ -427,3 +427,7 @@ uint32_t fatfs_readfile(FATFS_Type *fs, FATFile_Type *file, void *buf, uint32_t 
 	
 	return read_cluster_chain(fs, buf, bufsize, file->First_Cluster, 0);
 }
+uint32_t computer_needed_buf_size(FATFS_Type *fs, FATFile_Type *file)
+{
+	compute_cluster_chain_length(fs, file->First_Cluster) * fs->BPB->BPB_SecPerClus * fs->BPB->BPB_BytsPerSec;
+}
