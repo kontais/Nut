@@ -17,7 +17,19 @@ int vm_map_add(vm_map_t *vm_map, vm_map_entry_t *entry)
 	new_map->map_entry = entry;
 	return 0;
 }
+void vm_map_clear(vm_map_t *vm_map)
+{
 
+	while(!list_empty(&vm_map->vm_map_list))
+	{
+		list_head_t *it = vm_map->vm_map_list.next;
+		vm_map_t *vm_map = list_entry(it, vm_map_t, vm_map_list);
+		vm_map_entry_t *entry = vm_map->map_entry;
+		page_free(entry->phy_addr, entry->page_nums);
+		list_del(it);
+		free(vm_map);
+	}
+}
 void vm_map_do_mapping(vm_map_t *vm_map)
 {
 	list_head_t *it;

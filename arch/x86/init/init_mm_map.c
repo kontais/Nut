@@ -24,9 +24,9 @@ extern uint64_t page_table_size;
 extern uint64_t stack_page_base;
 extern uint64_t stack_pages;
 
-#define DEFAULT_PTE_FLAG (PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD)
-#define DEAAULT_EMPTY_FLAG (PAGING_MASK_PWT | PAGING_MASK_PCD | PAGING_MASK_U_S)
-#define DEFAULT_PT_FLAG (PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD | PAGING_MASK_U_S)
+// #define DEFAULT_PTE_FLAG (PAGING_MASK_P | PAGING_MASK_R_W | PAGING_MASK_PWT | PAGING_MASK_PCD)
+// #define DEFAULT_EMPTY_FLAG (PAGING_MASK_PWT | PAGING_MASK_PCD | PAGING_MASK_U_S)
+// #define DEFAULT_PT_FLAG (PAGING_MASK_P | PAGING_MASK_PWT | PAGING_MASK_PCD | PAGING_MASK_U_S)
 
 static inline uint64_t __get_addr(uint64_t *entry)
 {
@@ -66,7 +66,7 @@ static int __do_mapping(uint64_t *plm4e, uint64_t virt_addr, uint64_t phy_addr, 
 	if (!(*plm4e_entry & PAGING_MASK_P))
 	{
 		pdpte = __continous_alloc();
-		__init_table(pdpte, DEAAULT_EMPTY_FLAG);
+		__init_table(pdpte, DEFAULT_EMPTY_FLAG);
 		*plm4e_entry = __mk_entry((uint64_t )pdpte, DEFAULT_PT_FLAG);
 
 	}
@@ -77,7 +77,7 @@ static int __do_mapping(uint64_t *plm4e, uint64_t virt_addr, uint64_t phy_addr, 
 	if (!(*pdpte_entry & PAGING_MASK_P))
 	{
 		pde = __continous_alloc();
-		__init_table(pde, DEAAULT_EMPTY_FLAG);
+		__init_table(pde, DEFAULT_EMPTY_FLAG);
 		*pdpte_entry = __mk_entry((uint64_t )pde, DEFAULT_PT_FLAG);
 	}
 	else
@@ -87,7 +87,7 @@ static int __do_mapping(uint64_t *plm4e, uint64_t virt_addr, uint64_t phy_addr, 
 	if (!(*pde_entry & PAGING_MASK_P))
 	{
 		pte = __continous_alloc();
-		__init_table(pte, DEAAULT_EMPTY_FLAG);
+		__init_table(pte, DEFAULT_EMPTY_FLAG);
 		*pde_entry = __mk_entry((uint64_t )pte, DEFAULT_PT_FLAG);
 	}
 	else

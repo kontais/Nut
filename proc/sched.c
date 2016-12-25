@@ -35,6 +35,7 @@ void sched_init(void)
 	thread_t *initial_kernel_thread = malloc(sizeof(thread_t));
 	
 	current_thread = initial_kernel_thread;
+	initial_kernel_thread->tid = tid_alloc();
 	list_add_before(&thread_list, &initial_kernel_thread->list);
 	initial_kernel_thread->proc = NULL;
 	initial_kernel_thread->status = 0;
@@ -52,11 +53,21 @@ void sched_init(void)
  */
 void sched(void)
 {
+	printf("Sched\n");
 // 	printf("\n");
 // 	printf("%lx\n", th1->tcb.RIP);
 // 	printf("Schedule.\n");
 	
-	thread_t *load_thread = queue_dequeue(ready_queue);
+	thread_t *load_thread;
+	do
+	{
+		load_thread = queue_dequeue(ready_queue);
+		assert(load_thread != NULL);
+		if (load_thread->status == -1)
+			printf("Delete one thread in ready queue\n");
+		printf("%d ", load_thread->tid);
+		
+	}while(load_thread->status == -1);
 	
 	load_context = &load_thread->tcb.context;
 	save_context = &load_thread->tcb.context;
@@ -67,6 +78,7 @@ void sched(void)
 	current_proc = load_thread->proc;
 	if (current_proc != NULL)
 		vm_map_do_mapping(current_proc->vm_map);
+	
 	
 // 	if (current_thread == th2)
 // 	{

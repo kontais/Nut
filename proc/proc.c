@@ -31,6 +31,7 @@ int proc_init(proc_t *proc, proc_t *parent, pargs_t *args, penvs_t *envs, vm_map
 	list_init(&proc->child);
 	proc->parent = parent;
 	proc->nice = 0;
+	proc->status = 0;
 	proc->args = args;
 	proc->envs = envs;
 	proc->vm_map = vm_map;
