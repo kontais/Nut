@@ -3,9 +3,29 @@
 #include <sched.h>
 #include <id.h>
 
+void pargs_dup(pargs_t *new, pargs_t *old)
+{
+	new->argv = malloc(old->argc * sizeof(char *));
+	for (int i = 0; i < old->argc; i ++)
+	{
+		printf("%d\n", i);
+		printf("%s\n", old->argv[i]);
+		new->argv[i] = malloc(strlen(old->argv[i]) + 1);
+		strcpy(new->argv[i], old->argv[i]);
+	}
+}
+void penvs_dup(penvs_t *new, penvs_t *old)
+{
+	new->pwd = malloc(strlen(old->pwd) + 1);
+	strcpy(new->pwd, old->pwd);
+}
+void fd_table_dup(void *new, void *old)
+{
+	memcpy(new, old, sizeof(void*) * FD_TABLE_SIZE);
+}
 int proc_init(proc_t *proc, proc_t *parent, pargs_t *args, penvs_t *envs, vm_map_t *vm_map)
 {
-	proc->id = pid_alloc();
+	proc->pid = pid_alloc();
 	list_init(&proc->list);
 	list_init(&proc->threads);
 	list_init(&proc->child);
@@ -27,7 +47,7 @@ int proc_init(proc_t *proc, proc_t *parent, pargs_t *args, penvs_t *envs, vm_map
 void proc_destroy(proc_t *proc)
 {
 	assert(proc->parent != NULL);
-	pid_free(proc->id);
+	pid_free(proc->pid);
 	
 	list_head_t *it;
 	if (!list_empty(&proc->child))
@@ -41,6 +61,27 @@ void proc_destroy(proc_t *proc)
 			
 		}
 	}
+}
+/**
+ * duplicate proc structure except its id, threads and virtual memory map,
+ * making it a child of original process
+ * 
+ */
+void proc_dup(proc_t *new, proc_t *old)
+{
+	pargs_t *args = malloc(sizeof(pargs_t));
+	pargs_dup(args, old->args);
+	printf("%s\n", args->argv[0]);
+	printf("PARGS\n");
+	penvs_t *envs = malloc(sizeof(penvs_t));
+	penvs_dup(envs, old->envs);
+	printf("%s\n", envs->pwd);
+	printf("ENVS\n");
+	vm_map_t *vm_map = malloc(sizeof(vm_map_t));
+	printf("%lx\n", old->vm_map);
+	vm_map_dup(vm_map, old->vm_map);
+	printf("VMMAP\n");
+	proc_init(new, old, args, envs, vm_map);
 }
 int fd_alloc(void *ptr)
 {

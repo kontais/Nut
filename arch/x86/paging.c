@@ -41,7 +41,7 @@ static inline void __set_entry(void *table, uint16_t n, uint64_t addr, uint64_t 
 }
 static inline void *__alloc_new_page_table(void)
 {
-	return convert_phy_to_virt(page_alloc(1));
+	return (void *)convert_phy_to_virt(page_alloc(1));
 }
 static int __do_mapping(uint64_t *plm4e, uint64_t virt_addr, uint64_t phy_addr, uint64_t flag)
 {

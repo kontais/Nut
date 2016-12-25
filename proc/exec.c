@@ -33,7 +33,8 @@ void execv(const char *path, char *const argv[])
 	printf("Load file succeed, file size:%d bytes\n", fatfs_readfile(fs, file, ptr, 4096));
 	printf("File Size %d\n", file->FileSize);
 	
-	pargs_t *pargs = malloc(sizeof(int) + 2 * sizeof(char*));
+	pargs_t *pargs = malloc(sizeof(pargs_t));
+	pargs->argv = malloc(sizeof(char*));
 	pargs->argc = 1;
 	pargs->argv[0] = malloc(strlen(path) + 1);
 	strcpy(pargs->argv[0], path);
