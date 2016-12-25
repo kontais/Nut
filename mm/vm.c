@@ -5,7 +5,6 @@
 void vm_init(void)
 {
 	malloc_init();
-
 	
 	
 } 

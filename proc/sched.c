@@ -19,6 +19,10 @@ thread_t *get_current_thread(void)
 {
 	return current_thread;
 }
+queue_t *get_ready_queue(void)
+{
+	return ready_queue;
+}
 void sched_init(void)
 {
 	current_proc = NULL;
@@ -39,6 +43,8 @@ void sched_init(void)
 	queue_enqueue(ready_queue, initial_kernel_thread);
 	
 	save_context = &initial_kernel_thread->tcb.context;
+	
+	printf("Scheduler initializing complete.\n");
 }
 /**
  * This function is called after context is saved,

@@ -197,6 +197,8 @@ int fs_fstat(fs_context_t *context, void *buf)
 }
 void fs_init(void)
 {
+	printf("File system initializing...\n");
+	
 	//Create root directory
 	root = alloc_node();
 	
@@ -207,4 +209,6 @@ void fs_init(void)
 	//Create stdio special file in root directory
 	
 	stdio_mknode("/stdio");
+	
+	printf("File system initializing complete.\n");
 }

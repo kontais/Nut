@@ -42,17 +42,17 @@ void main(uint64_t *param_list)
 	
 	int_init();
 	fs_init();
-	printf("%d\n", fs_mknode("/home/", FILE_TYPE_DIRCTORY));
-	printf("%d\n", fs_mknode("/home/dev", FILE_TYPE_DIRCTORY));
-	printf("%lx\n", fs_getnode("/home"));
-	printf("%s\n", fs_getnode("/home")->name);
-	printf("%s\n", fs_getnode("/home/dev")->name);
-	printf("%d\n", fs_rmnode("/home"));
-	printf("%s\n", fs_getnode("/home")->name);
-	printf("%s\n", fs_getnode("/home/dev")->name);
-	printf("%d\n", fs_rmnode("/home/dev"));
-	printf("%s\n", fs_getnode("/home")->name);
-	printf("%s\n", fs_getnode("/home/dev")->name);
+// 	printf("%d\n", fs_mknode("/home/", FILE_TYPE_DIRCTORY));
+// 	printf("%d\n", fs_mknode("/home/dev", FILE_TYPE_DIRCTORY));
+// 	printf("%lx\n", fs_getnode("/home"));
+// 	printf("%s\n", fs_getnode("/home")->name);
+// 	printf("%s\n", fs_getnode("/home/dev")->name);
+// 	printf("%d\n", fs_rmnode("/home"));
+// 	printf("%s\n", fs_getnode("/home")->name);
+// 	printf("%s\n", fs_getnode("/home/dev")->name);
+// 	printf("%d\n", fs_rmnode("/home/dev"));
+// 	printf("%s\n", fs_getnode("/home")->name);
+// 	printf("%s\n", fs_getnode("/home/dev")->name);
 // 	asm("mov $0, %rax\r\nint $0x80");
 // 	asm("int $3");
 // 	FATFS_Type fs;

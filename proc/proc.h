@@ -12,7 +12,7 @@
 typedef struct pargs
 {
 	int argc;
-	char *argv[];
+	char **argv;
 }pargs_t;
 typedef struct penvs
 {
@@ -38,7 +38,7 @@ typedef struct tcb
  */
 typedef struct thread
 {
-	id_t			id;	//Thread ID
+	id_t			tid;	//Thread ID
 	long			status;	//Thread status:-1 stopped 0 pending 1 runnable
 	struct list_head	list;	//List of all threads
 	struct proc		*proc;	//Process it belongs to
@@ -54,7 +54,7 @@ typedef struct thread
 
 typedef struct proc
 {
-	id_t			id;	//Process ID
+	id_t			pid;	//Process ID
 	struct list_head	list;	//List of all processes
 	struct list_head	threads;//Thread list entry
 // 	struct mutex		mutex;	//Process struct lock
@@ -103,4 +103,11 @@ typedef struct proc
 int fd_alloc(void *ptr);
 void fd_free(int fd);
 void *get_fd_ptr(int fd);
+
+int thread_init(thread_t *thread, proc_t *proc, uint64_t entrypoint, uint64_t stack_top);
+void thread_dup(thread_t *new,  thread_t *old);
+
+int proc_init(proc_t *proc, proc_t *parent, pargs_t *args, penvs_t *envs, vm_map_t *vm_map);
+void proc_dup(proc_t *new, proc_t *old);
+
 #endif

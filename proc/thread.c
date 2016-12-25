@@ -9,7 +9,7 @@ int thread_init(thread_t *thread, proc_t *proc, uint64_t entrypoint, uint64_t st
 {
 	memset(thread, 0, sizeof(thread_t));
 	
-	thread->id = tid_alloc();
+	thread->tid = tid_alloc();
 	thread->status = 0;
 	list_init(&thread->list);
 	thread->proc = proc;
@@ -30,11 +30,27 @@ int thread_init(thread_t *thread, proc_t *proc, uint64_t entrypoint, uint64_t st
 	return 0;
 }
 
-void thread_destroy(thread_t *thread, proc_t *proc)
+void thread_destroy(thread_t *thread)
 {
-	tid_free(thread->id);
-	if (proc != NULL)
+	tid_free(thread->tid);
+	if (thread->proc != NULL)
 	{
 		list_del(&thread->list);
 	}
+}
+void thread_attach(thread_t *thread, proc_t *proc)
+{
+	thread->proc = proc;
+	list_add_before(&proc->threads, &thread->list);
+}
+/**
+ * duplicate a thread without attaching it to any process
+ * and make it a unique id
+ */
+void thread_dup(thread_t *new,  thread_t *old)
+{
+	memcpy(new, old, sizeof(thread_t));
+	
+	new->tid = tid_alloc();
+	list_init(&new->list);
 }
