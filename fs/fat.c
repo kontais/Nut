@@ -271,7 +271,11 @@ void fatfs_init(FATFS_Type *fs)
 		fs->FirstRootSec = fs->FirstDataSec + fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus * fs->BPB->BPB_SecPerClus;
 	}
 }
-
+void fatfs_destroy(FATFS_Type *fs)
+{
+	if (fs->BPB != NULL)
+		free(fs->BPB);
+}
 FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 {
 	FATDir_Type *fatdir;

@@ -12,6 +12,7 @@ int fork(void)
 	if (new_thread == NULL)
 		return -1;
 	thread_dup(new_thread, current_thread);
+	printf("TID:%d\n",new_thread->tid);
 	printf("Thread dup complete\n");
 	proc_t *new_proc = malloc(sizeof(proc_t));
 	if (new_proc == NULL)

@@ -38,7 +38,7 @@ void main(uint64_t *param_list)
 // 	char *ptr = malloc(4096);
 // 	for (int i = 0; i < 4096; i ++)
 // 		printf("%d ", *(ptr + i));
-	execv("/test", NULL);
+	exec("/test", NULL);
 	
 	int_init();
 	fs_init();
