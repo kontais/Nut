@@ -175,4 +175,5 @@ void fatfs_rewinddir(FATFS_Type *fs, FATDir_Type *dir);
 void fatfs_closedir(FATFS_Type *fs, FATDir_Type *dir);
 uint32_t fatfs_readfile(FATFS_Type *fs, FATFile_Type *file, void *buf, uint32_t bufsize);
 int fatfs_searchfile(FATFS_Type *fs, FATFile_Type *buf, const char *path);
+uint32_t computer_needed_buf_size(FATFS_Type *fs, FATFile_Type *file);
 #endif

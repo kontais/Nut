@@ -22,6 +22,9 @@
 #define FILE_HOOK_INDEX_IOCTL	5
 #define FILE_HOOK_INDEX_FSTAT	6
 
+#define FILE_LSEEK_WHENCE_SEEK_SET	0
+#define FILE_LSEEK_WHENCE_SEEK_CUR	1
+#define FILE_LSEEK_WHENCE_SEEK_END	2
 typedef struct file_node
 {
 	char *name;
@@ -29,8 +32,7 @@ typedef struct file_node
 	
 	struct list_head list;
 	struct list_head children;
-	struct file_node *parent;
-	
+	struct file_node *parent;	
 	struct file_hook *hook;
 }file_node_t;
 
