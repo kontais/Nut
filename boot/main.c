@@ -16,6 +16,8 @@
 #include <pci.h>
 
 #include <fs.h>
+
+#include<fs_generic.h>
 void main(uint64_t *param_list)
 {
 	printf("\nStarting kernel...\n");

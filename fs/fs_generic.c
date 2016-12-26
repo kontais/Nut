@@ -14,7 +14,7 @@ void *fat_open(file_node_t *node, const char *path, int oflag)
 	char *node_name = strtok_r(path_buf, "/", &aim_path);
 	while(node_name != NULL)
 	{
-		if(strcmp(node_name, node->name) != 0 )
+		if(strcmp(node_name, node->name) == 0 )
 			break;
 		node_name = strtok_r(NULL, "/", &aim_path);
 	}
@@ -40,7 +40,7 @@ void *fat_open(file_node_t *node, const char *path, int oflag)
 	uint32_t ret =  fatfs_readfile(context->fs, context->file, context->buf, bufsize);
 	if (ret != bufsize)
 	{
-		bug("Read file faild");
+		bug("Read file faild %d\n", ret);
 		fatfs_destroy(context->fs);
 		free(context->fs);
 		free(context);
@@ -64,9 +64,13 @@ int fat_close(file_node_t *node, fat_context_t *context)
 }
 ssize_t fat_read(file_node_t *node, fat_context_t *context, void *buf, uint64_t size)
 {
+	printf("Read file size %d\n", size);
 	if (context->offset + size > context->file->FileSize)
-		return 0;
-	memcpy(buf, context->buf, size);
+	{
+		size = context->file->FileSize - context->offset;
+	}
+	printf("Read file size %d\n", size);
+	memcpy(buf, context->buf + context->offset, size);
 	context->offset += size;
 	return size;
 }
@@ -89,6 +93,7 @@ off_t fat_lseek(file_node_t *node, fat_context_t *context, off_t offset, int whe
 	}
 	return context->offset;
 }
+
 int fat_mknode(const char *path)
 {
 	int ret;

@@ -152,7 +152,9 @@ int fs_reghook(const char *path, int hook_index, void *hook)
 fs_context_t *fs_open(const char *path,int oflag)
 {
 	fs_context_t *context = malloc(sizeof(fs_context_t));
-	file_node_t *node = fs_getnode(path);
+	file_node_t *node = find_node(path);
+	if (node == NULL)
+		printf("fs_open failed:No such file %s\n", path);
 	context->context = node->hook->open(node, path, oflag);
 	context->node = node;
 	return context;
