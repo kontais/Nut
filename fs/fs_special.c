@@ -16,6 +16,7 @@ ssize_t stdio_write(file_node_t *node, void *context, const void *buf, uint64_t 
 {
 	char *temp = malloc(size + 1);
 	memcpy(temp, buf, size);
+	printf("write size is :%d\n",size);
 	*(temp + size) = '\0';
 	__stdout(temp);
 	free(temp);
@@ -113,16 +114,19 @@ int pipe_mknode(const char *path)
 		return ret;
 	}
 	ret = fs_reghook(path, FILE_HOOK_INDEX_CLOSE, pipe_close);
+	if (ret != 0)
 	{
 		printf("Register hook function failed:close\n");
 		return ret;
 	}
 	ret = fs_reghook(path, FILE_HOOK_INDEX_READ, pipe_read);
+	if (ret != 0)
 	{
 		printf("Register hook function failed:read\n");
 		return ret;
 	}
 	ret = fs_reghook(path, FILE_HOOK_INDEX_WRITE, pipe_write);
+	if (ret != 0)
 	{
 		printf("Register hook function failed:write\n");
 		return ret;
