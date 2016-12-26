@@ -15,5 +15,7 @@ typedef struct fat_context
 void *fat_open(file_node_t *node, const char *path, int oflag);
 int fat_close(file_node_t *node, fat_context_t *context);
 ssize_t fat_read(file_node_t *node, fat_context_t *context, void *buf, uint64_t size);
-off_t lseek(file_node_t *node, fat_context_t *context, off_t offset, int whence);
+off_t fat_lseek(file_node_t *node, fat_context_t *context, off_t offset, int whence);
+int fat_mknode(const char *path);
+
 #endif

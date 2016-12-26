@@ -70,7 +70,7 @@ ssize_t fat_read(file_node_t *node, fat_context_t *context, void *buf, uint64_t 
 	context->offset += size;
 	return size;
 }
-off_t lseek(file_node_t *node, fat_context_t *context, off_t offset, int whence)
+off_t fat_lseek(file_node_t *node, fat_context_t *context, off_t offset, int whence)
 {
 	switch(whence)
 	{
@@ -88,4 +88,40 @@ off_t lseek(file_node_t *node, fat_context_t *context, off_t offset, int whence)
 			break;			
 	}
 	return context->offset;
+}
+
+int fat_mknode(const char *path)
+{
+	int ret;
+	ret = fs_mknode(path, FILE_TYPE_MOUNT_POINT);
+	if (ret != 0)
+	{
+		printf("Create mount point node failed:stdio\n");
+		return ret;
+	}
+	ret = fs_reghook(path, FILE_HOOK_INDEX_OPEN, &fat_open);
+	if (ret != 0)
+	{
+		printf("Register hook function failed:open\n");
+		return ret;
+	}
+	ret = fs_reghook(path, FILE_HOOK_INDEX_CLOSE, &fat_close);
+	if (ret != 0)
+	{
+		printf("Register hook function failed:close\n");
+		return ret;
+	}
+	ret = fs_reghook(path, FILE_HOOK_INDEX_READ, &fat_read);
+	if (ret != 0)
+	{
+		printf("Register hook function failed:read\n");
+		return ret;
+	}
+	ret = fs_reghook(path, FILE_HOOK_INDEX_LSEEK, &fat_lseek);
+	if (ret != 0)
+	{
+		printf("Register hook function failed:lseek\n");
+		return ret;
+	}
+	return 0;
 }

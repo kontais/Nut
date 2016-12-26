@@ -209,6 +209,8 @@ void fs_init(void)
 	//Create stdio special file in root directory
 	
 	stdio_mknode("/stdio");
+	fat_mknode("/disk");
+	pipe_mknode("/pipe");
 	
 	printf("File system initializing complete.\n");
 }
