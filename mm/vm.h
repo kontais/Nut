@@ -8,6 +8,9 @@
 
 typedef struct vm_map_entry
 {
+	//All vm_map_entry are linked in this list
+	list_head_t entry_list;
+	
 	uint64_t virt_addr;
 	uint64_t phy_addr;
 	uint64_t page_nums;
