@@ -29,7 +29,7 @@ void compute_fat_for_cluster(FATFS_Type *fs, uint8_t fat_index, uint32_t cluster
 
 uint32_t extract_fat_entry(FATFS_Type *fs, uint32_t cluster)
 {
-	uint8_t buf[512];
+	char *buf = malloc(512);
 	uint32_t sec_off, entry_off;
 	uint32_t entry;
 	compute_fat_for_cluster(fs, 0, cluster, &sec_off, &entry_off);
@@ -54,6 +54,7 @@ uint32_t extract_fat_entry(FATFS_Type *fs, uint32_t cluster)
 			bug("Invalid FAT type!\n");
 			break;
 	}
+	free(buf);
 	return entry;
 }
 void read_cluster(FATFS_Type *fs, void *buf, uint32_t cluster)
@@ -166,7 +167,7 @@ int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 	}
 //Handle long name directory
 	int offset;
-	char buf[512];
+	char *buf = malloc(512);
 	wchar *unicode_lname = (wchar *)buf;
 	LongNameDirEntry_Type *entry = dir_entry;
 	while(entry->LDIR_Attr == ATTR_LONG_NAME)
@@ -174,14 +175,20 @@ int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 		entry ++;
 		
 		if (entry > max + dir_entry)
+		{
+			free(buf);
 			return -1;
+		}
 	}
 	
 	offset = entry - dir_entry;
 	entry --;
 	
 	if (entry->LDIR_Attr != ATTR_LONG_NAME)
+	{
+		free(buf);
 		return -1;
+	}
 	
 	do
 	{
@@ -196,10 +203,14 @@ int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 		unicode_lname = wstrncpy(unicode_lname, entry->LDIR_Name3, 2);
 		
 		if (entry < dir_entry)
+		{
+			free(buf);
 			return -1;
+		}
 	} while(!((entry--)->LDIR_Ord & 0x40));
 	str_unicode_to_utf8((wchar *)buf, lname);
 	
+	free(buf);
 	return offset;
 }
 
@@ -211,7 +222,7 @@ uint32_t read_file(FATFS_Type *fs, const char *name, void *buf, uint64_t bufsize
 	if (read_cluster_chain(fs, rootdir, rootdir_size, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus, 0) != rootdir_size)
 		bug("Reading root directory failed unexpectedly");
 	
-	char name_buf[512] = {0};
+	char *name_buf = malloc(512);
 	uint32_t pos = 0;
 	int ret;
 	do
@@ -228,6 +239,7 @@ uint32_t read_file(FATFS_Type *fs, const char *name, void *buf, uint64_t bufsize
 	Dir_Struc_Type *dir_struct = (Dir_Struc_Type *)rootdir + pos - 1;
 	
 	free(rootdir);
+	free(name_buf);
 	
 	if (bufsize < dir_struct->DIR_FileSize)
 		return 0;
@@ -284,7 +296,7 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 	char *save_ptr;
 	uint32_t pos = 0;
 	int ret;
-	char name_buf[512];
+	char *name_buf = malloc(512);
 	uint32_t buf_size;
 	
 	fatdir = malloc(sizeof(FATDir_Type));
@@ -312,6 +324,7 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 			if ((ret = read_name(fatdir->buf + pos, name_buf, (fatdir->size - pos) >> 5)) == -1)
 			{
 				bug("Extracting file name from root directory failed unexpectedly");
+				free(name_buf);
 				return NULL;
 			}
 			pos += (ret + 1) << 5;
@@ -320,6 +333,7 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 			{
 				free(fatdir->buf);
 				free(fatdir);
+				free(name_buf);
 				return NULL;
 			}
 		} while(strcmp(name_buf, dir_name) != 0);
@@ -347,6 +361,7 @@ FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 		dir_name = strtok_r(NULL, "/", &last_str);
 	}
 	free(path_buf);
+	free(name_buf);
 	return fatdir;
 }
 

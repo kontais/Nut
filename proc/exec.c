@@ -24,6 +24,7 @@ void exec(const char *path, char *const argv[])
 		new_entry->refs = 1;
 		new_entry->page_nums = 1;
 		vm_map_add(new_map, new_entry);
+		vm_map_do_mapping(new_map);
 		
 		FATFS_Type *fs = malloc(sizeof(FATFS_Type));
 		fatfs_init(fs);
@@ -74,6 +75,7 @@ void exec(const char *path, char *const argv[])
 		new_entry->refs = 1;
 		new_entry->page_nums = 1;
 		vm_map_add(new_map, new_entry);
+		vm_map_do_mapping(new_map);
 		
 		void *ptr = (void *)convert_phy_to_virt(new_entry->phy_addr);
 		printf("Load file succeed, file size:%d bytes\n", fatfs_readfile(fs, file, ptr, 4096));

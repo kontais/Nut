@@ -1,5 +1,7 @@
 #include <klibc.h>
 #include <fs.h>
+#include <fs_generic.h>
+#include <fs_special.h>
 file_node_t *root;
 void *desc_table;
 
@@ -95,12 +97,10 @@ int fs_mknode(const char *path, uint64_t type)
 	strip_tail_slash(stripped_path, path);
 	
 	char *new_node_name = strrchr(stripped_path, '/') + 1;
-	printf("%s\n", new_node_name);
 	char *dir_path_buf = malloc(new_node_name - stripped_path + 1);
 	memcpy(dir_path_buf, stripped_path, new_node_name - stripped_path);
 	dir_path_buf[new_node_name - stripped_path] = '\0';
 	
-	printf("%s\n", dir_path_buf);
 	file_node_t *parent_dir = find_node(dir_path_buf);
 	if (parent_dir == NULL)
 		return -1;

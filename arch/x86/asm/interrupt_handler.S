@@ -1,15 +1,18 @@
 
 .globl systick_handler
 systick_handler:
+/* 	cli */
 	call	context_save
-	call	sched			#Schedule routine
+	call	__sched			#Schedule routine
 	call	context_load
+/* 	sti */
 	iretq				#Automatically load the registers
 	
-	
+str:.asciz "Hello\n"
 .globl syscall_handler, syscall_table, save_context, load_context
 syscall_handler:
 	cli
+	
 	call	context_save
 	#Load params
 	mov	save_context, %rbp

@@ -2,12 +2,13 @@
 #include <proc.h>
 #include <list.h>
 #include <queue.h>
-
+#include <mm.h>
+#include <paging.h>
 list_head_t thread_list;
 list_head_t proc_list;
 
-thread_t *current_thread;
-proc_t *current_proc;
+volatile thread_t *current_thread;
+volatile proc_t *current_proc;
 
 queue_t *ready_queue;
 
@@ -44,8 +45,16 @@ void sched_init(void)
 	queue_enqueue(ready_queue, initial_kernel_thread);
 	
 	save_context = &initial_kernel_thread->tcb.context;
+	load_context = &initial_kernel_thread->tcb.context;
 	
 	printf("Scheduler initializing complete.\n");
+}
+void __sched(void)
+{
+	static uint8_t count = 0;
+	if (count ++ % 10 != 0)
+		return;
+	sched();
 }
 /**
  * This function is called after context is saved,
@@ -54,7 +63,6 @@ void sched_init(void)
 void sched(void)
 {
 	printf("Sched\n");
-// 	printf("\n");
 // 	printf("%lx\n", th1->tcb.RIP);
 // 	printf("Schedule.\n");
 	
@@ -65,7 +73,7 @@ void sched(void)
 		assert(load_thread != NULL);
 		if (load_thread->status == -1)
 			printf("Delete one thread in ready queue\n");
-		printf("%d ", load_thread->tid);
+		printf("%ld ", load_thread->tid);
 		
 	}while(load_thread->status == -1);
 	
@@ -73,31 +81,17 @@ void sched(void)
 	save_context = &load_thread->tcb.context;
 	
 	queue_enqueue(ready_queue, load_thread);
-	
+// 	printf("Mapping\n");
 	current_thread = load_thread;
 	current_proc = load_thread->proc;
 	if (current_proc != NULL)
+	{
+		printf("Changed mapping\n");
 		vm_map_do_mapping(current_proc->vm_map);
-	
-	
-// 	if (current_thread == th2)
-// 	{
-// 		current_thread = th3;
-// 		current_context = &th3->tcb.context;
-// 	}
-// 	else
-// 	{
-// 		current_thread = th2;
-// 		current_context = &th2->tcb.context;
-// 	}
-// 	if (list_empty(&thread_list))
-// 	{
-// 		current_thread = NULL;
-// 		current_proc = NULL;
-// 	}
-// 	else
-// 	{
-// 		current_thread = list_entry(current_thread->list.next, struct thread, list);
-// 		current_proc = current_thread->proc;
-// 	}
+	}
+// 	int ret = modify_chunk_mapping(get_current_plm4e(), 0x0, 0x1F80000, 1, DEFAULT_USER_TEXT_PTE_FLAGS);
+// 	printf("%d\n", ret);
+	printf("%lx\n", *(uint64_t*)0x0);
+	printf("%lx\n", *(uint64_t*)(0x1F80000 + PHY_MAP_BASE));
+// 	printf("Mapping done\n");
 }

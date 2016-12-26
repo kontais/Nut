@@ -42,6 +42,9 @@ void main(uint64_t *param_list)
 	
 	int_init();
 	fs_init();
+	
+	printf("%lx\n", *(uint64_t*)(0x1F80000 + PHY_MAP_BASE));
+	printf("%lx\n", *(uint64_t*)(0x0));
 // 	printf("%d\n", fs_mknode("/home/", FILE_TYPE_DIRCTORY));
 // 	printf("%d\n", fs_mknode("/home/dev", FILE_TYPE_DIRCTORY));
 // 	printf("%lx\n", fs_getnode("/home"));

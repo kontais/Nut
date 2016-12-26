@@ -73,6 +73,7 @@ int pipe_close(file_node_t *node, pipe_context_t *context)
 
 ssize_t pipe_read(file_node_t *node, pipe_context_t *context, void *buf, uint64_t size)
 {
+	printf("Read Pipe message %d:%s\n",  context->length, context->buf);
 	//Compute size to transfer
 	size = context->length >= size ? size : context->length;
 	context->length -= size;
@@ -82,10 +83,12 @@ ssize_t pipe_read(file_node_t *node, pipe_context_t *context, void *buf, uint64_
 		if (context->read_offset == PIPE_BUFFER_SIZE)
 			context->read_offset = 0;
 	}
+	printf("Read Pipe message %d:%s\n",  size, context->buf);
 	return size;
 }
 ssize_t pipe_write(file_node_t *node, pipe_context_t *context, const void *buf, uint64_t size)
 {
+	printf("Write Pipe message %d:%s\n", size, buf);
 	//Compute size to transfer
 	size = PIPE_BUFFER_SIZE - context->length >= size ? size : PIPE_BUFFER_SIZE - context->length;
 	context->length += size;
@@ -95,6 +98,7 @@ ssize_t pipe_write(file_node_t *node, pipe_context_t *context, const void *buf, 
 		if (context->write_offset == PIPE_BUFFER_SIZE)
 			context->write_offset = 0;
 	}
+	printf("Write Pipe message %d:%s\n", context->length, context->buf);
 	return size;
 }
 int pipe_mknode(const char *path)
@@ -106,23 +110,26 @@ int pipe_mknode(const char *path)
 		printf("Create special file failed:stdio\n");
 		return ret;
 	}
-	ret = fs_reghook(path, FILE_HOOK_INDEX_OPEN, pipe_open);
+	ret = fs_reghook(path, FILE_HOOK_INDEX_OPEN, &pipe_open);
 	if (ret != 0)
 	{
 		printf("Register hook function failed:open\n");
 		return ret;
 	}
-	ret = fs_reghook(path, FILE_HOOK_INDEX_CLOSE, pipe_close);
+	ret = fs_reghook(path, FILE_HOOK_INDEX_CLOSE, &pipe_close);
+	if (ret != 0)
 	{
 		printf("Register hook function failed:close\n");
 		return ret;
 	}
-	ret = fs_reghook(path, FILE_HOOK_INDEX_READ, pipe_read);
+	ret = fs_reghook(path, FILE_HOOK_INDEX_READ, &pipe_read);
+	if (ret != 0)
 	{
 		printf("Register hook function failed:read\n");
 		return ret;
 	}
-	ret = fs_reghook(path, FILE_HOOK_INDEX_WRITE, pipe_write);
+	ret = fs_reghook(path, FILE_HOOK_INDEX_WRITE, &pipe_write);
+	if (ret != 0)
 	{
 		printf("Register hook function failed:write\n");
 		return ret;
