@@ -54,7 +54,8 @@ void __sched(void)
 	static uint8_t count = 0;
 	if (count ++ % 10 != 0)
 		return;
-	sched();
+	printf("%d\n", count);
+// 	sched();
 }
 /**
  * This function is called after context is saved,

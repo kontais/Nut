@@ -17,11 +17,12 @@
 
 #include <fs.h>
 
-#include<fs_generic.h>
+#include <fs_generic.h>
 #include <GlyphBDF.h>
-#include <ProtableGrayMap.h>
+#include <PotableGrayMap.h>
 #include <pci.h>
 #include <paging.h>
+
 void main(uint64_t *param_list)
 {
 	printf("\nStarting kernel...\n");
@@ -36,34 +37,19 @@ void main(uint64_t *param_list)
 	printf("bss_end\t\t=\t%lx\n", __bss_end);
 	
 	mm_init(param_list[2], param_list[3], param_list[4], param_list[5] + param_list[6] - PHY_MAP_BASE);
-	
 	vm_init();
+	pci_init();
+	DisplayInit(&param_list[9]);
 	id_init();
 	sched_init();
 	syscall_init();
-// 	int_init();
-// 	char *ptr = malloc(4096);
-// 	for (int i = 0; i < 4096; i ++)
-// 		printf("%d ", *(ptr + i));
-	exec("/test", NULL);
-	
+
+	asm("int $3");
 	int_init();
 	fs_init();
-	
-	printf("%lx\n", *(uint64_t*)(0x1F80000 + PHY_MAP_BASE));
-	printf("%lx\n", *(uint64_t*)(0x0));
-// 	printf("%d\n", fs_mknode("/home/", FILE_TYPE_DIRCTORY));
-// 	printf("%d\n", fs_mknode("/home/dev", FILE_TYPE_DIRCTORY));
-// 	printf("%lx\n", fs_getnode("/home"));
-// 	printf("%s\n", fs_getnode("/home")->name);
-// 	printf("%s\n", fs_getnode("/home/dev")->name);
-// 	printf("%d\n", fs_rmnode("/home"));
-// 	printf("%s\n", fs_getnode("/home")->name);
-// 	printf("%s\n", fs_getnode("/home/dev")->name);
-// 	printf("%d\n", fs_rmnode("/home/dev"));
-// 	printf("%s\n", fs_getnode("/home")->name);
-// 	printf("%s\n", fs_getnode("/home/dev")->name);
-// 	asm("mov $0, %rax\r\nint $0x80");
+	exec("/test", NULL);
+// 	for (int i = 0; i < 10000; i ++)
+// 		printf("%d", i);
 // 	asm("int $3");
 // 	FATFS_Type fs;
 // 	fatfs_init(&fs);
@@ -90,14 +76,14 @@ void main(uint64_t *param_list)
 // 	for(;;)
 // 	modify_chunk_mapping(get_current_plm4e(), 0x80000000, 0x80000000, 0x1000, DEFAULT_PTE_FLAG);
 	
-	for (int i = 0; i < 5; i ++)
-	{
-		for (int j = 0; j < 10; j ++)
-		{
-			printf("%x\n", __pci_read_reg(0, i, 0, j));
-		}
-		printf("\n");
-	}
+// 	for (int i = 0; i < 5; i ++)
+// 	{
+// 		for (int j = 0; j < 10; j ++)
+// 		{
+// 			printf("%x\n", __pci_read_reg(0, i, 0, j));
+// 		}
+// 		printf("\n");
+// 	}
 //	sched_init();
 //	syscall_init();
 // 	int_init();
@@ -123,7 +109,7 @@ void main(uint64_t *param_list)
 		printf("\n");
 	}
 	*/
-	Display();
+// 	Display();
 	
 // 	{
 // 		file_info = fatfs_readdir(&fs,fatdir);
@@ -169,9 +155,11 @@ void main(uint64_t *param_list)
 // 	printf("%s\n", "Hello,world");
 	
 	pic_82c59_unmask_int(0);
-	
+// 	printk("Hello,world\n");
 	while(1)
 	{
+// 		static int i = 0;
+// 		printk("Hello,wolrd : %d\n", i++);
 // 		extern uint64_t count;
 // 		printf("%d\n", count);
 	}

@@ -100,6 +100,7 @@ int __print_format(char *buf, const char *fmt, va_list ap)
 		fmt++;
 	}
  	*ptr++ = '\0';
+ 	
 	return ptr - buf;
 }
 int sprintf(char *buf, const char *fmt, ...)
@@ -116,9 +117,8 @@ int printf(const char *fmt, ...)
 	va_list ap;
 	va_start(ap, fmt);
 	int ret = __print_format(buf, fmt, ap);
-	assert(ret < 1024);
 	va_end(ap);
 	(*__stdout)(buf);
 	return ret;
 }
- 
+

@@ -1,24 +1,21 @@
-#include "ProtableGrayMap.h"
+#include "PotableGrayMap.h"
 #include "GlyphBDF.h"
 #include "fat.h"
 #include "klibc.h"
-
-unsigned char PGMBuffer[Max_range*16][Max_line*8];
-
+#include <pci.h>
+#include <cpu_intrins.h>
+// unsigned char PGMBuffer[Max_Row*16][Max_Column*8];
+// unsigned char **PGMBuffer = NULL;
+uint32_t *frame_buffer = NULL;
+// uint32_t *frame_buffer = NULL;
+// PotableGrayMap *PGM_Map = NULL;
+unsigned char *font_buf = NULL;
 /**
-	*function:get the bitmap of Glyph to PGM map
-	*
-	*
-	*/
+ * function:get the bitmap of Glyph to PGM map
+ */
 void PGM_ASIIC_versionsInit(PGM PGM_Map,unsigned char Glyph){
 	
-	FATFS_Type fs;
-	fatfs_init(&fs);
-	unsigned char *buf = malloc(40960);
-	unsigned char *stream =buf;
-	memset(buf, 0, 40960);
-	read_file(&fs,"unifont-asiic.bdf",buf,40960);
-	
+	unsigned char *stream = font_buf;
 	GlyphBDF Glyph_BDF;
 	Glyph_BDF_init(&Glyph_BDF);
 	GetBitmapFromGlyphBDF(&stream,&Glyph_BDF,Glyph);
@@ -223,11 +220,11 @@ void PGM_ASIIC_versionsInit(PGM PGM_Map,unsigned char Glyph){
 }
 
 /**
-	*function:initialization the struct of PGM map
-	*
-	*
-	*/
-void ProtableGrayMapASIIC_Init(PGM PGM_Map,int width,int high,unsigned char Glyph){
+ *function:initialization the struct of PGM map
+ *
+ *
+ */
+void PotableGrayMapASIIC_Init(PGM PGM_Map,int width,int high,unsigned char Glyph){
 	
 	PGM_Map->Max_value=20;
 	PGM_Map->Magic=2;
@@ -237,178 +234,130 @@ void ProtableGrayMapASIIC_Init(PGM PGM_Map,int width,int high,unsigned char Glyp
 	
 }
 
-/**
-	*function:write the data to the header of file.pgm 
-	*
-	*
-	*/
-/*int WritePGMHeader(FILE *stream,PGM PGM_Map){
-	
-	   if (stream==NULL) 80000008{  
-        printf("FILE error\n");  
-        exit(3);  
-    }  
-  
-    switch(PGM_Map->Magic){
+void WritePGMData(PGM PGM_Map,int row,int column) {  
     
-    	case 1:{
-    	
-    		fprintf(stream,"P1\n");	
-    		break;
-    	}	
-    	case 2:	{
-    	
-    		fprintf(stream,"P2\n");	
-    		break;
-    	}
-    	case 3:{
-    	
-    		fprintf(stream,"P3\n");	
-    		break;
-    	}	
-    	case 4:{
-    	
-    		fprintf(stream,"P4\n");	
-    		break;
-    	}	
-    	case 5:{
-    	
-    		fprintf(stream,"P5\n");	
-    		break;
-    	}	
-    	case 6:{
-    	
-    		fprintf(stream,"P6\n");	
-    		break;
-    	}	
-    	default :	exit(4);
-    }
-    
-    fprintf(stream,"%d,%d\n",PGM_Map->X_axis,PGM_Map->Y_axis);
-    fprintf(stream,"%d\n",PGM_Map->Max_value);
-    
-    return 1;  
-}*/
-
-/**
-	*function:write the data to file.gpm
-	*
-	*
-	*/
-void WritePGMData(PGM PGM_Map,int range,int line) {  
-    
-    for(int i=0;i<16;i++) {   // every rwo 
+    for(int i=0;i<16;i++) {   // every row
      			
-        for(int j=0;j<8;j++) {   // every line 
+        for(int j=0;j<8;j++) {   // every column 
         		
-        		PGMBuffer[range*16+i][line*8+j]=PGM_Map->ASIIC_versions[i][j];
-        		//PGMBuffer[range*32+2*i][line*16+2*j+1]=PGM_Map->ASIIC_versions[i][j];
-        } 
-        /*for(int j=0;j<8;j++) {   // every line  
-        
-        	PGMBuffer[range*32+2*i+1][line*16+2*j]=PGM_Map->ASIIC_versions[i][j];
-        	PGMBuffer[range*32+2*i+1][line*16+2*j+1]=PGM_Map->ASIIC_versions[i][j];	 
-        } */
+//         		PGMBuffer[row*16+i][column*8+j]=PGM_Map->ASIIC_versions[i][j];
+// 			frame_buffer[(row*16 + i) * 8 * Max_Column + column * 8 + j] = PGM_Map->ASIIC_versions[i][j];
+			frame_buffer[(row * 16 + i) *8* Max_Column + column * 8 + j] = PGM_Map->ASIIC_versions[i][j] | PGM_Map->ASIIC_versions[i][j] << 8 | PGM_Map->ASIIC_versions[i][j] << 16;
+        		//PGMBuffer[row*32+2*i][column*16+2*j+1]=PGM_Map->ASIIC_versions[i][j];
+        }
     }
-    
 } 
 /**
-	*
-	*
-	*/
-void WritePGMBufferInit(PGM PGM_Map,int max_range,int max_line){
-	
-	ProtableGrayMapASIIC_Init(PGM_Map,max_line*8,max_range*16,' ');
-	for(int i=0;i<max_range;i++)
-		for(int j=0;j<max_line;j++)
-			WritePGMData(PGM_Map,i,j);
-} 
-/**
-	*
-	*
-	*
-	*/
-void DisplayInit(void ){
-	
-	ProtableGrayMap PGM_Map;
-	WritePGMBufferInit(&PGM_Map,Max_range,Max_line);
-	
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'H');
-	WritePGMData(&PGM_Map,10,40);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'e');
-	WritePGMData(&PGM_Map,10,41);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'l');
-	WritePGMData(&PGM_Map,10,42);
-	WritePGMData(&PGM_Map,10,43);
-	WritePGMData(&PGM_Map,10,49);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'o');
-	WritePGMData(&PGM_Map,10,44);
-	WritePGMData(&PGM_Map,10,48);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'w');
-	WritePGMData(&PGM_Map,10,46);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'r');
-	WritePGMData(&PGM_Map,10,47);
-	ProtableGrayMapASIIC_Init(&PGM_Map,Max_line*8,Max_range*16,'d');
-	WritePGMData(&PGM_Map,10,50);
-	
+ *
+ *
+ */
+void FrameBufferClear(void){
+	PotableGrayMap PGM_Map;
+	PotableGrayMapASIIC_Init(&PGM_Map,Max_Column*8,Max_Row*16,' ');
+	for(int i=0;i<Max_Row;i++)
+		for(int j=0;j<Max_Column;j++)
+			WritePGMData(&PGM_Map,i,j);
+}
+void Scroll_Screen(int row)
+{
+	for (int i = 0; i < (Max_Row - row) * 16; i ++)
+	{
+		for (int j = 0; j < Max_Column * 8; j ++)
+		{
+			*(frame_buffer + j + i * Max_Column * 8) = *(frame_buffer + j + (i + row * 16)* Max_Column * 8);
+		}
+	}
+	memset(frame_buffer + (Max_Row - row) * 16 * Max_Column * 8, 0, row * 16 * Max_Column * 8 * 4);
+}
+void WriteChar(PGM PGM_Map, int row, int col, char ch)
+{
+	PotableGrayMapASIIC_Init(PGM_Map, Max_Column*8, Max_Row*16, ch);
+	WritePGMData(PGM_Map, row, col);
 }
 
-void Display(void){
+void WriteLine(char *str)
+{
+	__disable_interrupt__();
+	static int row = 0,column = 0;
+	PotableGrayMap PGM_Map;
 
-	
-	DisplayInit();
-	uint32_t *ptr = (uint32_t *)0x80000000;
-	for(int i=0;i<Max_range*16;i++){
-	
-		for(int j=0;j<Max_line*8;j++){
-		
-			ptr[i*Max_line*8+j]=PGMBuffer[i][j]*16*16*16*16*16*16+PGMBuffer[i][j]*16*16*16*16+PGMBuffer[i][j]*16*16+PGMBuffer[i][j];
+	char visible;
+	char temp;
+	while((temp = *str ++) != '\0')
+	{
+		visible = 0;
+		switch(temp)
+		{
+			case '\n':
+			case '\r':
+				row ++;
+				column = 0;
+				break;
+			case '\t':
+				column = (column + 8) / 8 * 8;
+				break;
+			default:
+				visible = 1;
+				break;
 			
 		}
-	
-	}
-
-}
-
-
-/**
-	*function:initialzation the file.pgm buffer
-	*
-	*
-	*/
-
-/*void WritePGMBufferInit(FILE* stream,PGM PGM_Map,int max_range,int max_line){
-	
-	ProtableGrayMapASIIC_Init(PGM_Map,max_line*16,max_range*32,' ');
-	WritePGMHeader(stream,PGM_Map);
-	fgetpos(stream,&(PGM_Map->pos));
-	for(int i=0;i<max_range;i++)
-		for(int j=0;j<max_line;j++)
-			WritePGMData(PGM_Map,i,j);
-}*/
-/**
-	*write the buffer data to the file.pgm
-	*
-	*/
-/*void UpdataPGMBuffer(FILE* stream,PGM PGM_Map){
-	
-	fsetpos(stream,&(PGM_Map->pos));
-	for(int i=0;i<Max_range*32;i++){
-	
-		for(int j=0;j<Max_line*16;j++){
-			if(!PGMBuffer[i][j])
-				fprintf(stream," %d ",PGMBuffer[i][j]);
-			else
-				fprintf(stream,"%d ",PGMBuffer[i][j]);
+		if (column >= Max_Column)
+		{
+			row ++;
+			column -= Max_Column;
 		}
-		fprintf(stream,"\n");
+		if (row >= Max_Row)
+		{
+			Scroll_Screen(SCROLL_UP_ROW_NUM);
+			row -= SCROLL_UP_ROW_NUM;
+		}
+		if (visible)
+			WriteChar(&PGM_Map, row, column++, temp);
+// 		printf("%d,%d\n", row,column);
 	}
+	__enable_interrupt__();
+}
+/**
+ *
+ * Initializing the PGMBuffer and PGM_Map
+ *
+**/
+void DisplayInit(uint64_t *stdout){
 	
-
-}*/
-
-
-
-
-/******************end file*********************/
+	frame_buffer = (uint32_t *)get_vga_frame_buffer_addr();
+	
+	FATFS_Type fs;
+	fatfs_init(&fs);
+	font_buf = malloc(40960);
+	memset(font_buf, 0, 40960);
+	read_file(&fs,"unifont-asiic.bdf",font_buf,40960);
+	fatfs_destroy(&fs);
+	FrameBufferClear();
+// 	PGMBuffer = malloc(Max_Row * 16 * sizeof(unsigned char*));
+// 	assert(PGMBuffer != NULL);
+// 	for (int i = 0; i < Max_Row * 16; i ++)
+// 	{
+// 		PGMBuffer[i] = malloc(Max_Column * 8 * sizeof(unsigned char));
+// 		assert(PGMBuffer[i] != NULL);
+// 	}
+	
+// 	PGM PGM_Map = malloc(sizeof(PotableGrayMap));
+// 	WritePGMBufferInit(PGM_Map,Max_Row,Max_Column);
+	
+	__stdout = &WriteLine;
+// 	printf("%lx\n", *stdout);
+	*stdout = (uint64_t)&WriteLine;
+// 	printf("%lx %lx\n", *stdout, __stdout);
+	
+	printf("Video Display Initializing complete.\n");
+// 	asm("int $3");
+}
+// void Refresh(void)
+// {
+// 	for(int i=0;i<Max_Row*16;i++){
+// 		for(int j=0;j<Max_Column*8;j++){
+// 			ptr[i*Max_Column*8+j]=PGMBuffer[i][j]*16*16*16*16*16*16+PGMBuffer[i][j]*16*16*16*16+PGMBuffer[i][j]*16*16+PGMBuffer[i][j];
+// 		}
+// 	}
+// }
 

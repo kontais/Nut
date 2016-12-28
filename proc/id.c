@@ -36,7 +36,7 @@ void tid_free(id_t id)
 }
 void id_init(void)
 {
-	printf("ID allocator initializing...\n");
+	printf("%s", "ID allocator initializing...\n");
 	pid_table = malloc(PID_TABLE_SIZE);
 	memset(pid_table, 0, PID_TABLE_SIZE);
 	tid_table = malloc(TID_TABLE_SIZE);
