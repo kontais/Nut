@@ -4,7 +4,9 @@
 #include <fs_special.h>
 file_node_t *root;
 void *desc_table;
-
+/**
+ * Copy string from src to dst except the tail '/' if exists
+ */
 void strip_tail_slash(char *dst, const char *src)
 {
 	char *tail_slash = strrchr(src, '/');
@@ -17,7 +19,9 @@ void strip_tail_slash(char *dst, const char *src)
 	else
 		strcpy(dst, src);
 }
-
+/**
+ * Make a new file_node and return its pointer
+ */
 static file_node_t *alloc_node(void)
 {
 	file_node_t *node = malloc(sizeof(file_node_t));
@@ -30,6 +34,9 @@ static file_node_t *alloc_node(void)
 	memset(node->hook, 0, sizeof(file_hook_t));
 	return node;
 }
+/**
+ * Free the space a file_node allocated before
+ */
 static void free_node(file_node_t *node)
 {
 	if (node->name != NULL)
@@ -77,6 +84,9 @@ static file_node_t *find_node(const char *path)
 	free(path_buf);
 	return node;
 }
+/**
+ * Return the file node's pointer matching the specific path
+ */
 file_node_t *fs_getnode(const char *path)
 {
 	file_node_t *node = find_node(path);
@@ -87,7 +97,9 @@ file_node_t *fs_getnode(const char *path)
 		return node;
 	return NULL;
 }
-
+/**
+ * Create a file node at the specific path
+ */
 int fs_mknode(const char *path, uint64_t type)
 {
 	if (strcmp(path, "/") == 0)
@@ -117,6 +129,9 @@ int fs_mknode(const char *path, uint64_t type)
 	
 	return 0;
 }
+/**
+ * Remove node matching specific path
+ */
 int fs_rmnode(const char *path)
 {
 	if (strcmp(path, "/") == 0)
@@ -135,6 +150,9 @@ int fs_rmnode(const char *path)
 	free_node(target);
 	return 0;
 }
+/**
+ * Register hook function to the node matching specific path
+ */
 int fs_reghook(const char *path, int hook_index, void *hook)
 {
 	if (strcmp(path, "/") == 0)
@@ -149,6 +167,9 @@ int fs_reghook(const char *path, int hook_index, void *hook)
 	
 	return 0;
 }
+/**
+ * Functions below are wrappers of file nodes' hook functions.
+ */
 fs_context_t *fs_open(const char *path,int oflag)
 {
 	fs_context_t *context = malloc(sizeof(fs_context_t));

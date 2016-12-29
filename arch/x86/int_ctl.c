@@ -1,21 +1,15 @@
-
 #include <cpu_intrins.h>
 #include <paging.h>
 #include <segments.h>
 #include <int_ctl.h>
 #include <io.h>
-uint64_t count = 0;
-void handler(void)
-{
-	count++;
-// 	printf("This is in interrupt routine.\n");
-// 	asm ("pop %rax");
-// 	asm ("iretq");
-}
+#include <isa.h>
+
 int int_reg(uint8_t vector, void *handle, enum INT_TYPE type);
 void init_int_stack(void);
 void systick_handler(void);
 void syscall_handler(void);
+
 int int_init(void)
 {
 	__disable_interrupt__();
@@ -23,8 +17,8 @@ int int_init(void)
 	
 	int_reg(0x20, &systick_handler, INT);
 	timer_82c54_init(0, 2, 0xffff);
-	pic_82c59_init(0x20);
-// 	pic_82c59_unmask_int(0);
+	pic_8259_init(0x20);
+// 	pic_8259_unmask_int(0);
 	
 	int_reg(0x80, &syscall_handler, TRAP);
 	

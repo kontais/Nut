@@ -58,28 +58,35 @@ int __print_format(char *buf, const char *fmt, va_list ap)
 		{
 			switch (*++fmt) {
 				case 's':
+				case 'S':
 					s = va_arg(ap, char *);
 					ptr = __print_str(ptr, s);
 					break;
 				case 'c':
+				case 'C':
 					c = (char)va_arg(ap, int);
 					ptr = __print_ch(ptr, c);
 					break;
 				case 'd':
+				case 'D':
 					d = va_arg(ap, int);
 					ptr = __print_deci(ptr, d);
 					break;
 				case 'x':
+				case 'X':
 					x = va_arg(ap, unsigned int);
 					ptr = __print_hex(ptr, x, sizeof(unsigned int) * 2);
 					break;
 				case 'l':
+				case 'L':
 					switch (*++fmt) {
 						case 'd':
+						case 'D':
 							ld = va_arg(ap, long);
 							ptr = __print_deci(ptr, ld);
 							break;
 						case 'x':
+						case 'X':
 							lx = va_arg(ap, unsigned long);
 							ptr = __print_hex(ptr, lx, sizeof(unsigned long) * 2);
 							break;

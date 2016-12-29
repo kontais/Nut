@@ -4,15 +4,15 @@ SECTIONS
 {
 	. = 0x0000000000000000;
 	__INIT_START = .;
-	.text : 
+	.text ALIGN(0x8): 
 	{ 
 		init.o(.text)
 		*(.text)
 	}
-	.rodata : { *(.rodata) }
-	.data : { *(.data) }
+	.rodata ALIGN(0x8): { *(.rodata) }
+	.data ALIGN(0x8): { *(.data) }
 
-	.bss : { *(.bss) }
+	.bss ALIGN(0x8): { *(.bss) }
 	__BSS_END = .;
 	.zero : {
 		. += 0x4000 - __BSS_END;

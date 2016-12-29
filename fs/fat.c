@@ -1,9 +1,8 @@
 #include <fat.h>
 #include <isa.h>
 /**
- * 
+ * Computer the offset of a fat entry in the fat entry table matching specific cluster.
  * fat_index : 0,2,3...
- * 
  */
 void compute_fat_for_cluster(FATFS_Type *fs, uint8_t fat_index, uint32_t cluster, uint32_t *sec_off, uint32_t *entry_off)
 {
@@ -26,7 +25,9 @@ void compute_fat_for_cluster(FATFS_Type *fs, uint8_t fat_index, uint32_t cluster
 	*sec_off = fs->FirstFATSec + (FATOffset / fs->BPB->BPB_BytsPerSec) + (fat_index * fs->FATSecs);
 	*entry_off = FATOffset % fs->BPB->BPB_BytsPerSec;
 }
-
+/**
+ * Return fat entry corresponding to specific cluster number
+ */
 uint32_t extract_fat_entry(FATFS_Type *fs, uint32_t cluster)
 {
 	char *buf = malloc(512);
@@ -57,6 +58,9 @@ uint32_t extract_fat_entry(FATFS_Type *fs, uint32_t cluster)
 	free(buf);
 	return entry;
 }
+/**
+ * Read cluster content into buffer.
+ */
 void read_cluster(FATFS_Type *fs, void *buf, uint32_t cluster)
 {
 	uint32_t count = fs->BPB->BPB_SecPerClus;
@@ -66,6 +70,9 @@ void read_cluster(FATFS_Type *fs, void *buf, uint32_t cluster)
 		pio_read_sector(buf + (i << 9), start + i);
 	}
 }
+/**
+ * Computer length of the cluster chain starting with specific cluster
+ */
 uint32_t compute_cluster_chain_length(FATFS_Type *fs, uint32_t cluster)
 {
 	uint8_t end = 0;
@@ -95,6 +102,9 @@ uint32_t compute_cluster_chain_length(FATFS_Type *fs, uint32_t cluster)
 	} while(!end);
 	return chain_length;
 }
+/**
+ * Read cluster chain into buffer with a cluster offset.
+ */
 uint32_t read_cluster_chain(FATFS_Type *fs, void *buf, uint32_t bufsize, uint32_t cluster, uint32_t cluster_offset)
 {
 	uint8_t end = 0;
@@ -139,9 +149,13 @@ uint32_t read_cluster_chain(FATFS_Type *fs, void *buf, uint32_t bufsize, uint32_
 	return read_size;
 }
 
+/**
+ * Extract the name of a directory entry starting with the entry provided.
+ * 
+ * Max is the number of total entries which follow.
+ */
 
-//Max is the number of entries.
-int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
+int read_name(LongNameDirEntry_Type *dir_entry, char *name, uint32_t max)
 {
 //Empty directory
 	if (((Dir_Struc_Type*)dir_entry)->DIR_Name[0] == 0x00)
@@ -149,19 +163,19 @@ int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 //Handle short name directory
 	if (((Dir_Struc_Type*)dir_entry)->DIR_Attr != ATTR_LONG_NAME)
 	{
-		memcpy(lname, ((Dir_Struc_Type*)dir_entry)->DIR_Name, 8);
-		*(lname + 8) = '\0';
-		uint8_t str_len = strcspn(lname, " ");
-		*(lname + str_len) = '\0';
+		memcpy(name, ((Dir_Struc_Type*)dir_entry)->DIR_Name, 8);
+		*(name + 8) = '\0';
+		uint8_t str_len = strcspn(name, " ");
+		*(name + str_len) = '\0';
 		
-		if (strcmp(lname, ".") == 0 || strcmp(lname, "..") == 0 || ((Dir_Struc_Type*)dir_entry)->DIR_Name[8] == ' ')
+		if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0 || ((Dir_Struc_Type*)dir_entry)->DIR_Name[8] == ' ')
 			return 0;
 		
-		*(lname + str_len) = '.';
-		memcpy(lname + str_len + 1, ((Dir_Struc_Type*)dir_entry)->DIR_Name + 8, 3);
-		*(lname + str_len + 1 + 3) = '\0';
-		str_len = strcspn(lname, " ");
-		*(lname + str_len) = '\0';
+		*(name + str_len) = '.';
+		memcpy(name + str_len + 1, ((Dir_Struc_Type*)dir_entry)->DIR_Name + 8, 3);
+		*(name + str_len + 1 + 3) = '\0';
+		str_len = strcspn(name, " ");
+		*(name + str_len) = '\0';
 		
 		return 0;
 	}
@@ -208,12 +222,14 @@ int read_name(LongNameDirEntry_Type *dir_entry, char *lname, uint32_t max)
 			return -1;
 		}
 	} while(!((entry--)->LDIR_Ord & 0x40));
-	str_unicode_to_utf8((wchar *)buf, lname);
+	str_unicode_to_utf8((wchar *)buf, name);
 	
 	free(buf);
 	return offset;
 }
-
+/**
+ * Read a file at the root directory into buffer.
+ */
 uint32_t read_file(FATFS_Type *fs, const char *name, void *buf, uint64_t bufsize)
 {
 	uint32_t rootdir_size = compute_cluster_chain_length(fs, fs->BPB->ExtBPB.Ext_BPB_32.BPB_RootClus) * fs->BPB->BPB_SecPerClus << 9;
@@ -288,6 +304,7 @@ void fatfs_destroy(FATFS_Type *fs)
 	if (fs->BPB != NULL)
 		free(fs->BPB);
 }
+
 FATDir_Type *fatfs_opendir(FATFS_Type *fs, const char *path)
 {
 	FATDir_Type *fatdir;

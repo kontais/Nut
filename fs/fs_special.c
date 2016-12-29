@@ -16,7 +16,6 @@ ssize_t stdio_write(file_node_t *node, void *context, const void *buf, uint64_t 
 {
 	char *temp = malloc(size + 1);
 	memcpy(temp, buf, size);
-	printf("write size is :%d\n",size);
 	*(temp + size) = '\0';
 	__stdout(temp);
 	free(temp);
@@ -74,7 +73,6 @@ int pipe_close(file_node_t *node, pipe_context_t *context)
 
 ssize_t pipe_read(file_node_t *node, pipe_context_t *context, void *buf, uint64_t size)
 {
-	printf("Read Pipe message %d:%s\n",  context->length, context->buf);
 	//Compute size to transfer
 	size = context->length >= size ? size : context->length;
 	context->length -= size;
@@ -84,12 +82,10 @@ ssize_t pipe_read(file_node_t *node, pipe_context_t *context, void *buf, uint64_
 		if (context->read_offset == PIPE_BUFFER_SIZE)
 			context->read_offset = 0;
 	}
-	printf("Read Pipe message %d:%s\n",  size, context->buf);
 	return size;
 }
 ssize_t pipe_write(file_node_t *node, pipe_context_t *context, const void *buf, uint64_t size)
 {
-	printf("Write Pipe message %d:%s\n", size, buf);
 	//Compute size to transfer
 	size = PIPE_BUFFER_SIZE - context->length >= size ? size : PIPE_BUFFER_SIZE - context->length;
 	context->length += size;
@@ -99,7 +95,6 @@ ssize_t pipe_write(file_node_t *node, pipe_context_t *context, const void *buf, 
 		if (context->write_offset == PIPE_BUFFER_SIZE)
 			context->write_offset = 0;
 	}
-	printf("Write Pipe message %d:%s\n", context->length, context->buf);
 	return size;
 }
 int pipe_mknode(const char *path)

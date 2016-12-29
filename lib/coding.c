@@ -1,12 +1,12 @@
 #include<klibc.h>
 
 
+/**
+ * Convert a 32-bit unicode charactor to a utf-8 coded charactor
+ */
 int unicode_into_utf8(uint32_t unicode, char *utf8)
 {
 	uint64_t size;
-// 	char utf[6];
-// 	int i;
-// 	utf8=utf;
 	if(unicode <= 0x7f)
 	{
 		*utf8 = (unicode & 0x7f);
@@ -56,8 +56,9 @@ int unicode_into_utf8(uint32_t unicode, char *utf8)
 	return size;
 	
 }
-
-
+/**
+ * Convert a 16-bit unicode string to a utf-8 coded string
+ */
 int str_unicode_to_utf8(uint16_t *unicode, char *utf8)
 {
 	uint64_t sum_size=0;

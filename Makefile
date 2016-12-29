@@ -2,7 +2,7 @@ AS=as
 CC=gcc
 Ld=ld
 
-COMMON_CFLAGS= -Iarch/x86/ -Iinclude/ -DX86 -I./ -Ilib/ -fno-asynchronous-unwind-tables -I./arch/x86/video/ -fno-builtin -Ifs/ -Isyscall/ -Iproc/ -Imm/ -Icommon/ -mno-sse -msoft-float  -Idisplay/
+COMMON_CFLAGS= -Iarch/x86/ -Iinclude/ -DX86 -I./ -Ilib/ -fno-asynchronous-unwind-tables -I./arch/x86/video/ -fno-builtin -Ifs/ -Isyscall/ -Iproc/ -Imm/ -Icommon/ -mno-sse -msoft-float  -Idisplay/ 
 CFLAGS=  $(COMMON_CFLAGS) -mcmodel=large
 LDFLAGS= --script=./ldscript -nostdlib 
 

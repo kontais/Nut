@@ -9,16 +9,8 @@ struct Glyph_BDF{
 typedef struct Glyph_BDF GlyphBDF;
 typedef GlyphBDF * BDF;
 
-void Glyph_BDF_init(BDF Glyph_BDF);
-void GetBitmapFromGlyphBDF(unsigned char **stream,BDF Glyph_BDF,unsigned char Glyph);
+void Glyph_BDF_init(GlyphBDF* Glyph_BDF);
+void GetBitmapFromGlyphBDF(GlyphBDF *Glyph_BDF,unsigned char Glyph);
 void file_seek(unsigned char **stream, unsigned int offset);
 
-
-
-
-
-
 #endif
-
-/*********************end file******************/
-

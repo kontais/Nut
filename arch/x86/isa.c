@@ -24,7 +24,7 @@ void timer_82c54_init(uint8_t ch, uint8_t mode,  uint16_t counter)
  * @vec_base must be a multiple of 8
  * 
  */
-void pic_82c59_init(uint8_t vec_base)
+void pic_8259_init(uint8_t vec_base)
 {
 	vec_base &= 0xf8;
 	__io_write_8(0x20, 1 << 4 | 1);
@@ -42,14 +42,14 @@ void pic_82c59_init(uint8_t vec_base)
 	__io_write_8(0xa1, 0xff);
 	
 }
-void pic_82c59_mask_int(uint8_t irq)
+void pic_8259_mask_int(uint8_t irq)
 {
 	assert(irq >= 0 && irq <= 15);
 	uint8_t reg = irq < 8 ? 0x21 : 0xa1;
 	uint8_t bit = irq < 8 ? irq : irq - 8;
 	__io_write_8(reg, __io_read_8(reg) | 1 << bit);
 }
-void pic_82c59_unmask_int(uint8_t irq)
+void pic_8259_unmask_int(uint8_t irq)
 {
 	assert(irq >= 0 && irq <= 15);
 	uint8_t reg = irq < 8 ? 0x21 : 0xa1;
@@ -89,12 +89,6 @@ void pic_82c59_unmask_int(uint8_t irq)
 
 #define PIO_STATUS(flag) (__io_read_8(IDE_ATA_PRIMARY_COMMAND_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_STATUS_COMMAND) & flag)
 
-// void pio_disk_reset(void)
-// {
-// 	__io_write_8(IDE_ATA_PRIMARY_CONTROL_BLOCK_OFFSET + IDE_ATA_COMMAND_BLOCK_REG_OFFSET_STATUS_COMMAND,  1 << 2);	
-// 
-// 	
-// }
 /**
  * 
  * BUG:

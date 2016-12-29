@@ -4,21 +4,17 @@
 #include "klibc.h"
 #include <pci.h>
 #include <cpu_intrins.h>
+#include <paging.h>
 // unsigned char PGMBuffer[Max_Row*16][Max_Column*8];
-// unsigned char **PGMBuffer = NULL;
 uint32_t *frame_buffer = NULL;
-// uint32_t *frame_buffer = NULL;
-// PotableGrayMap *PGM_Map = NULL;
 unsigned char *font_buf = NULL;
 /**
  * function:get the bitmap of Glyph to PGM map
  */
 void PGM_ASIIC_versionsInit(PGM PGM_Map,unsigned char Glyph){
-	
-	unsigned char *stream = font_buf;
 	GlyphBDF Glyph_BDF;
 	Glyph_BDF_init(&Glyph_BDF);
-	GetBitmapFromGlyphBDF(&stream,&Glyph_BDF,Glyph);
+	GetBitmapFromGlyphBDF(&Glyph_BDF,Glyph);
 	
 	for(int i=0;i<16;i++)
 		for(int j=0; j<8; j++)
@@ -220,9 +216,7 @@ void PGM_ASIIC_versionsInit(PGM PGM_Map,unsigned char Glyph){
 }
 
 /**
- *function:initialization the struct of PGM map
- *
- *
+ * function:initialization the struct of PGM map
  */
 void PotableGrayMapASIIC_Init(PGM PGM_Map,int width,int high,unsigned char Glyph){
 	
@@ -269,18 +263,19 @@ void Scroll_Screen(int row)
 	}
 	memset(frame_buffer + (Max_Row - row) * 16 * Max_Column * 8, 0, row * 16 * Max_Column * 8 * 4);
 }
-void WriteChar(PGM PGM_Map, int row, int col, char ch)
+void WriteChar(int row, int col, char ch)
 {
-	PotableGrayMapASIIC_Init(PGM_Map, Max_Column*8, Max_Row*16, ch);
-	WritePGMData(PGM_Map, row, col);
+	PotableGrayMap PGM_Map;
+	PotableGrayMapASIIC_Init(&PGM_Map, Max_Column*8, Max_Row*16, ch);
+	WritePGMData(&PGM_Map, row, col);
 }
 
 void WriteLine(char *str)
 {
+	asm("pushfq");
 	__disable_interrupt__();
-	static int row = 0,column = 0;
-	PotableGrayMap PGM_Map;
-
+	static uint8_t row = 0,column = 0;
+	
 	char visible;
 	char temp;
 	while((temp = *str ++) != '\0')
@@ -312,10 +307,10 @@ void WriteLine(char *str)
 			row -= SCROLL_UP_ROW_NUM;
 		}
 		if (visible)
-			WriteChar(&PGM_Map, row, column++, temp);
+			WriteChar(row, column++, temp);
 // 		printf("%d,%d\n", row,column);
 	}
-	__enable_interrupt__();
+	asm("popfq");
 }
 /**
  *
@@ -324,7 +319,10 @@ void WriteLine(char *str)
 **/
 void DisplayInit(uint64_t *stdout){
 	
-	frame_buffer = (uint32_t *)get_vga_frame_buffer_addr();
+	uint64_t frame_buffer_addr = get_vga_frame_buffer_addr();
+	modify_chunk_mapping(get_current_plm4e(), convert_phy_to_virt(frame_buffer_addr), frame_buffer_addr, 768, DEFAULT_PTE_FLAG);
+	frame_buffer = (uint32_t *)convert_phy_to_virt(frame_buffer_addr);
+	
 	
 	FATFS_Type fs;
 	fatfs_init(&fs);
@@ -333,31 +331,10 @@ void DisplayInit(uint64_t *stdout){
 	read_file(&fs,"unifont-asiic.bdf",font_buf,40960);
 	fatfs_destroy(&fs);
 	FrameBufferClear();
-// 	PGMBuffer = malloc(Max_Row * 16 * sizeof(unsigned char*));
-// 	assert(PGMBuffer != NULL);
-// 	for (int i = 0; i < Max_Row * 16; i ++)
-// 	{
-// 		PGMBuffer[i] = malloc(Max_Column * 8 * sizeof(unsigned char));
-// 		assert(PGMBuffer[i] != NULL);
-// 	}
-	
-// 	PGM PGM_Map = malloc(sizeof(PotableGrayMap));
-// 	WritePGMBufferInit(PGM_Map,Max_Row,Max_Column);
-	
+
 	__stdout = &WriteLine;
-// 	printf("%lx\n", *stdout);
 	*stdout = (uint64_t)&WriteLine;
-// 	printf("%lx %lx\n", *stdout, __stdout);
 	
 	printf("Video Display Initializing complete.\n");
-// 	asm("int $3");
 }
-// void Refresh(void)
-// {
-// 	for(int i=0;i<Max_Row*16;i++){
-// 		for(int j=0;j<Max_Column*8;j++){
-// 			ptr[i*Max_Column*8+j]=PGMBuffer[i][j]*16*16*16*16*16*16+PGMBuffer[i][j]*16*16*16*16+PGMBuffer[i][j]*16*16+PGMBuffer[i][j];
-// 		}
-// 	}
-// }
 

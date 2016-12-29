@@ -4,7 +4,6 @@
 #include <uefi.h>
 #include <mm.h>
 #include <klibc.h>
-//Bit order:big endian
 struct cr3
 {
 	uint64_t  _ignored_1:3,

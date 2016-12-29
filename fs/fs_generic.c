@@ -64,12 +64,10 @@ int fat_close(file_node_t *node, fat_context_t *context)
 }
 ssize_t fat_read(file_node_t *node, fat_context_t *context, void *buf, uint64_t size)
 {
-	printf("Read file size %d\n", size);
 	if (context->offset + size > context->file->FileSize)
 	{
 		size = context->file->FileSize - context->offset;
 	}
-	printf("Read file size %d\n", size);
 	memcpy(buf, context->buf + context->offset, size);
 	context->offset += size;
 	return size;

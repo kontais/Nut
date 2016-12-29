@@ -8,4 +8,7 @@ enum INT_TYPE
 
 #define INT_VECTOR_NUM		256
 
+int int_init(void);
+
+
 #endif

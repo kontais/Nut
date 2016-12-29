@@ -20,6 +20,8 @@
 #define SYS_fstat	62
 
 
+#define SYS_CALL_TABLE_SIZE 1
+
 
 void sys_syscall(void);
 void sys_exit(int status);
@@ -30,6 +32,11 @@ int sys_open(const char *path, int oflag);
 int sys_close(int fd);
 ssize_t sys_write(int fd, const void *buf, size_t count);
 void sys_exec(const char *path, char *const argv[]);
-#define SYS_CALL_TABLE_SIZE 1
+off_t sys_lseek(int fildes, off_t offset, int whence);
+int sys_ioctl(int fd, int request);
+int sys_fstat(int fildes, void *buf);
+
+
+void syscall_init(void);
 
 #endif

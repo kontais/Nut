@@ -65,6 +65,7 @@ typedef enum FAT_TYPE
 	FAT16,
 	FAT32
 }FAT_TYPE;
+
 #define FAT12_ENTRY_FREE		0x000
 #define FAT12_ENTRY_END_OF_FILE		0xFFF
 

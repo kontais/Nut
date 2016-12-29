@@ -45,23 +45,8 @@ uint64_t get_vga_frame_buffer_addr(void)
 		PCI_Device_t *dev_entry = list_entry(it, PCI_Device_t, list);
 		if (dev_entry->Conf_Header.Class_Code.Base_Class == 0x03 && dev_entry->Conf_Header.Class_Code.Sub_Class == 0x00 && dev_entry->Conf_Header.Class_Code.Interface == 0x00)
 		{
-			return convert_phy_to_virt(((uint64_t)dev_entry->Conf_Header.Base_Address_Register[0] & 0x00000000fffff000));
+			return ((uint64_t)dev_entry->Conf_Header.Base_Address_Register[0] & 0x00000000fffff000);
 		}
 	}
 	return 0;
 }
-
-// void ide_interface_init(void)
-// {
-// 
-// 	printf("\n");
-// 	for (int i = 0; i < 10; i ++)
-// 	{
-// 		printf("%x\n", __pci_read_reg(0, 1, 1, i));
-// 	}
-// 	for (int i = 0; i < 10; i ++)
-// 	{
-// 		printf("%x\n", __pci_read_reg(0, 1, 0, i));
-// 	}
-// 
-// }

@@ -8,8 +8,6 @@ void pargs_dup(pargs_t *new, pargs_t *old)
 	new->argv = malloc(old->argc * sizeof(char *));
 	for (int i = 0; i < old->argc; i ++)
 	{
-		printf("%d\n", i);
-		printf("%s\n", old->argv[i]);
 		new->argv[i] = malloc(strlen(old->argv[i]) + 1);
 		strcpy(new->argv[i], old->argv[i]);
 	}
@@ -72,16 +70,10 @@ void proc_dup(proc_t *new, proc_t *old)
 {
 	pargs_t *args = malloc(sizeof(pargs_t));
 	pargs_dup(args, old->args);
-	printf("%s\n", args->argv[0]);
-	printf("PARGS\n");
 	penvs_t *envs = malloc(sizeof(penvs_t));
 	penvs_dup(envs, old->envs);
-	printf("%s\n", envs->pwd);
-	printf("ENVS\n");
 	vm_map_t *vm_map = malloc(sizeof(vm_map_t));
-	printf("%lx\n", old->vm_map);
 	vm_map_dup(vm_map, old->vm_map);
-	printf("VMMAP\n");
 	proc_init(new, old, args, envs, vm_map);
 }
 int fd_alloc(void *ptr)
